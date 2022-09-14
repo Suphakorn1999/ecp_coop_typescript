@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const formController_1 = require("./../controller/formController");
+const { verifyToken } = require('../middlewares/jwtHandler');
+const router = (0, express_1.Router)();
+router.post('/', verifyToken, formController_1.createForm);
+router.get('/', verifyToken, formController_1.getAllForm);
+router.get('/ById', verifyToken, formController_1.getFormById);
+router.put('/', verifyToken, formController_1.updateform);
+router.delete('/', verifyToken, formController_1.deleteForm);
+exports.default = router;

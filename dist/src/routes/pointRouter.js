@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const pointFm10_14Controller_1 = require("../controller/pointFm10_14Controller");
+const router = (0, express_1.Router)();
+router.get('/detail', pointFm10_14Controller_1.getFm10_14detail);
+router.get('/coop', pointFm10_14Controller_1.getFm10_14coop);
+router.get('/totalpoint', pointFm10_14Controller_1.getFm10_14totalpoint);
+router.post('/coop', pointFm10_14Controller_1.createFm10_14coop);
+router.post('/point', pointFm10_14Controller_1.createFm10_14point);
+router.get('/question', pointFm10_14Controller_1.getquestionfm10_14);
+exports.default = router;

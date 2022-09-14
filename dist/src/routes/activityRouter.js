@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const activityController_1 = require("../controller/activityController");
+const activity_studentController_1 = require("../controller/activity_studentController");
+const verify_1 = require("../validation/verify");
+const { verifyToken } = require('../middlewares/jwtHandler');
+const router = (0, express_1.Router)();
+router.post('/', verifyToken, activityController_1.createActivity);
+router.get('/', verifyToken, activityController_1.getAllActivity);
+router.get('/ById', verifyToken, activityController_1.getActivityById);
+router.put('/', verifyToken, verify_1.verifyActivity, activityController_1.updateActivity);
+router.delete('/', verifyToken, verify_1.verifyActivity, activityController_1.deleteActivity);
+router.post('/createActivity', verifyToken, activity_studentController_1.createActivityStudent);
+router.put('/updateActivity', verifyToken, activity_studentController_1.updateActivityStudent);
+router.delete('/deleteActivity', verifyToken, activity_studentController_1.deleteActivityStudent);
+router.get('/getActivityStudent', verifyToken, activity_studentController_1.getActivityStudent);
+exports.default = router;
