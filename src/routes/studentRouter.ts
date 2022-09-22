@@ -1,5 +1,5 @@
 import { Router } from "express";
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken,verifyTokenStudent } = require('../middlewares/jwtHandler');
 import {
     createExcleStudent,
     getAllStudent,
@@ -7,6 +7,7 @@ import {
     createOneStudent,
     getAllStudentByYear,
     updateStudent,
+    getStudentByToken
 } from "../controller/studentController";
 
 import {
@@ -26,6 +27,7 @@ router.post("/student_company", createStudentCompany);
 router.get("/year", getAllStudentByYear);
 router.put("/",verifyToken, updateStudent);
 router.get("/company/ById",verifyToken, getStudentCompany);
+router.get("/token",verifyTokenStudent, getStudentByToken);
 
 
 

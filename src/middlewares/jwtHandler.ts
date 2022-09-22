@@ -101,4 +101,5 @@ function verifyTokenStudent(req: any, res: any, next: express.NextFunction) {
   }
 }
 
+
 module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent };

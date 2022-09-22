@@ -9,8 +9,6 @@ import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
 export const createExcleStudent: RequestHandler = async (req,res,next: express.NextFunction) => {
   const jsondata = req.body;
-  console.log(jsondata);
-  return
   var values:any[] = [];
   var dataStudent = jsondata.data;
 
@@ -120,4 +118,11 @@ export const deleteStudent: RequestHandler = async (req, res, next) => {
             .status(400)
             .json({ message: 'Student not found' });
     }
+}
+export const getStudentByToken: RequestHandler = async (req, res, next) => {
+    const id: any = req.body.user.id;
+    const students: Student | null = await Student.findByPk(id,{attributes:['prename_student','fname_student','lname_student','status']});
+    return res
+        .status(200)
+        .json({ message: 'Student fetched successfully', data: students });
 }
