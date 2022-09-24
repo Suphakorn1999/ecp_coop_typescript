@@ -7,7 +7,9 @@ import {
     createOneStudent,
     getAllStudentByYear,
     updateStudent,
-    getStudentByToken
+    getStudentByToken,
+    getStudentByStudentId,
+    updateStudentByStudentId
 } from "../controller/studentController";
 
 import {
@@ -28,6 +30,8 @@ router.get("/year", getAllStudentByYear);
 router.put("/",verifyToken, updateStudent);
 router.get("/company/ById",verifyToken, getStudentCompany);
 router.get("/token",verifyTokenStudent, getStudentByToken);
+router.get("/studentId", getStudentByStudentId);
+router.put("/studentId", updateStudentByStudentId);
 
 
 

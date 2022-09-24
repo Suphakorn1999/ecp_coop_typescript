@@ -31,7 +31,7 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
       });
       res.redirect(`http://localhost:3000/gettoken?token=${token}`);
     }else{
-      res.redirect(`http://localhost:3000/register?id=${data.studentId[0]}`);
+      res.redirect(`http://localhost:3000/register?id=${data.studentId[0]}&username_student=${data.uid[0]}`);
     }
   } else if (data.title[0] == 'Teachers') {
     let idrole:number = 0
