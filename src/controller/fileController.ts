@@ -5,7 +5,8 @@ import { File } from '../models/fileModel';
 import { Student } from '../models/studentModel';
 
 export const getFile: RequestHandler = async (req, res, next) => {
-    const file = await File.findAll({
+    const id = req.body.user.id
+    const file = await File.findAll({where:{idstudent:id},
       attributes: [
         'idfile',
         'name_file',
