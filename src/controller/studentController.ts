@@ -127,7 +127,7 @@ export const getStudentByToken: RequestHandler = async (req, res, next) => {
         .json({ message: 'Student fetched successfully', data: students });
 }
 export const getStudentByStudentId: RequestHandler = async (req, res, next) => {
-    const id: any = req.body.StudentId;
+    const id: any = req.query.StudentId;
     const students: Student | null = await Student.findOne({where:{student_id:id},include : [{model: Year},{model: Branch,include : [{model: Factory}]}],attributes:['student_id','prename_student','fname_student','lname_student','status']});
     return res
         .status(200)
