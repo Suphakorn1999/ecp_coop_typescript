@@ -12,12 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadfile = void 0;
+exports.getFile = exports.downloadFile = exports.uploadfile = void 0;
 const fileModel_1 = require("../models/fileModel");
 const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
 const moment_1 = __importDefault(require("moment"));
 const studentModel_1 = require("../models/studentModel");
 const dotenv_1 = __importDefault(require("dotenv"));
+const assignmentFileModel_1 = require("../models/assignmentFileModel");
+const fs = require('fs');
 dotenv_1.default.config();
 const datenow = (0, moment_1.default)().tz('Asia/Bangkok').format('DD-MM-YYYY');
 const time = (0, moment_1.default)().tz('Asia/Bangkok').format('HH:mm:ss');
@@ -75,3 +78,46 @@ const uploadfile = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.uploadfile = uploadfile;
+const downloadFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const namefile = req.query.file;
+    if (namefile == null) {
+        return res.status(400).json({ message: 'File not found' });
+    }
+    const file = path_1.default.join(__dirname, '../public/uploads/' + namefile);
+    res.setHeader('Content-disposition', 'attachment; filename=' + req.query.file);
+    res.setHeader('Content-type', 'application/pdf');
+    res.download(file);
+});
+exports.downloadFile = downloadFile;
+const getFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.body.user.id;
+    const file = yield fileModel_1.File.findAll({
+        where: { idstudent: id },
+        attributes: [
+            'idfile',
+            'name_file',
+            'path_file',
+            'type_file',
+            'date_file',
+        ],
+        include: [
+            {
+                model: studentModel_1.Student,
+                attributes: [
+                    'student_id',
+                    'prename_student',
+                    'fname_student',
+                    'lname_student',
+                ],
+            },
+            { model: assignmentFileModel_1.AssignmentFile },
+        ],
+    });
+    if (file.length > 0) {
+        return res.status(200).json({ message: 'File fetched successfully', data: file });
+    }
+    else {
+        return res.status(400).json({ message: 'File not found' });
+    }
+});
+exports.getFile = getFile;
