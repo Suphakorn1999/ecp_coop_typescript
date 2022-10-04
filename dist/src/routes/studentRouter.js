@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenStudent } = require('../middlewares/jwtHandler');
 const studentController_1 = require("../controller/studentController");
 const student_companyController_1 = require("../controller/student_companyController");
 const router = (0, express_1.Router)();
@@ -14,4 +14,7 @@ router.post("/student_company", student_companyController_1.createStudentCompany
 router.get("/year", studentController_1.getAllStudentByYear);
 router.put("/", verifyToken, studentController_1.updateStudent);
 router.get("/company/ById", verifyToken, student_companyController_1.getStudentCompany);
+router.get("/token", verifyTokenStudent, studentController_1.getStudentByToken);
+router.get("/studentId", studentController_1.getStudentByStudentId);
+router.put("/studentId", studentController_1.updateStudentByStudentId);
 exports.default = router;

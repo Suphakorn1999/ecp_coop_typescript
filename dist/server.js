@@ -22,7 +22,6 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
 app.use(errorHandler_1.default);
 app.use((0, cookie_parser_1.default)());
-dotenv_1.default.config();
 const companyRouter_1 = __importDefault(require("./src/routes/companyRouter"));
 const provinceRouter_1 = __importDefault(require("./src/routes/provinceRouter"));
 const studentRouter_1 = __importDefault(require("./src/routes/studentRouter"));
@@ -44,6 +43,7 @@ const pointfm10_18Router_1 = __importDefault(require("./src/routes/pointfm10_18R
 const pointfm10_21Router_1 = __importDefault(require("./src/routes/pointfm10_21Router"));
 const assignmentfileRouter_1 = __importDefault(require("./src/routes/assignmentfileRouter"));
 const formRouter_1 = __importDefault(require("./src/routes/formRouter"));
+const fileRouter_1 = __importDefault(require("./src/routes/fileRouter"));
 app.use('/company', companyRouter_1.default);
 app.use('/province', provinceRouter_1.default);
 app.use('/student', studentRouter_1.default);
@@ -65,6 +65,7 @@ app.use('/fm10_18', pointfm10_18Router_1.default);
 app.use('/fm10_21', pointfm10_21Router_1.default);
 app.use('/assignmentfile', assignmentfileRouter_1.default);
 app.use('/form', formRouter_1.default);
+app.use('/file', fileRouter_1.default);
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });

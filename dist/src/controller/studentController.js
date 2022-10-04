@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteStudent = exports.updateStudent = exports.getStudentById = exports.getAllStudentByYear = exports.getAllStudent = exports.createOneStudent = exports.createExcleStudent = void 0;
+exports.updateStudentByStudentId = exports.getStudentByStudentId = exports.getStudentByToken = exports.deleteStudent = exports.updateStudent = exports.getStudentById = exports.getAllStudentByYear = exports.getAllStudent = exports.createOneStudent = exports.createExcleStudent = void 0;
 const studentModel_1 = require("../models/studentModel");
 const YearModel_1 = require("../models/YearModel");
 const branchModel_1 = require("../models/branchModel");
@@ -21,8 +21,6 @@ const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
 const createExcleStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const jsondata = req.body;
-    console.log(jsondata);
-    return;
     var values = [];
     var dataStudent = jsondata.data;
     for (var i = 0; i < dataStudent.length; i++) {
@@ -126,3 +124,35 @@ const deleteStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.deleteStudent = deleteStudent;
+const getStudentByToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.body.user.id;
+    const students = yield studentModel_1.Student.findByPk(id, { attributes: ['prename_student', 'fname_student', 'lname_student', 'status'] });
+    return res
+        .status(200)
+        .json({ message: 'Student fetched successfully', data: students });
+});
+exports.getStudentByToken = getStudentByToken;
+const getStudentByStudentId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.query.StudentId;
+    const students = yield studentModel_1.Student.findOne({ where: { student_id: id }, include: [{ model: YearModel_1.Year }, { model: branchModel_1.Branch, include: [{ model: factoryModel_1.Factory }] }], attributes: ['student_id', 'prename_student', 'fname_student', 'lname_student', 'status'] });
+    return res
+        .status(200)
+        .json({ message: 'Student fetched successfully', data: students });
+});
+exports.getStudentByStudentId = getStudentByStudentId;
+const updateStudentByStudentId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.body.StudentId;
+    const student = yield studentModel_1.Student.findOne({ where: { student_id: id } });
+    if (!student) {
+        return res.status(400).json({ message: 'Student not found' });
+    }
+    const updatedStudent = yield student.update({
+        idrole: 1,
+        idbranch: req.body.idbranch,
+        username_student: req.body.username_student,
+    });
+    return res
+        .status(200)
+        .json({ message: 'Student updated successfully', data: updatedStudent });
+});
+exports.updateStudentByStudentId = updateStudentByStudentId;

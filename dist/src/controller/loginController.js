@@ -31,19 +31,6 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         data = data.replaceAll("'", '"');
         data = JSON.parse(data);
         if (data.title[0] == 'Students') {
-            let idrole = 0;
-            let idbranch = 0;
-            const role = yield roleModel_1.Role.findAll({ where: { name: data.title[0] } });
-            if (role.length > 0) {
-                idrole = role[0].idrole;
-            }
-            let name_branch = data.program[0].split(' ')[1];
-            const branch = yield branchModel_1.Branch.findAll({
-                where: { name_branch: name_branch },
-            });
-            if (branch.length > 0) {
-                idbranch = branch[0].idbranch;
-            }
             const student = yield studentModel_1.Student.findAll({
                 where: { username_student: data.uid[0] },
             });
@@ -56,18 +43,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                 res.redirect(`http://localhost:3000/gettoken?token=${token}`);
             }
             else {
-                const student = yield studentModel_1.Student.create({
-                    student_id: data.studentId[0],
-                    prename_student: data.prename[0],
-                    fname_student: data.firstNameThai[0],
-                    lname_student: data.lastNameThai[0],
-                    username_student: data.uid[0],
-                    idrole: idrole,
-                    idbranch: idbranch,
-                });
-                let encodeId = CryptoJS.AES.encrypt(data.studentId[0], process.env.secretKey).toString();
-                let token = generateToken({ id: student.idstudent, studentId: encodeId });
-                res.redirect(`http://localhost:3000/gettoken?token=${token}`);
+                res.redirect(`http://localhost:3000/register?id=${data.studentId[0]}&username_student=${data.uid[0]}`);
             }
         }
         else if (data.title[0] == 'Teachers') {
