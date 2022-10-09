@@ -17,24 +17,26 @@ const sequelize_1 = require("sequelize");
 const config_1 = __importDefault(require("../config/config"));
 const meetingModel_1 = require("../models/meetingModel");
 const createMeeting = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.startdate || req.body.enddate) {
-        const meeting = yield meetingModel_1.Meeting.update({ startdate: req.body.startdate, enddate: req.body.enddate }, { where: { idstudent: req.body.idstudent } });
-        if (meeting) {
-            return res.status(200).json({
-                message: 'Meeting updated successfully',
-            });
+    const ALLmeeting = yield meetingModel_1.Meeting.findAll({
+        where: {
+            idstudent_company: req.body.idstudent_company,
+            idteacher: req.body.idteacher,
         }
+    });
+    if (ALLmeeting.length > 0) {
+        res.status(400).json({ message: 'Meeting already exists' });
     }
-    const meeting = yield meetingModel_1.Meeting.create(Object.assign({}, req.body));
-    if (meeting) {
-        return res.status(200).json({ message: 'Meeting created successfully' });
+    else {
+        const meeting = yield meetingModel_1.Meeting.create(Object.assign({}, req.body));
+        if (meeting) {
+            return res.status(200).json({ message: 'Meeting created successfully' });
+        }
     }
 });
 exports.createMeeting = createMeeting;
 const getMeeting = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const meeting = yield config_1.default.query(`SELECT 
-      CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS STUDENT,
-      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,m.startdate,m.enddate 
+    const meeting = yield config_1.default.query(`SELECT CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,m.startdate,m.enddate
       FROM student s 
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company 
@@ -44,7 +46,7 @@ const getMeeting = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
       LEFT JOIN year y ON s.idyear = y.idyear
       GROUP BY sc.idcompany`, { type: sequelize_1.QueryTypes.SELECT });
     meeting.forEach((item) => {
-        item.STUDENT = JSON.parse(item.STUDENT);
+        item.student = JSON.parse(item.student);
     });
     return res
         .status(200)

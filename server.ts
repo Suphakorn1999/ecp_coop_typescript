@@ -47,6 +47,7 @@ import pointFm10_21Router from './src/routes/pointfm10_21Router';
 import assignmentfileRouter from './src/routes/assignmentfileRouter';
 import formRouter from './src/routes/formRouter';
 import fileRouter from './src/routes/fileRouter';
+import qualificationRouter from './src/routes/qualificationRouter';
 
 app.use('/company', companyRouter);
 app.use('/province', provinceRouter);
@@ -70,6 +71,7 @@ app.use('/fm10_21', pointFm10_21Router);
 app.use('/assignmentfile', assignmentfileRouter);
 app.use('/form', formRouter);
 app.use('/file', fileRouter);
+app.use('/qualification', qualificationRouter);
 
 app.use(
   (err: Error, req: Request, res: Response, next: express.NextFunction) => {

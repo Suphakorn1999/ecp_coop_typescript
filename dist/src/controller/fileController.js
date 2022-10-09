@@ -23,6 +23,7 @@ const getFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     const file = yield fileModel_1.File.findAll({ where: { idstudent: id },
         attributes: [
             'idfile',
+            'idassignmentFile',
             'name_file',
             'path_file',
             'type_file',

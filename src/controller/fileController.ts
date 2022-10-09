@@ -11,6 +11,7 @@ export const getFile: RequestHandler = async (req, res, next) => {
     const file = await File.findAll({where:{idstudent:id},
       attributes: [
         'idfile',
+        'idassignmentFile',
         'name_file',
         'path_file',
         'type_file',

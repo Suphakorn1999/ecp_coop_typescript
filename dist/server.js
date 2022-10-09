@@ -44,6 +44,7 @@ const pointfm10_21Router_1 = __importDefault(require("./src/routes/pointfm10_21R
 const assignmentfileRouter_1 = __importDefault(require("./src/routes/assignmentfileRouter"));
 const formRouter_1 = __importDefault(require("./src/routes/formRouter"));
 const fileRouter_1 = __importDefault(require("./src/routes/fileRouter"));
+const qualificationRouter_1 = __importDefault(require("./src/routes/qualificationRouter"));
 app.use('/company', companyRouter_1.default);
 app.use('/province', provinceRouter_1.default);
 app.use('/student', studentRouter_1.default);
@@ -66,6 +67,7 @@ app.use('/fm10_21', pointfm10_21Router_1.default);
 app.use('/assignmentfile', assignmentfileRouter_1.default);
 app.use('/form', formRouter_1.default);
 app.use('/file', fileRouter_1.default);
+app.use('/qualification', qualificationRouter_1.default);
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });
