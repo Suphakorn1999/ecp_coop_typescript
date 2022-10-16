@@ -73,7 +73,7 @@ app.use((err, req, res, next) => {
 });
 app.get('/', (req, res) => {
     res.send(`<h1 style=text-align:center;>
-    🎉Welcome To API ECP_Cooperative🎉
+    ??Welcome To API ECP_Cooperative??
     </h1>`);
 });
 config_1.default
@@ -85,5 +85,5 @@ config_1.default
     console.log('Err', err);
 });
 app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`??[server]: Server is running at http://localhost:${port}`);
 });

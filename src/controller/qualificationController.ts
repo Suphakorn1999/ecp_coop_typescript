@@ -2,18 +2,16 @@ import express, { Express, Request, Response } from 'express';
 import { RequestHandler } from 'express';
 import { Qualification } from '../models/qualificationModel';
 
-export const createQualification = async (req: Request,res: Response,next: express.NextFunction,) => {
-    if(req.body){
-        const allqualification = await Qualification.findAll({where:{idcompany:req.query.id}});
+export const createQualification = async (req: Request,res: Response,next: express.NextFunction) => {
+        const allqualification = await Qualification.findAll({where:{idcompany:req.body.idcompany}});
         if(allqualification.length > 0){
-            return res.status(400).json({ message: 'มีข้อมูลในระบบแล้ว' });
+            return res.status(400).json({ message: 'There is information in the system' });
         }else{
             const qualification = await Qualification.create({...req.body});                                    
             return res
                 .status(200)
                 .json({message:'Qualification created successfully',data:qualification});
         }
-    }
 }
 
 export const updateQualification = async (req: Request, res: Response, next: express.NextFunction) => {
