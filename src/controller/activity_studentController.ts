@@ -43,7 +43,6 @@ export const deleteActivityStudent: RequestHandler = async (req, res, next:expre
 }
 
 export const getActivityStudent: RequestHandler = async (req, res, next) => {
-
       const activity_student: Array<any> = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
         CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idactivity",a.idactivity,"name",a.name_activity,"status",ac.status_activity)),"]") AS ACTIVITY 
@@ -68,4 +67,3 @@ export const getActivityStudent: RequestHandler = async (req, res, next) => {
       data: activity_student,
     });
 };
-

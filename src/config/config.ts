@@ -28,8 +28,6 @@ import { Fm10_11_coop } from '../models/fm10_11coopModel';
 import { Answerfm10_11 } from '../models/answer10_11Model';
 import { AssignmentFile } from '../models/assignmentFileModel';
 
-
-
 const connection = new Sequelize({
   dialect: 'mysql',
   host: 'localhost',
