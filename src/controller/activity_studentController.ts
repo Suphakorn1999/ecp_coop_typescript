@@ -45,13 +45,13 @@ export const deleteActivityStudent: RequestHandler = async (req, res, next:expre
 export const getActivityStudent: RequestHandler = async (req, res, next) => {
       const activity_student: Array<any> = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
-        CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idactivity",a.idactivity,"name",a.name_activity,"status",ac.status_activity)),"]") AS ACTIVITY 
+        CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idactivity",a.idactivity,"name",a.name_activity,"status",ac.status_activity)ORDER BY a.idactivity ASC),"]") AS ACTIVITY 
         FROM student s 
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
         JOIN year y ON s.idyear = y.idyear 
         group by s.idstudent 
-        order by s.idstudent,a.idactivity`,
+        `,
         { type: QueryTypes.SELECT },
       );
 

@@ -17,7 +17,7 @@ export const getFm10_14detail: RequestHandler = async (req, res, next) => {
       `SELECT fm.name_form,s.prename_student,s.fname_student,s.lname_student,s.student_id,
     b.name_branch,fa.name_factory,c.name_company,
     f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",a.answer)),"]") AS point 
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS point 
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN fm10_14_coop f ON sc.idstudent_company = f.idstudent_company
@@ -132,15 +132,7 @@ export const createFm10_14point: RequestHandler = async (req, res, next) => {
               answer: values[i].answer,
             });
           } else {
-            await Answerfm10_14.update(
-              { answer: values[i].answer },
-              {
-                where: {
-                  idfm10_14_coop: values[i].idfm10_14_coop,
-                  idquestion: values[i].idquestion,
-                },
-              },
-            );
+            return res.status(400).json({ message: 'Answerfm10_14 already exists' });
           }
         });
     }
