@@ -157,7 +157,7 @@ export const createFm10_20point: RequestHandler = async (req, res, next) => {
         });
     }
     
-    return res.status(200).json({ message: 'Fm10_20point created Or updated successfully'});
+    return res.status(200).json({ message: 'Fm10_20point created successfully'});
 }
 
 export const createFm10_20coop: RequestHandler = async (req, res, next) => {

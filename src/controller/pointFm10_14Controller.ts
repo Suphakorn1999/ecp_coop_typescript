@@ -137,7 +137,7 @@ export const createFm10_14point: RequestHandler = async (req, res, next) => {
         });
     }
     
-    return res.status(200).json({ message: 'Fm10_14point created Or updated successfully'});
+    return res.status(200).json({ message: 'Fm10_14point created successfully'});
 }
 
 export const getquestionfm10_14: RequestHandler = async (req, res, next) => {
