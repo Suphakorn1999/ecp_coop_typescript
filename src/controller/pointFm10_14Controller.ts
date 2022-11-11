@@ -94,8 +94,7 @@ export const createFm10_14coop: RequestHandler = async (req, res, next) => {
     const Allfm10_14 = await Fm10_14_coop.findAll({where:{idstudent_company:req.body.idstudent_company}});
 
     if(Allfm10_14.length > 0){
-        const update = await Fm10_14_coop.update({...req.body},{where:{idstudent_company:req.body.idstudent_company}});
-        return res.status(200).json({ message: 'Fm10_14coop updated successfully', data: update });
+        return res.status(400).json({ message: 'Fm10_14coop already exists' });
     }else{
         const create = await Fm10_14_coop.create({...req.body});
         return res.status(200).json({ message: 'Fm10_14coop created successfully', data: create });
@@ -113,7 +112,7 @@ export const createFm10_14point: RequestHandler = async (req, res, next) => {
         let answer = dataStudent[i].answer;
         values.push({ idfm10_14_coop, idquestion, answer });
     }
-    const fm10_14coop = await Fm10_14_coop.findAll({ where: { idstudent_company: idfm10_14_coop } });
+    const fm10_14coop = await Fm10_14_coop.findAll({ where: { idfm10_14_coop : idfm10_14_coop } });
 
     if (fm10_14coop.length == 0) {
       return res.status(400).json({ message: 'Fm10_14coop not found' });
