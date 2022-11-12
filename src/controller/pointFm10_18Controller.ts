@@ -57,7 +57,7 @@ export const getFm10_18detail: RequestHandler = async (req, res, next) => {
 
 export const getFm10_18coop: RequestHandler = async (req, res, next) => {
   const fm10_18coop: Array<any> = await Connection.query(
-    `SELECT CONCAT("[",GROUP_CONCAT(JSON_OBJECT("prename",s.prename_student,"fname",s.fname_student,"lname",s.lname_student,"student_id",s.student_id,"name_branch",b.name_branch,"factory",fa.name_factory)),"]") AS student,
+    `SELECT sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("prename",s.prename_student,"fname",s.fname_student,"lname",s.lname_student,"student_id",s.student_id,"name_branch",b.name_branch,"factory",fa.name_factory)),"]") AS student,
     c.name_company,
     f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
@@ -120,7 +120,7 @@ export const createFm10_18point: RequestHandler = async (req, res, next) => {
         });
     }
     
-    return res.status(200).json({ message: 'Fm10_20point created successfully'});
+    return res.status(200).json({ message: 'Fm10_18point created successfully'});
 }
 
 export const createFm10_18coop: RequestHandler = async (req, res, next) => {
@@ -130,6 +130,6 @@ export const createFm10_18coop: RequestHandler = async (req, res, next) => {
     }
     else {
         const fm10_18coop = await Fm10_18_coop.create({...req.body});
-        return res.status(200).json({message: 'Fm10_20coop created successfully', data: fm10_18coop});
+        return res.status(200).json({message: 'Fm10_18coop created successfully', data: fm10_18coop});
     }
 }

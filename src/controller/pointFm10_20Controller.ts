@@ -62,7 +62,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
 
 export const getFm10_20coop: RequestHandler = async (req, res, next) => {
   const fm10_20coop: Array<any> = await Connection.query(
-    `SELECT c.name_company,c.address,c.tel,
+    `SELECT f.idmeeting,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     CONCAT("[",GROUP_CONCAT(JSON_OBJECT("prename",s.prename_student,"fname",s.fname_student,"lname",s.lname_student,"name_branch",b.name_branch)),"]") 
     AS student
@@ -85,7 +85,7 @@ export const getFm10_20coop: RequestHandler = async (req, res, next) => {
 
   return res
     .status(200)
-    .json({ message: 'Fm10_14coop fetched successfully', data: fm10_20coop });
+    .json({ message: 'Fm10_20coop fetched successfully', data: fm10_20coop });
 };
 
 export const createFm10_20: RequestHandler = async (req, res, next) => {

@@ -18,9 +18,11 @@ export const createCompany: RequestHandler = async (req,res,next: express.NextFu
         .json({message:'Company created successfully',data:company});
 };
 
-export const getAllCompany: RequestHandler = async (req, res, next) => { 
-
-  const company = await Company.findAll({include: [{model: Province},{model: Qualification}]});
+export const getAllCompany: RequestHandler = async (req:any, res:any, next) => {
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  
+  const company = await Company.findAll({include: [{model: Province},{model: Qualification}],offset:offset,limit:limit});
 
   return res
     .status(200)

@@ -43,6 +43,7 @@ export const deleteActivityStudent: RequestHandler = async (req, res, next:expre
 }
 
 export const getActivityStudent: RequestHandler = async (req, res, next) => {
+      // 1. Get Data from Database
       const activity_student: Array<any> = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
         CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idactivity",a.idactivity,"name",a.name_activity,"status",ac.status_activity)ORDER BY a.idactivity ASC),"]") AS ACTIVITY 
@@ -55,8 +56,10 @@ export const getActivityStudent: RequestHandler = async (req, res, next) => {
         { type: QueryTypes.SELECT },
       );
 
-      activity_student.forEach(async (activity_student) => {
+      // 2. Loop through each activity_student and parse the JSON into an object
+      activity_student.forEach((activity_student) => {
         activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
+        // 3. If the student has no activities, set the ACTIVITY property to an empty array
         if(activity_student.ACTIVITY[0].name == null){
           activity_student.ACTIVITY = [];
         }

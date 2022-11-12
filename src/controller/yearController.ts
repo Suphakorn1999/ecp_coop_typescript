@@ -17,12 +17,16 @@ export const createYear: RequestHandler = async (req,res,next: express.NextFunct
     }
 }
 
-export const getAllYear: RequestHandler = async (req, res, next) => {
+export const getAllYear: RequestHandler = async (req:any, res:any, next) => {
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const Allyears = await Year.findAll({
       order: [
         ['year', 'DESC'],
         ['term', 'DESC'],
       ],
+      offset: offset,
+      limit: limit,
     });
     return res
         .status(200)
