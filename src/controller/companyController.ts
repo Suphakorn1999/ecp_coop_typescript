@@ -4,6 +4,8 @@ import { RequestHandler } from 'express';
 import { Company } from '../models/companyModel';
 import { Province } from '../models/provinceModel';
 const compantdata = require('../services/company');
+const { Op } = require('sequelize');
+
 export const createCompany: RequestHandler = async (req,res,next: express.NextFunction) => {
     const province = await Province.findAll({where: {name_province: req.body.name_province}});
     if(province.length > 0){

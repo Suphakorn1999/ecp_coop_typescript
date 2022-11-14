@@ -70,8 +70,7 @@ export const getFm10_18coop: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    GROUP BY c.idcompany
-    `,
+    GROUP BY c.idcompany`,
     { type: QueryTypes.SELECT },
   );
 
@@ -133,3 +132,4 @@ export const createFm10_18coop: RequestHandler = async (req, res, next) => {
         return res.status(200).json({message: 'Fm10_18coop created successfully', data: fm10_18coop});
     }
 }
+

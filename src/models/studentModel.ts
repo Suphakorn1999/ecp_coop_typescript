@@ -4,6 +4,7 @@ import { Branch } from './branchModel';
 import { File } from './fileModel';
 import { Role } from './roleModel';
 import { Student_Company } from './student_companyModel';
+import { Study_group } from './study_groupModel';
 import { Year } from './YearModel';
 @Table({
   timestamps: false,
@@ -70,6 +71,16 @@ export class Student extends Model {
 
   @BelongsTo(() => Branch)
   branch!: Branch;
+
+  @ForeignKey(() => Study_group)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  idstudy_group!: number;
+
+  @BelongsTo(() => Study_group)
+  study_group!: Study_group;
 
   @Column({
     type: DataType.STRING,

@@ -27,6 +27,7 @@ import { Answerfm10_21 } from '../models/answer10_21Model';
 import { Fm10_11_coop } from '../models/fm10_11coopModel';
 import { Answerfm10_11 } from '../models/answer10_11Model';
 import { AssignmentFile } from '../models/assignmentFileModel';
+import { Study_group } from '../models/study_groupModel';
 
 const connection = new Sequelize({
   dialect: 'mysql',
@@ -63,7 +64,8 @@ const connection = new Sequelize({
     Answerfm10_21,
     Fm10_11_coop,
     Answerfm10_11,
-    AssignmentFile
+    AssignmentFile,
+    Study_group,
   ],
 });
 

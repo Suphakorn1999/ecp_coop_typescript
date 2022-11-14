@@ -6,16 +6,16 @@ import { Student } from '../models/studentModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'Sequelize';
 export const createActivityStudent: RequestHandler = async (req, res, next:express.NextFunction) => {
-    const activity = await Activity_Student.findAll({
-      where: { idstudent: req.body.idstudent, idactivity: req.body.idactivity },
-    });
-    if (activity.length > 0) {
-      return res.status(400).json({ message: 'นักศึกษามีกิจกรรมนี้อยู่แล้ว' });
-    }
-    const activityStudent = await Activity_Student.create({ ...req.body });
-    if (activityStudent) {
-      return res.status(200).json({ message: 'Activity created successfully' });
-    }
+  const activity = await Activity_Student.findAll({
+    where: { idstudent: req.body.idstudent, idactivity: req.body.idactivity },
+  });
+  if (activity) {
+    return res.status(400).json({ message: 'นักศึกษามีกิจกรรมนี้อยู่แล้ว' });
+  }
+  const activityStudent = await Activity_Student.create({ ...req.body });
+  if (activityStudent) {
+    return res.status(200).json({ message: 'Activity created successfully' });
+  }
 }
 
 export const updateActivityStudent: RequestHandler = async (req, res, next:express.NextFunction) => {
