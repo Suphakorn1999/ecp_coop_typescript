@@ -95,15 +95,17 @@ export const getStudentById: RequestHandler = async (req, res, next) => {
         
 }
 export const updateStudent: RequestHandler = async (req, res, next) => {
-    const id: any = req.query.id;
-    const student: Student | null = await Student.findByPk(id);
-    if (!student) {
+    const {id} = req.params;
+    const student = await Student.findAll({where:{idstudent: id}});
+    if(student.length > 0){
+        await Student.update({...req
+            .body}, { where: { idstudent: id } });
+        return res
+            .status(200)
+            .json({ message: 'Student updated successfully' });
+    }else{
         return res.status(400).json({ message: 'Student not found' });
     }
-    const updatedStudent = await student.update(req.body);
-    return res
-        .status(200)
-        .json({ message: 'Student updated successfully', data: updatedStudent });
 }
 export const deleteStudent: RequestHandler = async (req, res, next) => {
     const id: any = req.body.id;
