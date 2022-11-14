@@ -13,18 +13,30 @@ export const createExcleStudent: RequestHandler = async (req,res,next: express.N
   var dataStudent = jsondata.data;
 
     for (var i = 0; i < dataStudent.length; i++) {
-        if (typeof dataStudent[i].studentId != "number") {
-            return res.status(400).json({ message: 'StudentId is not a number' });
-        }
-        let studentid = dataStudent[i].studentId;
-        let firstNameThai = dataStudent[i].firstNameThai?dataStudent[i].firstNameThai.replaceAll(" ", ""):null;
-        let lastNameThai = dataStudent[i].lastNameThai?dataStudent[i].lastNameThai.replaceAll(" ", ""):null;
-        values.push([studentid, firstNameThai, lastNameThai]);
+        let studentID = dataStudent[i].studentID;
+        let idrole = 1
+        let preName = dataStudent[i].prename_student?dataStudent[i].prename_student.replaceAll(" ", ""):null;
+        let fName = dataStudent[i].firstNameThai?dataStudent[i].firstNameThai.replaceAll(" ", ""):null;
+        let lName = dataStudent[i].lastNameThai?dataStudent[i].lastNameThai.replaceAll(" ", ""):null;
+        let idyear = dataStudent[i].idyear;
+        let idbranch = dataStudent[i].idbranch;
+        let idstudy_group = dataStudent[i].idstudy_group
+        values.push({studentID,idrole,preName,fName,lName,idyear,idbranch,idstudy_group})
     }
 
-    for (var i = 0; i < values.length; i++) {
-        await Student.create(values[i]);
-    }
+    values.forEach(async e=>{
+        await Student.findAll({
+            where:{
+                student_id : e.studentID
+            }
+        }).then(async data =>{
+            if(data.length == 0){
+                await Student.create({e})
+            }else{
+                return res.status(400).json({ message: 'student already exists' });
+            }
+        })
+    })
 
     return res
         .status(200)

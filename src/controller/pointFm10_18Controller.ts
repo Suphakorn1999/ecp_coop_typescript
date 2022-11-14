@@ -39,7 +39,7 @@ export const getFm10_18detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    WHERE q.idform = 3
+    WHERE q.idform = 3 AND f.idstudent_company = ${req.query.idstudent_company}
     GROUP BY f.idfm10_18_coop 
     `,
     { type: QueryTypes.SELECT },
