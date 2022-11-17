@@ -1,5 +1,5 @@
 import express from 'express';
-import { RequestHandler } from 'express';
+import e, { RequestHandler } from 'express';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
 import { Question } from '../models/questionModel';
@@ -37,15 +37,12 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
 
 export const getFm10_21detail: RequestHandler = async (req, res, next) => {
     const fm21: Array<any> = await Connection.query(
-      `SELECT s.prename_student, s.fname_student, s.lname_student,s.student_id,
+      `SELECT an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, p.name_province ,p.region,
         qu.job_position , qu.job_description ,qu.job_topic,
         qu.working_hours, qu.compensation ,
         c.name_company, c.address, c.tel,
-        c.number_of_employee,
-        (SELECT CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",an.answer)),"]") AS FM20_21_1 FROM question q where q.idsub_question = 31 ORDER BY a.idquestion ASC) AS FM10_21_1,
-        (SELECT CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",an.answer)),"]") AS FM20_21_2 FROM question q where q.idsub_question = 38 ORDER BY a.idquestion ASC) AS FM10_21_2,
-        (SELECT CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",an.answer)),"]") AS FM20_21_3 FROM question q where q.idsub_question = 45 ORDER BY a.idquestion ASC) AS FM10_21_3
+        c.number_of_employee
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
@@ -64,12 +61,46 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
         type: QueryTypes.SELECT,
       },
     );
+    const question = async (idfm10_21_coop:any,idquestion:any) => {
+      return await Connection.query(
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("id",q.idsub_question,"topic",q.name_question,"point",an.answer)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      FROM answerfm10_21 an
+      LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
+      LEFT JOIN question q ON an.idquestion = q.idquestion
+      LEFT JOIN form fm ON q.idform = fm.idform
+      where an.idfm10_21_coop = ${idfm10_21_coop} AND q.idsub_question = ${idquestion}
+      GROUP BY an.idfm10_21_coop`,
+     {
+        type: QueryTypes.SELECT,
+      },
+    );
+    }
+    
 
-    fm21.forEach((item) => {
-        item.FM10_21_1 = JSON.parse(item.FM10_21_1);
-        item.FM10_21_2 = JSON.parse(item.FM10_21_2);
-        item.FM10_21_3 = JSON.parse(item.FM10_21_3);
+    const fm21_2: Array<any> = await Connection.query(
+      `SELECT q.idquestion,q.name_question
+      FROM question q
+      LEFT JOIN form fm ON q.idform = fm.idform
+      where fm.idform = 5 AND (q.idquestion = 31 OR q.idquestion = 38 OR q.idquestion = 45)
+      GROUP BY q.idquestion
+      `,
+     {
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    fm21.forEach((e: any) => {
+      e.HEADER = fm21_2;
     })
+
+    for(let i  of fm21){
+      for(let h of i.HEADER){
+        h.FM10_21 = (await question(i.idfm10_21_coop,h.idquestion))[0]
+        h.FM10_21 = JSON.parse(h.FM10_21.FM10_21)
+      }
+    }
+    
+
 
     return res.status(200).json({
       message: 'Fm10_21point fetched successfully',
@@ -99,13 +130,16 @@ export const createFm10_21point: RequestHandler = async (req, res, next) => {
     const jsondata = req.body;
     var values: any[] = [];
     var dataStudent = jsondata.fm10_21;
-    var idfm10_20_coop = jsondata.idfm10_20_coop;
+    var idfm10_21_coop = jsondata.idfm10_21_coop;
 
-    dataStudent.forEach((item:any) => {
-        values.push([item.idquestion,item.answer,item.note]);
-    });
+    for (var i = 0; i < dataStudent.length; i++) {
+        let idquestion = dataStudent[i].idquestion;
+        let answer = dataStudent[i].answer;
+        let note = dataStudent[i].note;
+        values.push({ idfm10_21_coop, idquestion, answer, note });
+    }
 
-    const fm10_21coop = await Fm10_21_coop.findAll({ where: { idfm10_20_coop: idfm10_20_coop } });
+    const fm10_21coop = await Fm10_21_coop.findAll({ where: { idfm10_21_coop: idfm10_21_coop } });
 
     if (fm10_21coop.length == 0) {
       return res.status(400).json({ message: 'Fm10_21coop not found' }); 
@@ -114,19 +148,17 @@ export const createFm10_21point: RequestHandler = async (req, res, next) => {
     for (var i = 0; i < values.length; i++) {
         await Answerfm10_21.findAll({
           where: {
-            idfm10_20_coop: values[i].idfm10_20_coop,
+            idfm10_21_coop: values[i].idfm10_21_coop,
             idquestion: values[i].idquestion,
           },
         }).then(async (data) => {
           if (data.length == 0) {
             await Answerfm10_21.create({
-              idfm10_20_coop: values[i].idfm10_20_coop,
+              idfm10_21_coop: values[i].idfm10_21_coop,
               idquestion: values[i].idquestion,
               answer: values[i].answer,
               note: values[i].note,
             });
-          } else {
-            return res.status(400).json({ message: 'Answerfm10_21 already exists' });
           }
         });
     }

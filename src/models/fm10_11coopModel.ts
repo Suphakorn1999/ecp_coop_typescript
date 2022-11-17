@@ -8,7 +8,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { Answerfm10_11 } from './answer10_11Model';
-import { Meeting } from './meetingModel';
+import { Student_Company } from './student_companyModel';
 
 @Table({
   timestamps: false,
@@ -22,18 +22,18 @@ export class Fm10_11_coop extends Model {
   })
   idfm10_11_coop!: number;
 
-  @ForeignKey(() => Meeting)
+  @ForeignKey(() => Student_Company)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
     references: {
-      model: 'meeting',
+      model: 'student_company',
     },
   })
-  idmeeting!: number;
+  idstudent_company!: number;
 
-  @BelongsTo(() => Meeting)
-  meeting!: Meeting;
+  @BelongsTo(() => Student_Company)
+  student_company!: Student_Company;
 
   @Column({
     type: DataType.STRING,

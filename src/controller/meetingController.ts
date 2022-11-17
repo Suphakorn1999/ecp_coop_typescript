@@ -28,7 +28,7 @@ export const createMeeting: RequestHandler = async (req, res, next:express.NextF
 
 export const getMeeting: RequestHandler = async (req, res, next) => {
     const meeting: Array<any> = await Connection.query(
-      `SELECT sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      `SELECT m.idmeeting,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
       y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,m.startdate,m.enddate
       FROM student s 
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
@@ -49,3 +49,41 @@ export const getMeeting: RequestHandler = async (req, res, next) => {
 
 
 }
+
+export const getMeetingById: RequestHandler = async (req, res, next) => {
+    const meeting: Array<any> = await Connection.query(
+      `SELECT sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,m.startdate,m.enddate
+      FROM student s 
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+      LEFT JOIN teacher t ON m.idteacher = t.idteacher 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN province p ON c.idprovince = p.idprovince 
+      LEFT JOIN year y ON s.idyear = y.idyear
+      WHERE m.idmeeting = ${req.params.id}
+      GROUP BY y.idyear`,
+      { type: QueryTypes.SELECT },
+    );
+    meeting.forEach((item) => {
+      item.student = JSON.parse(item.student);
+    })
+    return res
+        .status(200)
+        .json({message:'Meeting fetched successfully',data:meeting});
+}
+
+export const updateMeeting: RequestHandler = async (req, res, next) => {
+    const meeting = await Meeting.update({...req.body}, { where: { idmeeting: req.params.id } });
+    if (meeting) {
+      return res.status(200).json({ message: 'Meeting updated successfully' });
+    }
+}
+
+export const deleteMeeting: RequestHandler = async (req, res, next) => {
+    const meeting = await Meeting.destroy({ where: { idmeeting: req.params.id } });
+    if (meeting) {
+      return res.status(200).json({ message: 'Meeting deleted successfully' });
+    }
+}
+

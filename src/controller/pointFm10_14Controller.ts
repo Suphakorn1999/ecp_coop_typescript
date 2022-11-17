@@ -1,15 +1,12 @@
-
 import express from 'express';
 import { RequestHandler } from 'express';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
-
 import { Fm10_14_coop } from '../models/fm10_14coopModel';
 import { Answerfm10_14 } from '../models/answerModel';
 import { Question } from '../models/questionModel';
 import { Student_Company } from '../models/student_companyModel';
 import { Form } from '../models/formModel';
-
 
 
 export const getFm10_14detail: RequestHandler = async (req, res, next) => {

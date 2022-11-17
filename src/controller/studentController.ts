@@ -7,6 +7,7 @@ import { Factory } from '../models/factoryModel';
 import { Role } from '../models/roleModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
+import { Study_group } from '../models/study_groupModel';
 export const createExcleStudent: RequestHandler = async (req,res,next: express.NextFunction) => {
   const jsondata = req.body;
   var values:any[] = [];
@@ -78,10 +79,9 @@ export const createOneStudent: RequestHandler = async (req,res,next: express.Nex
 }
 export const getAllStudent: RequestHandler = async (req, res, next) => {
     const students = await Connection.query(
-      'SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,CONCAT(y.term,"/",y.year) AS year,b.name_branch,f.name_factory,s.status FROM student s LEFT JOIN year y ON s.idyear = y.idyear LEFT JOIN branch b ON s.idbranch = b.idbranch LEFT JOIN factory f ON b.idfactory = f.idfactory',
+      'SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status FROM student s LEFT JOIN year y ON s.idyear = y.idyear LEFT JOIN branch b ON s.idbranch = b.idbranch LEFT JOIN factory f ON b.idfactory = f.idfactory LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group',
       { type: QueryTypes.SELECT },
     );
-    // const students = await Student.findAll({include : [{model: Year},{model: Branch,include : [{model: Factory}]}]});
     return res
         .status(200)
         .json({ message: 'Students fetched successfully', data: students });
@@ -99,7 +99,7 @@ export const getAllStudentByYear: RequestHandler = async (req, res, next) => {
 export const getStudentById: RequestHandler = async (req, res, next) => {
     const id: any = req.query.id;
 
-    const students: Student | null = await Student.findByPk(id,{include : [{model: Year},{model: Branch,include : [{model: Factory}]}],attributes:['student_id','prename_student','fname_student','lname_student','status']});
+    const students: Student | null = await Student.findByPk(id,{include : [{model: Year},{model: Branch,include : [{model: Factory}]},{model:Study_group}],attributes:['idstudent','student_id','prename_student','fname_student','lname_student','status']});
 
     return res
         .status(200)
@@ -142,7 +142,7 @@ export const getStudentByToken: RequestHandler = async (req, res, next) => {
 }
 export const getStudentByStudentId: RequestHandler = async (req, res, next) => {
     const id: any = req.query.StudentId;
-    const students: Student | null = await Student.findOne({where:{student_id:id},include : [{model: Year},{model: Branch,include : [{model: Factory}]}],attributes:['student_id','prename_student','fname_student','lname_student','status']});
+    const students: Student | null = await Student.findOne({where:{student_id:id},include : [{model: Year},{model: Branch,include : [{model: Factory}]},{model:Study_group}],attributes:['idstudent','student_id','prename_student','fname_student','lname_student','status']});
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });

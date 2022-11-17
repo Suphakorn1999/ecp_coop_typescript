@@ -30,28 +30,9 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
     { type: QueryTypes.SELECT },
   );
 
-  const fm20_student: Array<any> = await Connection.query(
-    `SELECT m.idmeeting,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student
-      FROM student s 
-      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
-      LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
-      LEFT JOIN teacher t ON m.idteacher = t.idteacher 
-      LEFT JOIN company c ON sc.idcompany = c.idcompany 
-      LEFT JOIN province p ON c.idprovince = p.idprovince 
-      LEFT JOIN year y ON s.idyear = y.idyear
-      GROUP BY y.idyear
-    `,
-    { type: QueryTypes.SELECT },
-  );
 
-  fm20.forEach(async (fm20) => {
-    fm20_student.forEach(async (fm20_student) => {
-      if (fm20.idmeeting == fm20_student.idmeeting) {
-        fm20.FM10_20 = JSON.parse(fm20.FM10_20);
-        fm20_student.student = JSON.parse(fm20_student.student);
-        fm20.student = fm20_student.student;
-      }
-    });
+  fm20.forEach(async (fm20) => {  
+        fm20.FM10_20 = JSON.parse(fm20.FM10_20);  
   });
 
   return res.status(200).json({
@@ -151,8 +132,6 @@ export const createFm10_20point: RequestHandler = async (req, res, next) => {
               answer: values[i].answer,
               note: values[i].note,
             });
-          } else {
-            return res.status(400).json({ message: 'Answerfm10_20 already exists' });
           }
         });
     }
