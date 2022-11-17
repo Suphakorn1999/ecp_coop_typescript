@@ -110,19 +110,43 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
 }
 
 export const getquestionfm10_21: RequestHandler = async (req, res, next) => {
-  var values: any[] = [];
-  const questionfm10_21_1 = await Question.findAll({ where: { idform: 5,idsub_question :31} });
-  const questionfm10_21_2 = await Question.findAll({ where: { idform: 5,idsub_question :38} });
-  const questionfm10_21_3 = await Question.findAll({ where: { idform: 5,idsub_question :45} });
+  const question = async (idquestion:any) => {
+      return await Connection.query(
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("id",q.idsub_question,"topic",q.name_question,"point",an.answer)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      FROM answerfm10_21 an
+      LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
+      LEFT JOIN question q ON an.idquestion = q.idquestion
+      LEFT JOIN form fm ON q.idform = fm.idform
+      where q.idsub_question = ${idquestion}
+      GROUP BY an.idfm10_21_coop`,
+     {
+        type: QueryTypes.SELECT,
+      },
+    );
+    }
+    
+    const fm21_2: Array<any> = await Connection.query(
+      `SELECT q.idquestion,q.name_question
+      FROM question q
+      LEFT JOIN form fm ON q.idform = fm.idform
+      where fm.idform = 5 AND (q.idquestion = 31 OR q.idquestion = 38 OR q.idquestion = 45)
+      GROUP BY q.idquestion
+      `,
+     {
+        type: QueryTypes.SELECT,
+      },
+    );
 
-  values.push(questionfm10_21_1);
-  values.push(questionfm10_21_2);
-  values.push(questionfm10_21_3);
+      for(let h of fm21_2){
+        h.FM10_21 = (await question(h.idquestion))[0]
+        h.FM10_21 = JSON.parse(h.FM10_21.FM10_21)
+      }
 
-  return res.status(200).json({
+      return res.status(200).json({
     message: 'Fm10_21point fetched successfully',
-    data: values,
+    data: fm21_2,
   });
+
   
 }
 
