@@ -9,14 +9,14 @@ import { Question } from '../models/questionModel';
 
 export const getFm10_20detail: RequestHandler = async (req, res, next) => {
   const fm20: Array<any> = await Connection.query(
-    `SELECT m.idmeeting,c.name_company,c.address,c.tel,
+    `SELECT c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS FM10_20 
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
-    LEFT JOIN fm10_20_coop f ON m.idmeeting = f.idmeeting
+    LEFT JOIN fm10_20_coop f ON sc.idstudent_company = f.idstudent_company
     LEFT JOIN answerfm10_20 a ON f.idfm10_20_coop = a.idfm10_20_coop
     LEFT JOIN question q ON a.idquestion = q.idquestion
     LEFT JOIN form fm ON q.idform = fm.idform
@@ -24,7 +24,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    WHERE q.idform = 4
+    WHERE q.idform = 4 AND f.idstudent_company = ${req.query.idstudent_company} || f.idstudent_company IS NULL
     GROUP BY f.idfm10_20_coop,sc.idcompany
     `,
     { type: QueryTypes.SELECT },
@@ -43,15 +43,14 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
 
 export const getFm10_20coop: RequestHandler = async (req, res, next) => {
   const fm10_20coop: Array<any> = await Connection.query(
-    `SELECT f.idmeeting,c.name_company,c.address,c.tel,
-    t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("prename",s.prename_student,"fname",s.fname_student,"lname",s.lname_student,"name_branch",b.name_branch)),"]") 
+    `SELECT c.name_company,c.address,c.tel,
+    t.prename_teacher,t.firstname_teacher,t.lastname_teacher,s.prename_student,s.fname_student,s.lname_student,b.name_branch
     AS student
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
-    LEFT JOIN fm10_20_coop f ON m.idmeeting = f.idmeeting
+    LEFT JOIN fm10_20_coop f ON sc.idstudent_company = f.idstudent_company
     LEFT JOIN year y ON s.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
@@ -67,29 +66,6 @@ export const getFm10_20coop: RequestHandler = async (req, res, next) => {
   return res
     .status(200)
     .json({ message: 'Fm10_20coop fetched successfully', data: fm10_20coop });
-};
-
-export const createFm10_20: RequestHandler = async (req, res, next) => {
-  const All = await Fm10_20_coop.findAll({
-    where: { idstudent: req.body.idmeeting },
-  });
-
-  if (All.length > 0) {
-    const fm10_20coop = await Fm10_20_coop.update(
-      { ...req.body },
-      { where: { idstudent: req.body.idmeeting } },
-    );
-    return res.status(200).json({
-      message: 'Fm10_20coop updated successfully',
-      data: fm10_20coop,
-    });
-  } else {
-    const fm10_20coop = await Fm10_20_coop.create({ ...req.body });
-    return res.status(200).json({
-      message: 'Fm10_20coop created successfully',
-      data: fm10_20coop,
-    });
-  }
 };
 
 export const getquestionfm10_20: RequestHandler = async (req, res, next) => {
@@ -140,7 +116,7 @@ export const createFm10_20point: RequestHandler = async (req, res, next) => {
 }
 
 export const createFm10_20coop: RequestHandler = async (req, res, next) => {
-    const Allfm10_20 = await Fm10_20_coop.findAll({where: {idmeeting: req.body.idmeeting}});
+    const Allfm10_20 = await Fm10_20_coop.findAll({where: {idstudent_company: req.body.idstudent_company}});
     if (Allfm10_20.length > 0) {
         return res.status(400).json({ message: 'Fm10_20coop already exists' });
     }
