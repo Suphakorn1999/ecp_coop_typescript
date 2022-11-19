@@ -2,12 +2,12 @@ import express from 'express';
 import { RequestHandler } from 'express';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
+
 import { Fm10_14_coop } from '../models/fm10_14coopModel';
 import { Answerfm10_14 } from '../models/answerModel';
 import { Question } from '../models/questionModel';
 import { Student_Company } from '../models/student_companyModel';
 import { Form } from '../models/formModel';
-
 
 export const getFm10_14detail: RequestHandler = async (req, res, next) => {
     const fm14: Array<any> = await Connection.query(
@@ -47,14 +47,13 @@ export const getFm10_14coop: RequestHandler = async (req, res, next) => {
       `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
       fm.department_assessor,fm.other_Comments,fm.createdAt,fm.updatedAt
-      FROM student_company sc 
-      LEFT JOIN student s ON sc.idstudent = s.idstudent 
+      FROM student s  
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
       LEFT JOIN year y ON s.idyear = y.idyear 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
-      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company 
-      GROUP BY fm.idfm10_14_coop`,
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company`,
       { type: QueryTypes.SELECT },
     );
     

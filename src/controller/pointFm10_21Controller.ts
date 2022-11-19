@@ -1,5 +1,5 @@
 import express from 'express';
-import e, { RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
 import { Question } from '../models/questionModel';
@@ -23,7 +23,6 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
         LEFT JOIN province p ON c.idprovince = p.idprovince
         LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-        GROUP BY f.idfm10_21_coop
         `,
       { type: QueryTypes.SELECT },
     );
@@ -110,9 +109,10 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
 }
 
 export const getquestionfm10_21: RequestHandler = async (req, res, next) => {
+
   const question = async (idquestion:any) => {
       return await Connection.query(
-      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("id",q.idsub_question,"topic",q.name_question,"point",an.answer)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("id",q.idsub_question,"topic",q.name_question)ORDER BY q.idquestion ASC),"]") AS FM10_21
       FROM answerfm10_21 an
       LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
       LEFT JOIN question q ON an.idquestion = q.idquestion
@@ -143,7 +143,7 @@ export const getquestionfm10_21: RequestHandler = async (req, res, next) => {
       }
 
       return res.status(200).json({
-    message: 'Fm10_21point fetched successfully',
+    message: 'Fm10_21_question fetched successfully',
     data: fm21_2,
   });
 

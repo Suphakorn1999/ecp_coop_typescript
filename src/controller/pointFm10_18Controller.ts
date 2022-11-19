@@ -57,7 +57,8 @@ export const getFm10_18detail: RequestHandler = async (req, res, next) => {
 
 export const getFm10_18coop: RequestHandler = async (req, res, next) => {
   const fm10_18coop: Array<any> = await Connection.query(
-    `SELECT sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("prename",s.prename_student,"fname",s.fname_student,"lname",s.lname_student,"student_id",s.student_id,"name_branch",b.name_branch,"factory",fa.name_factory)),"]") AS student,
+    `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+    y.term,y.year,
     c.name_company,
     f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
@@ -70,7 +71,7 @@ export const getFm10_18coop: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    GROUP BY c.idcompany`,
+    `,
     { type: QueryTypes.SELECT },
   );
 
@@ -125,11 +126,10 @@ export const createFm10_18point: RequestHandler = async (req, res, next) => {
 export const createFm10_18coop: RequestHandler = async (req, res, next) => {
     const Allfm10_18 = await Fm10_18_coop.findAll({where: {idstudent_company: req.body.idstudent_company}});
     if (Allfm10_18.length > 0) {
-        return res.status(400).json({ message: 'Fm10_20coop already exists' });
+        return res.status(400).json({ message: 'Fm10_18coop already exists' });
     }
     else {
         const fm10_18coop = await Fm10_18_coop.create({...req.body});
         return res.status(200).json({message: 'Fm10_18coop created successfully', data: fm10_18coop});
     }
 }
-
