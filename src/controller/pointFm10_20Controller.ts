@@ -11,7 +11,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
   const fm20: Array<any> = await Connection.query(
     `SELECT f.idfm10_20_coop,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,f.updatedAt,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS FM10_20 
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS FM10_20 
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company

@@ -8,7 +8,7 @@ import { Answerfm10_21 } from '../models/answer10_21Model';
 
 export const getFm10_21coop: RequestHandler = async (req, res, next) => {
     const fm21: Array<any> = await Connection.query(
-      `SELECT s.prename_student, s.fname_student, s.lname_student,s.student_id,
+      `SELECT sc.idstudent_company,s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, p.name_province ,p.region,
         qu.job_position , qu.job_description ,qu.job_topic,
         qu.working_hours, qu.compensation ,
@@ -36,7 +36,7 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
 
 export const getFm10_21detail: RequestHandler = async (req, res, next) => {
     const fm21: Array<any> = await Connection.query(
-      `SELECT an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
+      `SELECT f.idfm10_21_coop,an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, p.name_province ,p.region,
         qu.job_position , qu.job_description ,qu.job_topic,
         qu.working_hours, qu.compensation ,
@@ -54,7 +54,7 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
         LEFT JOIN province p ON c.idprovince = p.idprovince
         LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-        where fm.idform = 5
+        where fm.idform = 5 AND f.idstudent = ${req.query.idstudent}
         GROUP BY f.idfm10_21_coop`,
       {
         type: QueryTypes.SELECT,
@@ -62,7 +62,7 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
     );
     const question = async (idfm10_21_coop:any,idquestion:any) => {
       return await Connection.query(
-      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("id",q.idsub_question,"topic",q.name_question,"point",an.answer)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"idsub_question",q.idsub_question,"topic",q.name_question,"point",an.answer)ORDER BY q.idquestion ASC),"]") AS FM10_21
       FROM answerfm10_21 an
       LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
       LEFT JOIN question q ON an.idquestion = q.idquestion
@@ -112,7 +112,7 @@ export const getquestionfm10_21: RequestHandler = async (req, res, next) => {
 
   const question = async (idquestion:any) => {
       return await Connection.query(
-      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("id",q.idsub_question,"topic",q.name_question)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"idsub_question",q.idsub_question,"topic",q.name_question)ORDER BY q.idquestion ASC),"]") AS FM10_21
       FROM answerfm10_21 an
       LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
       LEFT JOIN question q ON an.idquestion = q.idquestion
