@@ -190,7 +190,7 @@ export const createFm10_21point: RequestHandler = async (req, res, next) => {
     return res.status(200).json({ message: 'Fm10_21point created successfully'});
 }
 
-export const createFm10_20coop: RequestHandler = async (req, res, next) => {
+export const createFm10_21coop: RequestHandler = async (req, res, next) => {
     const Allfm10_21 = await Fm10_21_coop.findAll({where: {idstudent: req.body.idstudent}});
     if (Allfm10_21.length > 0) {
         return res.status(400).json({ message: 'Fm10_21coop already exists' });
@@ -199,4 +199,55 @@ export const createFm10_20coop: RequestHandler = async (req, res, next) => {
         const fm10_21coop = await Fm10_21_coop.create({...req.body});
         return res.status(200).json({message: 'Fm10_20coop created successfully', data: fm10_21coop});
     }
+}
+
+export const updateFm10_21point: RequestHandler = async (req, res, next) => {
+    const jsondata = req.body;
+    var values: any[] = [];
+    var dataStudent = jsondata.fm10_21;
+    var idfm10_21_coop = jsondata.idfm10_21_coop;
+
+    for (var i = 0; i < dataStudent.length; i++) {
+        let idquestion = dataStudent[i].idquestion;
+        let answer = dataStudent[i].answer;
+        let note = dataStudent[i].note;
+        values.push({ idfm10_21_coop, idquestion, answer, note });
+    }
+
+    const fm10_21coop = await Fm10_21_coop.findAll({ where: { idfm10_21_coop: idfm10_21_coop } });
+
+    if (fm10_21coop.length == 0) {
+      return res.status(400).json({ message: 'Fm10_21coop not found' }); 
+    }
+    
+    for (var i = 0; i < values.length; i++) {
+        await Answerfm10_21.findAll({
+          where: {
+            idfm10_21_coop: values[i].idfm10_21_coop,
+            idquestion: values[i].idquestion,
+          },
+        }).then(async (data) => {
+          if (data.length == 0) {
+            await Answerfm10_21.create({
+              idfm10_21_coop: values[i].idfm10_21_coop,
+              idquestion: values[i].idquestion,
+              answer: values[i].answer,
+              note: values[i].note,
+            });
+          }
+          else {
+            await Answerfm10_21.update({
+              answer: values[i].answer,
+              note: values[i].note,
+            }, {
+              where: {
+                idfm10_21_coop: values[i].idfm10_21_coop,
+                idquestion: values[i].idquestion,
+              }
+            });
+          }
+        });
+    }
+    
+    return res.status(200).json({ message: 'Fm10_21point updated successfully'});
 }
