@@ -8,6 +8,7 @@ import { Role } from '../models/roleModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
 import { Study_group } from '../models/study_groupModel';
+
 export const createExcleStudent: RequestHandler = async (req,res,next: express.NextFunction) => {
   const jsondata = req.body;
   var values:any[] = [];
@@ -77,11 +78,24 @@ export const createOneStudent: RequestHandler = async (req,res,next: express.Nex
         .json({ message: 'Student created successfully', data: student });
     }
 }
-export const getAllStudent: RequestHandler = async (req, res, next) => {
+export const getAllStudent: RequestHandler = async (req:any, res, next) => {
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+
     const students = await Connection.query(
-      'SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status FROM student s LEFT JOIN year y ON s.idyear = y.idyear LEFT JOIN branch b ON s.idbranch = b.idbranch LEFT JOIN factory f ON b.idfactory = f.idfactory LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group',
+      `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status 
+      FROM student s 
+      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+      where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%'
+      limit ${limit} offset ${offset}`,
       { type: QueryTypes.SELECT },
     );
+
     return res
         .status(200)
         .json({ message: 'Students fetched successfully', data: students });

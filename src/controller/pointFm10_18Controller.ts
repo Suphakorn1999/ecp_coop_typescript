@@ -58,9 +58,7 @@ export const getFm10_18detail: RequestHandler = async (req, res, next) => {
 export const getFm10_18coop: RequestHandler = async (req, res, next) => {
   const fm10_18coop: Array<any> = await Connection.query(
     `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
-    y.term,y.year,
-    c.name_company,
-    f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
+    y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
     f.get_into_work,f.other_comments,f.createdAt,f.updatedAt

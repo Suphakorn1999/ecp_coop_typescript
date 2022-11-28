@@ -23,8 +23,10 @@ export const createCompany: RequestHandler = async (req,res,next: express.NextFu
 export const getAllCompany: RequestHandler = async (req:any, res:any, next) => {
   const offset = req.query.offset ? parseInt(req.query.offset) : 0;
   const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
+
   
-  const company = await Company.findAll({include: [{model: Province},{model: Qualification}],offset:offset,limit:limit});
+  const company = await Company.findAll({include: [{model: Province},{model: Qualification}],offset:offset,limit:limit,where: { [Op.or]: [{name_company: {[Op.like]: `%${search_name}%`}}, {name_company_eng: {[Op.like]: `%${search_name}%`}}] }});
 
   return res
     .status(200)

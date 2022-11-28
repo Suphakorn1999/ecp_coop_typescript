@@ -32,7 +32,7 @@ export const getAssignment: RequestHandler = async (
   res,
   next: express.NextFunction,
 ) => {
-  const assignment = await AssignmentFile.findAll();
+  const assignment = await AssignmentFile.findAll({where: {status_assignment_file: 'active'}});
   return res
     .status(200)
     .json({ message: 'Assignment get successfully', data: assignment });

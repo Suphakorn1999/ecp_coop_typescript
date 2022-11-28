@@ -3,6 +3,8 @@ import express from 'express';
 import { Teacher } from '../models/teacherModel';
 import { Branch } from '../models/branchModel';
 import { Factory } from '../models/factoryModel';
+const { Op } = require('sequelize');
+
 export const createTeacher: RequestHandler = async (req,res,next: express.NextFunction) => {
     req.body.idrole = 2
     if(req.body.branch){
@@ -27,12 +29,30 @@ export const createTeacher: RequestHandler = async (req,res,next: express.NextFu
     }
 }
 
-export const getAllTeacher: RequestHandler = async (req, res, next) => {
-    const Allteachers = await Teacher.findAll({ where: {status_teacher:'active'},include: [{model: Branch,include: [{model: Factory}]}],attributes: ['idteacher','prename_teacher','firstname_teacher','lastname_teacher','status_teacher']});
-    return res
-        .status(200)
-        .json({ message: 'Teachers fetched successfully', data: Allteachers }); 
-}
+export const getAllTeacher: RequestHandler = async (req:any, res, next) => {
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
+
+  const Allteachers = await Teacher.findAll({
+    include: [
+      {
+        model: Branch,
+        include: [{ model: Factory }],
+      },
+    ],
+    attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher', 'status_teacher'],
+    offset: offset,
+    limit: limit,
+    where: {
+        [Op.or]: [
+            { firstname_teacher: { [Op.like]: `%${search_name}%` } },
+            { lastname_teacher: { [Op.like]: `%${search_name}%` } },
+        ],
+    }
+  });
+  return res.status(200).json({ message: 'Teachers fetched successfully', data: Allteachers });
+};
 
 export const updateTeacher: RequestHandler = async (req, res, next) => {
     const teacher = await Teacher.findAll(req.body.id);

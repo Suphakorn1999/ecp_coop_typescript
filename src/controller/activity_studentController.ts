@@ -42,7 +42,10 @@ export const deleteActivityStudent: RequestHandler = async (req, res, next:expre
     }
 }
 
-export const getActivityStudent: RequestHandler = async (req, res, next) => {
+export const getActivityStudent: RequestHandler = async (req:any, res, next) => {
+     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+     const search_name = req.query.search ? req.query.search : '';
       // 1. Get Data from Database
       const activity_student: Array<any> = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
@@ -51,7 +54,9 @@ export const getActivityStudent: RequestHandler = async (req, res, next) => {
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
         JOIN year y ON s.idyear = y.idyear 
+        WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%'
         group by s.idstudent 
+        limit ${limit} offset ${offset}
         `,
         { type: QueryTypes.SELECT },
       );
@@ -60,7 +65,7 @@ export const getActivityStudent: RequestHandler = async (req, res, next) => {
       activity_student.forEach((activity_student) => {
         activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
         // 3. If the student has no activities, set the ACTIVITY property to an empty array
-        if(activity_student.ACTIVITY[0].name == null){
+        if(Array.isArray(activity_student.ACTIVITY) && activity_student.ACTIVITY[0].name == null){
           activity_student.ACTIVITY = [];
         }
       })

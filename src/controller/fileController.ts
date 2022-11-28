@@ -5,6 +5,7 @@ import { File } from '../models/fileModel';
 import { Student } from '../models/studentModel';
 const fs = require('fs');
 import path from 'path';
+const { Op } = require('sequelize');
 
 export const getFile: RequestHandler = async (req, res, next) => {
     const id = req.body.user.id
@@ -67,3 +68,51 @@ export const deleteFile: RequestHandler = async (
     return res.status(400).json({ message: 'File not found' });
   }
 }
+
+export const getFileformadmin: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: express.NextFunction,
+) => {
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
+
+  const file = await File.findAll({
+    attributes: [
+      'idfile',
+      'idassignmentFile',
+      'name_file',
+      'path_file',
+      'type_file',
+      'date_file',
+    ],
+    include: [
+      {
+        model: Student,
+        attributes: [
+          'student_id',
+          'prename_student',
+          'fname_student',
+          'lname_student',
+        ],
+        as: 'student',
+      },
+      { model: AssignmentFile },
+    ],
+    where: {
+      [Op.or]: [
+        { '$student.fname_student$': { [Op.like]: '%' + search_name + '%' } },
+        { '$student.lname_student$': { [Op.like]: '%' + search_name + '%' } },
+        { 'name_file': { [Op.like]: '%' + search_name + '%' } },
+      ]
+    },
+    offset: offset,
+    limit: limit,
+    order: [['date_file', 'DESC']],
+  });
+  if (file.length > 0) {
+    return res.status(200).json({ message: 'File fetched successfully', data: file });
+  }
+}
+

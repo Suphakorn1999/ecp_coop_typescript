@@ -25,7 +25,10 @@ export const createStudentCompany: RequestHandler = async (req, res, next: expre
     }
 }
 
-export const getAllStudentCompany: RequestHandler = async (req, res, next) => {
+export const getAllStudentCompany: RequestHandler = async (req:any, res, next) => {
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
 
     const student_company: Array<any> = await Connection.query(
       `SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
@@ -33,8 +36,9 @@ export const getAllStudentCompany: RequestHandler = async (req, res, next) => {
       LEFT JOIN student_company st ON s.idstudent = st.idstudent 
       LEFT JOIN company c ON st.idcompany = c.idcompany 
       JOIN year y ON s.idyear = y.idyear 
-      WHERE s.idyear = y.idyear or s.idyear = null 
+      where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%'
       ORDER BY y.year ASC, y.term ASC
+      limit ${limit} offset ${offset}
       `,
       { type: QueryTypes.SELECT },
     );   

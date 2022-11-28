@@ -2,6 +2,7 @@ import express from 'express';
 import { RequestHandler } from 'express';
 import { Factory } from '../models/factoryModel';
 import { Branch} from '../models/branchModel';
+const { Op } = require('sequelize');
 
 export const createBranch: RequestHandler = async (req,res,next: express.NextFunction) => {
     const Allbranch = await Branch.findAll({
@@ -40,8 +41,20 @@ export const deleteBranch: RequestHandler = async (req, res, next: express.NextF
     }
 }
 
-export const getAllBranch: RequestHandler = async (req, res, next) => {
-    const Allbranches = await Branch.findAll({include: [{model: Factory}]});
+export const getAllBranch: RequestHandler = async (req: any, res, next) => {
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+
+    const Allbranches = await Branch.findAll({
+        include: [{
+            model: Factory,
+            as: 'factory',
+        }],
+        offset: offset,
+        limit: limit,
+        where: { [Op.or]: [{ name_branch: { [Op.like]: `%${search_name}%` } }, { '$factory.name_factory$': { [Op.like]: `%${search_name}%` } }] },
+    });
     return res
         .status(200)
         .json({ message: 'Branches fetched successfully', data: Allbranches });

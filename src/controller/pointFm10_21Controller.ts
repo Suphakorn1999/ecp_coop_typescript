@@ -8,12 +8,12 @@ import { Answerfm10_21 } from '../models/answer10_21Model';
 
 export const getFm10_21coop: RequestHandler = async (req, res, next) => {
     const fm21: Array<any> = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student, s.fname_student, s.lname_student,s.student_id,
+      `SELECT sc.idstudent_company,s.prename_student, s.fname_student, s.lname_student,s.student_id,y.term,y.year,
         b.name_branch, fa.name_factory, p.name_province ,p.region,
         qu.job_position , qu.job_description ,qu.job_topic,
         qu.working_hours, qu.compensation ,
         c.name_company, c.address, c.tel,
-        c.number_of_employee
+        c.number_of_employee,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
@@ -22,8 +22,7 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
         LEFT JOIN province p ON c.idprovince = p.idprovince
-        LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-        `,
+        LEFT JOIN factory fa ON b.idfactory = fa.idfactory`,
       { type: QueryTypes.SELECT },
     );
 
