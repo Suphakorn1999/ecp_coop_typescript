@@ -104,6 +104,7 @@ export const getFileformadmin: RequestHandler = async (
       [Op.or]: [
         { '$student.fname_student$': { [Op.like]: '%' + search_name + '%' } },
         { '$student.lname_student$': { [Op.like]: '%' + search_name + '%' } },
+        { '$student.student_id$': { [Op.like]: '%' + search_name + '%' } },
         { 'name_file': { [Op.like]: '%' + search_name + '%' } },
       ]
     },
@@ -113,6 +114,59 @@ export const getFileformadmin: RequestHandler = async (
   });
   if (file.length > 0) {
     return res.status(200).json({ message: 'File fetched successfully', data: file });
+  }else{
+    return res.status(200).json({ message: 'File fetched successfully', data: [] });
   }
 }
 
+export const getFileformadminbyid: RequestHandler = async (
+  req: any,
+  res: Response,
+  next: express.NextFunction,
+) => {
+  const id = req.query.id;
+
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
+
+  const file = await File.findAll({
+    attributes: [
+      'idfile',
+      'idassignmentFile',
+      'name_file',
+      'path_file',
+      'type_file',
+      'date_file',
+    ],
+    include: [
+      {
+        model: Student,
+        attributes: [
+          'student_id',
+          'prename_student',
+          'fname_student',
+          'lname_student',
+        ],
+        as: 'student',
+      },
+      { model: AssignmentFile },
+    ],
+    where: {
+      idassignmentFile: id,
+      [Op.or]: [
+        { '$student.fname_student$': { [Op.like]: '%' + search_name + '%' } },
+        { '$student.lname_student$': { [Op.like]: '%' + search_name + '%' } },
+        { '$student.student_id$': { [Op.like]: '%' + search_name + '%' } },
+        { 'name_file': { [Op.like]: '%' + search_name + '%' } },
+      ]
+    },
+    offset: offset,
+    limit: limit,
+  });
+  if (file.length > 0) {
+    return res.status(200).json({ message: 'File fetched successfully', data: file });
+  }else{
+    return res.status(200).json({ message: 'File fetched successfully', data: [] });
+  }
+}
