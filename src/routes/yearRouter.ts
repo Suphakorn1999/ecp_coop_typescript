@@ -1,11 +1,12 @@
 import { Router } from 'express';
-
-import { createYear, getAllYear } from '../controller/yearController';
-
+import { createYear, getAllYear,updateYear } from '../controller/yearController';
+const {verifyToken} = require('../middlewares/jwtHandler')
 
 const router = Router();
 
-router.post('/', createYear);
-router.get('/', getAllYear);
+router.post('/',verifyToken, createYear);
+router.get('/',verifyToken, getAllYear);
+router.post('/update',verifyToken, updateYear);
+
 
 export default router;

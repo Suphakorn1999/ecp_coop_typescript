@@ -2,6 +2,10 @@ import express from 'express';
 import { RequestHandler } from 'express';
 import { Admin } from '../models/adminModel';
 import dotenv from 'dotenv';
+import { Company } from '../models/companyModel';
+import { Student } from '../models/studentModel';
+import { Year } from '../models/YearModel';
+import { Teacher } from '../models/teacherModel';
 dotenv.config();
 const CryptoJS = require('crypto-js');
 const { generateToken } = require('../middlewares/jwtHandler');
@@ -62,3 +66,20 @@ export const loginAdmin: RequestHandler = async (req, res, next) => {
             });
         }
 };
+
+export const allcount: RequestHandler = async (req, res, next) => {
+  const count_company = await Company.count();
+  const count_student = await Student.count();
+  const count_teacher = await Teacher.count();
+  const year = await Year.findAll({where:{status_year:"yes"}});
+
+  return res.status(200).json({
+    message: 'Count data',
+    data: {
+      count_company: count_company,
+      count_student: count_student,
+      count_teacher: count_teacher,
+      year: year,
+    },
+  });
+}

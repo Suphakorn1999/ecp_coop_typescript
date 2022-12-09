@@ -25,6 +25,12 @@ export class Year extends Model {
   })
   year!: number;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  status_year!: string;
+
   @HasMany(() => Student)
   students!: Student[]
 }

@@ -30,6 +30,24 @@ export class AssignmentFile extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+  })
+  note_assignment!: string;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  start_date!: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  end_date!: Date;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
     values:['active','inactive'],
     defaultValue:'active',
   })

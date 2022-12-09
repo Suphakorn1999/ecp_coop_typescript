@@ -67,6 +67,7 @@ const connection = new Sequelize({
     AssignmentFile,
     Study_group,
   ],
+  sync: { force: false, alter: true },
 });
 
 export default connection;

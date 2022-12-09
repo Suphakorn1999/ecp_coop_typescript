@@ -32,3 +32,13 @@ export const getAllYear: RequestHandler = async (req:any, res:any, next) => {
         .status(200)
         .json({ message: 'Years fetched successfully', data: Allyears });
 }
+
+export const updateYear: RequestHandler = async (req:any, res, next) => {
+    const year = await Year.findByPk(req.query.id);
+    if (year) {
+      await year.update({ ...req.body });
+      return res.status(200).json({ message: 'Year updated successfully' });
+    } else {
+      return res.status(400).json({ message: 'Year not found' });
+    }
+}

@@ -106,6 +106,36 @@ export class Company extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  coordinator!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  fname_coordinator!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  lname_coordinator!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  rank_coordinator!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  department_coordinator!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   website!: string;
 
   @Column({

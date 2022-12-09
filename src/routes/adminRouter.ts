@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { createAdmin, loginAdmin } from '../controller/adminController';
-const { verifyTokenAdmin } = require('../middlewares/jwtHandler');
+import { createAdmin, loginAdmin,allcount } from '../controller/adminController';
+const { verifyTokenAdmin,verifyToken } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.post("/", createAdmin);
+router.post("/",verifyToken, createAdmin);
 router.post("/login", loginAdmin);
 router.get("/verify", verifyTokenAdmin);
+router.get("/allcount",verifyToken, allcount);
 
 
 export default router;

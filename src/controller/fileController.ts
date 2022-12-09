@@ -17,6 +17,8 @@ export const getFile: RequestHandler = async (req, res, next) => {
         'path_file',
         'type_file',
         'date_file',
+        'note_file',
+        'status_file'
       ],
       include: [
         {
@@ -86,6 +88,8 @@ export const getFileformadmin: RequestHandler = async (
       'path_file',
       'type_file',
       'date_file',
+      'note_file',
+      'status_file'
     ],
     include: [
       {
@@ -138,6 +142,8 @@ export const getFileformadminbyid: RequestHandler = async (
       'path_file',
       'type_file',
       'date_file',
+      'note_file',
+      'status_file'
     ],
     include: [
       {
@@ -168,5 +174,29 @@ export const getFileformadminbyid: RequestHandler = async (
     return res.status(200).json({ message: 'File fetched successfully', data: file });
   }else{
     return res.status(200).json({ message: 'File fetched successfully', data: [] });
+  }
+}
+
+export const updateStatusFile: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: express.NextFunction,
+) => {
+  const id = req.body.idfile;
+  const status = req.body.status_file;
+  const note = req.body.note_file;
+  const file = await File.update(
+    {
+      status_file: status,
+      note_file: note,
+    },
+    {
+      where: { idfile: id },
+    },
+  );
+  if (file[0] > 0) {
+    return res.status(200).json({ message: 'Update file success' });
+  } else {
+    return res.status(400).json({ message: 'Update file fail' });
   }
 }

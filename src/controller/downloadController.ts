@@ -12,7 +12,7 @@ export const downloadFile: RequestHandler = async (req,res,next: express.NextFun
     }
     let name = CryptoJS.AES.decrypt(namefile, process.env.HEX).toString(CryptoJS.enc.Utf8);
     const file = fs.createReadStream('public/uploads/' + name);
-    // res.setHeader('Content-disposition', 'attachment; filename=' + req.query.file);
+    res.setHeader('Content-disposition', 'attachment; filename=' + name);
     res.setHeader('Content-type', 'application/pdf');
     file.pipe(res);
 }

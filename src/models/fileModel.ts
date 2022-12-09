@@ -58,4 +58,18 @@ export class File extends Model {
         allowNull: false,
     })
     date_file!: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    note_file!: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        values: ['pass', 'unchecked','not pass'],
+        defaultValue: 'unchecked',
+    })
+    status_file!: string;
 }
