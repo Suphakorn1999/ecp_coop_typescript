@@ -61,7 +61,7 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
     );
     const question = async (idfm10_21_coop:any,idquestion:any) => {
       return await Connection.query(
-      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"idsub_question",q.idsub_question,"topic",q.name_question,"point",an.answer)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"idsub_question",q.idsub_question,"topic",q.name_question,"point",an.answer,"note",an.note)ORDER BY q.idquestion ASC),"]") AS FM10_21
       FROM answerfm10_21 an
       LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
       LEFT JOIN question q ON an.idquestion = q.idquestion
@@ -108,7 +108,6 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
 }
 
 export const getquestionfm10_21: RequestHandler = async (req, res, next) => {
-
   const question = async (idquestion:any) => {
       return await Connection.query(
       `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"idsub_question",q.idsub_question,"topic",q.name_question)ORDER BY q.idquestion ASC),"]") AS FM10_21
@@ -190,12 +189,13 @@ export const createFm10_21point: RequestHandler = async (req, res, next) => {
 }
 
 export const createFm10_21coop: RequestHandler = async (req, res, next) => {
-    const Allfm10_21 = await Fm10_21_coop.findAll({where: {idstudent: req.body.idstudent}});
+  const id: any = req.body.user.id;
+    const Allfm10_21 = await Fm10_21_coop.findAll({where: {idstudent: id}});
     if (Allfm10_21.length > 0) {
         return res.status(400).json({ message: 'Fm10_21coop already exists' });
     }
     else {
-        const fm10_21coop = await Fm10_21_coop.create({...req.body});
+        const fm10_21coop = await Fm10_21_coop.create({...req.body, idstudent: id});
         return res.status(200).json({message: 'Fm10_20coop created successfully', data: fm10_21coop});
     }
 }

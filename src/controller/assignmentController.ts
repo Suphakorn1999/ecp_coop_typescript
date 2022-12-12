@@ -3,6 +3,7 @@ import { RequestHandler } from 'express';
 import sequelize from 'sequelize/types/sequelize';
 import { AssignmentFile } from '../models/assignmentFileModel';
 const { Op } = require('sequelize');
+
 export const createAssignment: RequestHandler = async (
   req,
   res,
@@ -33,15 +34,15 @@ export const getAssignment: RequestHandler = async (
   res,
   next: express.NextFunction,
 ) => {
-  const assignment = await AssignmentFile.findAll({where: {status_assignment_file: 'active'}})
+  const assignment = await AssignmentFile.findAll({ where: { status_assignment_file: 'active' } })
   let data: null[] = []
 
   assignment.forEach((e: any) => {
     e.start_date = new Date(e.start_date)
-    e.end_date = new Date(e.end_date) 
-    if(e.start_date <= new Date() && e.end_date >= new Date()){
+    e.end_date = new Date(e.end_date)
+    if (e.start_date <= new Date() && e.end_date >= new Date()) {
       data.push(e)
-    }else if(e.start_date == null && e.end_date == null){
+    } else if (e.start_date == null && e.end_date == null) {
       data.push(null)
     }
   })
@@ -91,3 +92,14 @@ export const deleteAssignment: RequestHandler = async (
     return res.status(200).json({ message: 'Assignment deleted successfully' });
   }
 };
+
+export const getAssignmentAdmin: RequestHandler = async (
+  req,
+  res,
+  next: express.NextFunction,
+) => {
+  const assignment = await AssignmentFile.findAll({where: {status_assignment_file: 'active'}})
+  return res
+    .status(200)
+    .json({ message: 'Assignment get successfully', data: assignment });
+}
