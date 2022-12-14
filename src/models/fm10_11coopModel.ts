@@ -39,6 +39,12 @@ export class Fm10_11_coop extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  time!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   createdAt?: any;
 
   @Column({

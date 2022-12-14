@@ -34,8 +34,9 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
 }
 
 export const getFm10_21detail: RequestHandler = async (req, res, next) => {
+    const id: any = req.body.user.id;
     const fm21: Array<any> = await Connection.query(
-      `SELECT f.idfm10_21_coop,an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
+        `SELECT f.idfm10_21_coop,an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, p.name_province ,p.region,
         qu.job_position , qu.job_description ,qu.job_topic,
         qu.working_hours, qu.compensation ,
@@ -53,7 +54,7 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
         LEFT JOIN province p ON c.idprovince = p.idprovince
         LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-        where fm.idform = 5 AND f.idstudent = ${req.query.idstudent}
+        where fm.idform = 5 AND f.idstudent = ${id}
         GROUP BY f.idfm10_21_coop`,
       {
         type: QueryTypes.SELECT,

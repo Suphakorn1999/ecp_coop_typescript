@@ -6,6 +6,7 @@ import { Student } from './studentModel';
   timestamps: false,
   tableName: 'activity_student',
 })
+
 export class Activity_Student extends Model {
   @Column({
     type: DataType.INTEGER,
