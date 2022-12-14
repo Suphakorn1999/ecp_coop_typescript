@@ -14,17 +14,22 @@ export const createExcleStudent: RequestHandler = async (req,res,next: express.N
   var values:any[] = [];
   var dataStudent = jsondata.data;
 
+  const yearId = await Year.findAll({where:{year:dataStudent.year,term:dataStudent.term}});
+  const branchId = await Branch.findAll({where:{name_branch:dataStudent.branch}});
+  const study_groupId = await Study_group.findAll({where:{name_study_group:dataStudent.study_group}});
+
     for (var i = 0; i < dataStudent.length; i++) {
         let studentID = dataStudent[i].studentID;
         let idrole = 1
         let preName = dataStudent[i].prename_student?dataStudent[i].prename_student.replaceAll(" ", ""):null;
         let fName = dataStudent[i].firstNameThai?dataStudent[i].firstNameThai.replaceAll(" ", ""):null;
         let lName = dataStudent[i].lastNameThai?dataStudent[i].lastNameThai.replaceAll(" ", ""):null;
-        let idyear = dataStudent[i].idyear;
-        let idbranch = dataStudent[i].idbranch;
-        let idstudy_group = dataStudent[i].idstudy_group
-        values.push({studentID,idrole,preName,fName,lName,idyear,idbranch,idstudy_group})
+        let year = yearId[0].idyear;
+        let Id_branch = branchId[0].idbranch;
+        let Id_study_group = study_groupId[0].idstudy_group;
+        values.push({studentID,idrole,preName,fName,lName,year,Id_branch,Id_study_group})
     }
+    
 
     values.forEach(async e=>{
         await Student.findAll({
@@ -34,8 +39,6 @@ export const createExcleStudent: RequestHandler = async (req,res,next: express.N
         }).then(async data =>{
             if(data.length == 0){
                 await Student.create({e})
-            }else{
-                return res.status(400).json({ message: 'student already exists' });
             }
         })
     })

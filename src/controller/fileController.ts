@@ -8,6 +8,7 @@ import path from 'path';
 const { Op } = require('sequelize');
 
 export const getFile: RequestHandler = async (req, res, next) => {
+  try{
     const id = req.body.user.id
     const file = await File.findAll({where:{idstudent:id},
       attributes: [
@@ -36,8 +37,13 @@ export const getFile: RequestHandler = async (req, res, next) => {
     if (file.length > 0) {
         return res.status(200).json({ message: 'File fetched successfully', data: file });
     } else {
-        return res.status(400).json({ message: 'File not found' });
+        return res.status(200).json({ message: 'File not found', data: [] });
     }
+  }
+  catch(err){
+    return res.status(500).json({ message: 'File not found' });
+  }
+    
 }
 
 export const deleteFile: RequestHandler = async (
