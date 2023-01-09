@@ -2,10 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const assignmentController_1 = require("../controller/assignmentController");
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenStudent } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
 router.post('/create', verifyToken, assignmentController_1.createAssignment);
-router.get('/get', verifyToken, assignmentController_1.getAssignment);
+router.get('/get', verifyTokenStudent, assignmentController_1.getAssignment);
 router.put('/update', verifyToken, assignmentController_1.updateAssignment);
 router.delete('/delete', verifyToken, assignmentController_1.deleteAssignment);
+router.get('/getAdmin', verifyToken, assignmentController_1.getAssignmentAdmin);
 exports.default = router;

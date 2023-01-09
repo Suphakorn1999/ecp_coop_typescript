@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const pointFm10_11Controller_1 = require("../controller/pointFm10_11Controller");
+const { verifyToken } = require('../middlewares/jwtHandler');
+const router = (0, express_1.Router)();
+router.get('/coop', verifyToken, pointFm10_11Controller_1.getFm10_11_coop);
+router.get('/question', verifyToken, pointFm10_11Controller_1.getquestionfm10_11_part1);
+router.get('/question2', verifyToken, pointFm10_11Controller_1.getquestionfm10_11_part2);
+router.post('/coop', verifyToken, pointFm10_11Controller_1.createFm10_11_coop);
+router.post('/point', verifyToken, pointFm10_11Controller_1.createFm10_11_point);
+router.put('/coop', verifyToken, pointFm10_11Controller_1.updateFm10_11_coop);
+router.put('/point', verifyToken, pointFm10_11Controller_1.updateFm10_11point);
+router.get('/detail', verifyToken, pointFm10_11Controller_1.getFm10_11_detailpart1);
+router.get('/detail2', verifyToken, pointFm10_11Controller_1.getFm10_11_detailpart2);
+exports.default = router;

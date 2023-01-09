@@ -108,6 +108,80 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
     
 }
 
+export const getFm10_21detailadmin: RequestHandler = async (req, res, next) => {
+    const fm21: Array<any> = await Connection.query(
+      `SELECT f.idfm10_21_coop,an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
+        b.name_branch, fa.name_factory, p.name_province ,p.region,
+        qu.job_position , qu.job_description ,qu.job_topic,
+        qu.working_hours, qu.compensation ,
+        c.name_company, c.address, c.tel,
+        c.number_of_employee
+        FROM student s 
+        LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+        LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
+        LEFT JOIN answerfm10_21 an ON f.idfm10_21_coop = an.idfm10_21_coop
+        LEFT JOIN question q ON an.idquestion = q.idquestion
+        LEFT JOIN form fm ON q.idform = fm.idform
+        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN branch b ON s.idbranch = b.idbranch
+        LEFT JOIN company c ON sc.idcompany = c.idcompany
+        LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
+        LEFT JOIN province p ON c.idprovince = p.idprovince
+        LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+        where fm.idform = 5 AND f.idstudent = ${req.query.idstudent}
+        GROUP BY f.idfm10_21_coop`,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+    const question = async (idfm10_21_coop:any,idquestion:any) => {
+      return await Connection.query(
+      `SELECT an.idfm10_21_coop,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"idsub_question",q.idsub_question,"topic",q.name_question,"point",an.answer,"note",an.note)ORDER BY q.idquestion ASC),"]") AS FM10_21
+      FROM answerfm10_21 an
+      LEFT JOIN fm10_21_coop f ON an.idfm10_21_coop = f.idfm10_21_coop
+      LEFT JOIN question q ON an.idquestion = q.idquestion
+      LEFT JOIN form fm ON q.idform = fm.idform
+      where an.idfm10_21_coop = ${idfm10_21_coop} AND q.idsub_question = ${idquestion}
+      GROUP BY an.idfm10_21_coop`,
+     {
+        type: QueryTypes.SELECT,
+      },
+    );
+    }
+    
+
+    const fm21_2: Array<any> = await Connection.query(
+      `SELECT q.idquestion,q.name_question
+      FROM question q
+      LEFT JOIN form fm ON q.idform = fm.idform
+      where fm.idform = 5 AND (q.idquestion = 31 OR q.idquestion = 38 OR q.idquestion = 45)
+      GROUP BY q.idquestion
+      `,
+     {
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    fm21.forEach((e: any) => {
+      e.HEADER = fm21_2;
+    })
+
+    for(let i  of fm21){
+      for(let h of i.HEADER){
+        h.FM10_21 = (await question(i.idfm10_21_coop,h.idquestion))[0]
+        h.FM10_21 = JSON.parse(h.FM10_21.FM10_21)
+      }
+    }
+    
+
+
+    return res.status(200).json({
+      message: 'Fm10_21point fetched successfully',
+      data: fm21,
+    });
+    
+}
+
 export const getquestionfm10_21: RequestHandler = async (req, res, next) => {
   const question = async (idquestion:any) => {
       return await Connection.query(

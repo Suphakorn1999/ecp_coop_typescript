@@ -23,6 +23,4 @@ router.put('/point',verifyToken, updateFm10_11point);
 router.get('/detail',verifyToken, getFm10_11_detailpart1);
 router.get('/detail2',verifyToken, getFm10_11_detailpart2);
 
-
-
 export default router;

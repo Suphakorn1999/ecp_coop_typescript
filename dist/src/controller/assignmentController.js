@@ -9,8 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAssignment = exports.updateAssignment = exports.getAssignmentById = exports.getAssignment = exports.createAssignment = void 0;
+exports.getAssignmentAdmin = exports.deleteAssignment = exports.updateAssignment = exports.getAssignmentById = exports.getAssignment = exports.createAssignment = void 0;
 const assignmentFileModel_1 = require("../models/assignmentFileModel");
+const studentModel_1 = require("../models/studentModel");
+const YearModel_1 = require("../models/YearModel");
+const { Op } = require('sequelize');
 const createAssignment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     const assignmentAll = yield assignmentFileModel_1.AssignmentFile.findAll({
@@ -30,10 +33,36 @@ const createAssignment = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.createAssignment = createAssignment;
 const getAssignment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const assignment = yield assignmentFileModel_1.AssignmentFile.findAll();
-    return res
-        .status(200)
-        .json({ message: 'Assignment get successfully', data: assignment });
+    const id = req.body.user.id;
+    const date = req.query.time;
+    const student = yield studentModel_1.Student.findAll({
+        where: { idstudent: id },
+        include: [{ model: YearModel_1.Year, as: 'year', where: { status_year: 'yes' } }],
+    });
+    if (student.length > 0) {
+        const assignment = yield assignmentFileModel_1.AssignmentFile.findAll({
+            where: { status_assignment_file: 'active' },
+        });
+        let data = [];
+        assignment.forEach((e) => {
+            e.start_date = new Date(e.start_date);
+            e.end_date = new Date(e.end_date);
+            if (e.start_date <= new Date(date) && e.end_date >= new Date(date)) {
+                data.push(e);
+            }
+            else if (e.start_date == null && e.end_date == null) {
+                data.push(null);
+            }
+        });
+        return res
+            .status(200)
+            .json({ message: 'Assignment get successfully', data: data });
+    }
+    else {
+        return res
+            .status(400)
+            .json({ message: 'student is not in the current academic year' });
+    }
 });
 exports.getAssignment = getAssignment;
 const getAssignmentById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -60,3 +89,10 @@ const deleteAssignment = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.deleteAssignment = deleteAssignment;
+const getAssignmentAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const assignment = yield assignmentFileModel_1.AssignmentFile.findAll({ where: { status_assignment_file: 'active' } });
+    return res
+        .status(200)
+        .json({ message: 'Assignment get successfully', data: assignment });
+});
+exports.getAssignmentAdmin = getAssignmentAdmin;

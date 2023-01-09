@@ -12,9 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginAdmin = exports.createAdmin = void 0;
+exports.allcount = exports.loginAdmin = exports.createAdmin = void 0;
 const adminModel_1 = require("../models/adminModel");
 const dotenv_1 = __importDefault(require("dotenv"));
+const companyModel_1 = require("../models/companyModel");
+const studentModel_1 = require("../models/studentModel");
+const YearModel_1 = require("../models/YearModel");
+const teacherModel_1 = require("../models/teacherModel");
 dotenv_1.default.config();
 const CryptoJS = require('crypto-js');
 const { generateToken } = require('../middlewares/jwtHandler');
@@ -64,3 +68,19 @@ const loginAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.loginAdmin = loginAdmin;
+const allcount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const count_company = yield companyModel_1.Company.count();
+    const count_student = yield studentModel_1.Student.count();
+    const count_teacher = yield teacherModel_1.Teacher.count();
+    const year = yield YearModel_1.Year.findAll({ where: { status_year: "yes" } });
+    return res.status(200).json({
+        message: 'Count data',
+        data: {
+            count_company: count_company,
+            count_student: count_student,
+            count_teacher: count_teacher,
+            year: year,
+        },
+    });
+});
+exports.allcount = allcount;

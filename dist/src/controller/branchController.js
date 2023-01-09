@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllBranch = exports.deleteBranch = exports.updateBranch = exports.createBranch = void 0;
 const factoryModel_1 = require("../models/factoryModel");
 const branchModel_1 = require("../models/branchModel");
+const { Op } = require('sequelize');
 const createBranch = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const Allbranch = yield branchModel_1.Branch.findAll({
         where: { name_branch: req.body.name_branch },
@@ -46,7 +47,18 @@ const deleteBranch = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.deleteBranch = deleteBranch;
 const getAllBranch = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const Allbranches = yield branchModel_1.Branch.findAll({ include: [{ model: factoryModel_1.Factory }] });
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const Allbranches = yield branchModel_1.Branch.findAll({
+        include: [{
+                model: factoryModel_1.Factory,
+                as: 'factory',
+            }],
+        offset: offset,
+        limit: limit,
+        where: { [Op.or]: [{ name_branch: { [Op.like]: `%${search_name}%` } }, { '$factory.name_factory$': { [Op.like]: `%${search_name}%` } }] },
+    });
     return res
         .status(200)
         .json({ message: 'Branches fetched successfully', data: Allbranches });

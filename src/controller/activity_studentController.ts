@@ -5,6 +5,7 @@ import { Activity } from '../models/activityModel';
 import { Student } from '../models/studentModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'Sequelize';
+
 export const createActivityStudent: RequestHandler = async (req, res, next:express.NextFunction) => {
   const activity = await Activity_Student.findAll({
     where: { idstudent: req.body.idstudent, idactivity: req.body.idactivity },
@@ -53,8 +54,9 @@ export const getActivityStudent: RequestHandler = async (req:any, res, next) => 
         FROM student s 
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
-        JOIN year y ON s.idyear = y.idyear 
-        WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%'
+        JOIN year y ON s.idyear = y.idyear
+        JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
+        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear}
         group by s.idstudent 
         limit ${limit} offset ${offset}
         `,

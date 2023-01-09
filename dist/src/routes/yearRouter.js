@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const yearController_1 = require("../controller/yearController");
+const { verifyToken } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
-router.post('/', yearController_1.createYear);
-router.get('/', yearController_1.getAllYear);
+router.post('/', verifyToken, yearController_1.createYear);
+router.get('/', verifyToken, yearController_1.getAllYear);
+router.post('/update', verifyToken, yearController_1.updateYear);
 exports.default = router;

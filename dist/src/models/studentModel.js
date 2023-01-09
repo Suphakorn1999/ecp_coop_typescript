@@ -13,6 +13,7 @@ const branchModel_1 = require("./branchModel");
 const fileModel_1 = require("./fileModel");
 const roleModel_1 = require("./roleModel");
 const student_companyModel_1 = require("./student_companyModel");
+const study_groupModel_1 = require("./study_groupModel");
 const YearModel_1 = require("./YearModel");
 let Student = class Student extends sequelize_typescript_1.Model {
 };
@@ -77,6 +78,16 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => branchModel_1.Branch)
 ], Student.prototype, "branch", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => study_groupModel_1.Study_group),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: true,
+    })
+], Student.prototype, "idstudy_group", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => study_groupModel_1.Study_group)
+], Student.prototype, "study_group", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,

@@ -19,22 +19,36 @@ const branchModel_1 = require("../models/branchModel");
 const factoryModel_1 = require("../models/factoryModel");
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
+const study_groupModel_1 = require("../models/study_groupModel");
 const createExcleStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const jsondata = req.body;
     var values = [];
     var dataStudent = jsondata.data;
+    const yearId = yield YearModel_1.Year.findAll({ where: { year: dataStudent.year, term: dataStudent.term } });
+    const branchId = yield branchModel_1.Branch.findAll({ where: { name_branch: dataStudent.branch } });
+    const study_groupId = yield study_groupModel_1.Study_group.findAll({ where: { name_study_group: dataStudent.study_group } });
     for (var i = 0; i < dataStudent.length; i++) {
-        if (typeof dataStudent[i].studentId != "number") {
-            return res.status(400).json({ message: 'StudentId is not a number' });
-        }
-        let studentid = dataStudent[i].studentId;
-        let firstNameThai = dataStudent[i].firstNameThai ? dataStudent[i].firstNameThai.replaceAll(" ", "") : null;
-        let lastNameThai = dataStudent[i].lastNameThai ? dataStudent[i].lastNameThai.replaceAll(" ", "") : null;
-        values.push([studentid, firstNameThai, lastNameThai]);
+        let studentID = dataStudent[i].studentID;
+        let idrole = 1;
+        let preName = dataStudent[i].prename_student ? dataStudent[i].prename_student.replaceAll(" ", "") : null;
+        let fName = dataStudent[i].firstNameThai ? dataStudent[i].firstNameThai.replaceAll(" ", "") : null;
+        let lName = dataStudent[i].lastNameThai ? dataStudent[i].lastNameThai.replaceAll(" ", "") : null;
+        let year = yearId[0].idyear;
+        let Id_branch = branchId[0].idbranch;
+        let Id_study_group = study_groupId[0].idstudy_group;
+        values.push({ studentID, idrole, preName, fName, lName, year, Id_branch, Id_study_group });
     }
-    for (var i = 0; i < values.length; i++) {
-        yield studentModel_1.Student.create(values[i]);
-    }
+    values.forEach((e) => __awaiter(void 0, void 0, void 0, function* () {
+        yield studentModel_1.Student.findAll({
+            where: {
+                student_id: e.studentID
+            }
+        }).then((data) => __awaiter(void 0, void 0, void 0, function* () {
+            if (data.length == 0) {
+                yield studentModel_1.Student.create({ e });
+            }
+        }));
+    }));
     return res
         .status(200)
         .json({ message: 'Students created successfully' });
@@ -70,8 +84,18 @@ const createOneStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.createOneStudent = createOneStudent;
 const getAllStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const students = yield config_1.default.query('SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,CONCAT(y.term,"/",y.year) AS year,b.name_branch,f.name_factory,s.status FROM student s LEFT JOIN year y ON s.idyear = y.idyear LEFT JOIN branch b ON s.idbranch = b.idbranch LEFT JOIN factory f ON b.idfactory = f.idfactory', { type: sequelize_1.QueryTypes.SELECT });
-    // const students = await Student.findAll({include : [{model: Year},{model: Branch,include : [{model: Factory}]}]});
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const students = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status 
+      FROM student s 
+      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+      where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%'
+      limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
     return res
         .status(200)
         .json({ message: 'Students fetched successfully', data: students });
@@ -90,22 +114,25 @@ const getAllStudentByYear = (req, res, next) => __awaiter(void 0, void 0, void 0
 exports.getAllStudentByYear = getAllStudentByYear;
 const getStudentById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.query.id;
-    const students = yield studentModel_1.Student.findByPk(id, { include: [{ model: YearModel_1.Year }, { model: branchModel_1.Branch, include: [{ model: factoryModel_1.Factory }] }], attributes: ['student_id', 'prename_student', 'fname_student', 'lname_student', 'status'] });
+    const students = yield studentModel_1.Student.findByPk(id, { include: [{ model: YearModel_1.Year }, { model: branchModel_1.Branch, include: [{ model: factoryModel_1.Factory }] }, { model: study_groupModel_1.Study_group }], attributes: ['idstudent', 'student_id', 'prename_student', 'fname_student', 'lname_student', 'status'] });
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });
 });
 exports.getStudentById = getStudentById;
 const updateStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.query.id;
-    const student = yield studentModel_1.Student.findByPk(id);
-    if (!student) {
+    const { id } = req.params;
+    const student = yield studentModel_1.Student.findAll({ where: { idstudent: id } });
+    if (student.length > 0) {
+        yield studentModel_1.Student.update(Object.assign({}, req
+            .body), { where: { idstudent: id } });
+        return res
+            .status(200)
+            .json({ message: 'Student updated successfully' });
+    }
+    else {
         return res.status(400).json({ message: 'Student not found' });
     }
-    const updatedStudent = yield student.update(req.body);
-    return res
-        .status(200)
-        .json({ message: 'Student updated successfully', data: updatedStudent });
 });
 exports.updateStudent = updateStudent;
 const deleteStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -134,7 +161,7 @@ const getStudentByToken = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.getStudentByToken = getStudentByToken;
 const getStudentByStudentId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.query.StudentId;
-    const students = yield studentModel_1.Student.findOne({ where: { student_id: id }, include: [{ model: YearModel_1.Year }, { model: branchModel_1.Branch, include: [{ model: factoryModel_1.Factory }] }], attributes: ['student_id', 'prename_student', 'fname_student', 'lname_student', 'status'] });
+    const students = yield studentModel_1.Student.findOne({ where: { student_id: id }, include: [{ model: YearModel_1.Year }, { model: branchModel_1.Branch, include: [{ model: factoryModel_1.Factory }] }, { model: study_groupModel_1.Study_group }], attributes: ['idstudent', 'student_id', 'prename_student', 'fname_student', 'lname_student', 'status'] });
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });

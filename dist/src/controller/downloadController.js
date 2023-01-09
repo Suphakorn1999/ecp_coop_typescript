@@ -24,7 +24,7 @@ const downloadFile = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     let name = CryptoJS.AES.decrypt(namefile, process.env.HEX).toString(CryptoJS.enc.Utf8);
     const file = fs_1.default.createReadStream('public/uploads/' + name);
-    // res.setHeader('Content-disposition', 'attachment; filename=' + req.query.file);
+    res.setHeader('Content-disposition', 'attachment; filename=' + name);
     res.setHeader('Content-type', 'application/pdf');
     file.pipe(res);
 });

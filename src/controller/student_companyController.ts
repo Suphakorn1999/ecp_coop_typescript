@@ -37,7 +37,7 @@ export const getAllStudentCompany: RequestHandler = async (req:any, res, next) =
       LEFT JOIN company c ON st.idcompany = c.idcompany 
       JOIN year y ON s.idyear = y.idyear 
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%'
-      ORDER BY y.year ASC, y.term ASC
+      ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
       limit ${limit} offset ${offset}
       `,
       { type: QueryTypes.SELECT },

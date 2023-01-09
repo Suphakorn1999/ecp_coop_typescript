@@ -2,9 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const adminController_1 = require("../controller/adminController");
-const { verifyTokenAdmin } = require('../middlewares/jwtHandler');
+const { verifyTokenAdmin, verifyToken } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
-router.post("/", adminController_1.createAdmin);
+router.post("/", verifyToken, adminController_1.createAdmin);
 router.post("/login", adminController_1.loginAdmin);
 router.get("/verify", verifyTokenAdmin);
+router.get("/allcount", verifyToken, adminController_1.allcount);
 exports.default = router;

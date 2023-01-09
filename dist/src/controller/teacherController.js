@@ -13,6 +13,7 @@ exports.updateTeacher = exports.getAllTeacher = exports.createTeacher = void 0;
 const teacherModel_1 = require("../models/teacherModel");
 const branchModel_1 = require("../models/branchModel");
 const factoryModel_1 = require("../models/factoryModel");
+const { Op } = require('sequelize');
 const createTeacher = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.idrole = 2;
     if (req.body.branch) {
@@ -37,10 +38,27 @@ const createTeacher = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.createTeacher = createTeacher;
 const getAllTeacher = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const Allteachers = yield teacherModel_1.Teacher.findAll({ where: { status_teacher: 'active' }, include: [{ model: branchModel_1.Branch, include: [{ model: factoryModel_1.Factory }] }], attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher', 'status_teacher'] });
-    return res
-        .status(200)
-        .json({ message: 'Teachers fetched successfully', data: Allteachers });
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const Allteachers = yield teacherModel_1.Teacher.findAll({
+        include: [
+            {
+                model: branchModel_1.Branch,
+                include: [{ model: factoryModel_1.Factory }],
+            },
+        ],
+        attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher', 'status_teacher'],
+        offset: offset,
+        limit: limit,
+        where: {
+            [Op.or]: [
+                { firstname_teacher: { [Op.like]: `%${search_name}%` } },
+                { lastname_teacher: { [Op.like]: `%${search_name}%` } },
+            ],
+        }
+    });
+    return res.status(200).json({ message: 'Teachers fetched successfully', data: Allteachers });
 });
 exports.getAllTeacher = getAllTeacher;
 const updateTeacher = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

@@ -63,6 +63,20 @@ __decorate([
         allowNull: false,
     })
 ], File.prototype, "date_file", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], File.prototype, "note_file", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: false,
+        values: ['pass', 'unchecked', 'not pass'],
+        defaultValue: 'unchecked',
+    })
+], File.prototype, "status_file", void 0);
 File = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,

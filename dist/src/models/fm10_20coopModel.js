@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fm10_20_coop = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const answer10_20Model_1 = require("./answer10_20Model");
-const meetingModel_1 = require("./meetingModel");
+const student_companyModel_1 = require("./student_companyModel");
 let Fm10_20_coop = class Fm10_20_coop extends sequelize_typescript_1.Model {
 };
 __decorate([
@@ -20,18 +20,18 @@ __decorate([
     })
 ], Fm10_20_coop.prototype, "idfm10_20_coop", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => meetingModel_1.Meeting),
+    (0, sequelize_typescript_1.ForeignKey)(() => student_companyModel_1.Student_Company),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: false,
         references: {
-            model: 'meeting',
+            model: 'student_company',
         },
     })
-], Fm10_20_coop.prototype, "idmeeting", void 0);
+], Fm10_20_coop.prototype, "idstudent_company", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => meetingModel_1.Meeting)
-], Fm10_20_coop.prototype, "meeting", void 0);
+    (0, sequelize_typescript_1.BelongsTo)(() => student_companyModel_1.Student_Company)
+], Fm10_20_coop.prototype, "student_company", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,

@@ -101,6 +101,36 @@ __decorate([
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: true,
     })
+], Company.prototype, "coordinator", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], Company.prototype, "fname_coordinator", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], Company.prototype, "lname_coordinator", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], Company.prototype, "rank_coordinator", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], Company.prototype, "department_coordinator", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
 ], Company.prototype, "website", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({

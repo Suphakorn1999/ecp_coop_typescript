@@ -40,10 +40,10 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                     id: student[0].idstudent,
                     studentId: encodeId,
                 });
-                res.redirect(`http://localhost:3000/gettoken?token=${token}`);
+                res.redirect(`https://ecp-coop.ddns.net/gettoken?token=${token}`);
             }
             else {
-                res.redirect(`http://localhost:3000/register?id=${data.studentId[0]}&username_student=${data.uid[0]}`);
+                res.redirect(`https://ecp-coop.ddns.net/register?id=${data.studentId[0]}&username_student=${data.uid[0]}`);
             }
         }
         else if (data.title[0] == 'Teachers') {

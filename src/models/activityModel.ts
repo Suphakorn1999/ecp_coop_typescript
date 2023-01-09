@@ -1,5 +1,6 @@
 import { Table, Model, Column, DataType, HasMany } from 'sequelize-typescript';
 import { Activity_Student } from './activity_studentModel';
+import { Activity_Year } from './activity_yearModel';
 
 @Table({
     timestamps: false,
@@ -30,4 +31,7 @@ export class Activity extends Model {
 
     @HasMany(() => Activity_Student)
     activity_students!: Activity_Student[];
+
+    @HasMany(() => Activity_Year)
+    activity_years!: Activity_Year[];
 }

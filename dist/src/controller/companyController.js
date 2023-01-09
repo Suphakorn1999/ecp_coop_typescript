@@ -14,6 +14,7 @@ const qualificationModel_1 = require("./../models/qualificationModel");
 const companyModel_1 = require("../models/companyModel");
 const provinceModel_1 = require("../models/provinceModel");
 const compantdata = require('../services/company');
+const { Op } = require('sequelize');
 const createCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const province = yield provinceModel_1.Province.findAll({ where: { name_province: req.body.name_province } });
     if (province.length > 0) {
@@ -29,10 +30,58 @@ const createCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.createCompany = createCompany;
 const getAllCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const company = yield companyModel_1.Company.findAll({ include: [{ model: provinceModel_1.Province }, { model: qualificationModel_1.Qualification }] });
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const filter_province = req.query.filter_province ? req.query.filter_province : '';
+    const filter_type_company = req.query.filter_type_company ? req.query.filter_type_company : '';
+    if (filter_province != '' && filter_type_company != '') {
+        const countcompany = yield companyModel_1.Company.count({ where: { name_company: { [Op.like]: `%${search_name}%` }, [Op.or]: [{ type_company_1: filter_type_company }, { type_company_2: filter_type_company }, { type_company_3: filter_type_company }], idprovince: filter_province } });
+        const company = yield companyModel_1.Company.findAll({ include: [{ model: provinceModel_1.Province }, { model: qualificationModel_1.Qualification }], offset: offset, limit: limit, where: { name_company: { [Op.like]: `%${search_name}%` }, [Op.or]: [{ type_company_1: filter_type_company }, { type_company_2: filter_type_company }, { type_company_3: filter_type_company }], idprovince: filter_province } });
+        return res
+            .status(200)
+            .json({ message: 'Company fetched successfully', data: company, count: countcompany });
+    }
+    else if (filter_province != '') {
+        const countcompany = yield companyModel_1.Company.count({
+            where: {
+                [Op.or]: [
+                    { name_company: { [Op.like]: `%${search_name}%` } },
+                    { name_company_eng: { [Op.like]: `%${search_name}%` } },
+                ],
+                idprovince: filter_province
+            },
+        });
+        const company = yield companyModel_1.Company.findAll({
+            include: [{ model: provinceModel_1.Province }, { model: qualificationModel_1.Qualification }],
+            offset: offset,
+            limit: limit,
+            where: {
+                [Op.or]: [
+                    { name_company: { [Op.like]: `%${search_name}%` } },
+                    { name_company_eng: { [Op.like]: `%${search_name}%` } },
+                ],
+                idprovince: filter_province
+            },
+        });
+        return res.status(200).json({
+            message: 'Company fetched successfully',
+            data: company,
+            count: countcompany,
+        });
+    }
+    else if (filter_type_company != '') {
+        const countcompany = yield companyModel_1.Company.count({ where: { name_company: { [Op.like]: `%${search_name}%` }, [Op.or]: [{ type_company_1: filter_type_company }, { type_company_2: filter_type_company }, { type_company_3: filter_type_company }] } });
+        const company = yield companyModel_1.Company.findAll({ include: [{ model: provinceModel_1.Province }, { model: qualificationModel_1.Qualification }], offset: offset, limit: limit, where: { name_company: { [Op.like]: `%${search_name}%` }, [Op.or]: [{ type_company_1: filter_type_company }, { type_company_2: filter_type_company }, { type_company_3: filter_type_company }] } });
+        return res
+            .status(200)
+            .json({ message: 'Company fetched successfully', data: company, count: countcompany });
+    }
+    const countcompany = yield companyModel_1.Company.count({ where: { [Op.or]: [{ name_company: { [Op.like]: `%${search_name}%` } }, { name_company_eng: { [Op.like]: `%${search_name}%` } }] } });
+    const company = yield companyModel_1.Company.findAll({ include: [{ model: provinceModel_1.Province }, { model: qualificationModel_1.Qualification }], offset: offset, limit: limit, where: { [Op.or]: [{ name_company: { [Op.like]: `%${search_name}%` } }, { name_company_eng: { [Op.like]: `%${search_name}%` } }] }, order: [['name_company', 'ASC']] });
     return res
         .status(200)
-        .json({ message: 'Companies fetched successfully', data: company });
+        .json({ message: 'Company fetched successfully', data: company, count: countcompany });
 });
 exports.getAllCompany = getAllCompany;
 const getCompanyById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

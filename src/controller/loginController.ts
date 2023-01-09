@@ -29,46 +29,21 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
         id: student[0].idstudent,
         studentId: encodeId,
       });
-      res.redirect(`http://localhost:3000/gettoken?token=${token}`);
+      res.redirect(`https://ecp-coop.ddns.net/gettoken?token=${token}`);
     }else{
-      res.redirect(`http://localhost:3000/register?id=${data.studentId[0]}&username_student=${data.uid[0]}`);
+      res.redirect(`https://ecp-coop.ddns.net/register?id=${data.studentId[0]}&username_student=${data.uid[0]}`);
     }
   } else if (data.title[0] == 'Teachers') {
-    let idrole:number = 0
-    let idbranch:number = 0
-
-    const role: Role[] = await Role.findAll({where: { name: data.title[0] }});
-    if (role.length > 0) {
-      idrole = role[0].idrole;
-    }
-
-    let name_branch = data.program[0].replace('สาขาวิชา', '');
-
-    const branch = await Branch.findAll({
-      where: { name_branch: name_branch },
+    const teacher = await Teacher.findAll({
+      where: { username_teacher: data.uid[0]},
     });
-    if (branch.length > 0) {
-      idbranch = branch[0].idbranch;
-    }
-
-    const teacher: Teacher[] = await Teacher.findAll({
-      where: { username_teacher: data.uid[0] },
-    });
-
     if (teacher.length > 0) {
-      let token = generateToken({ id: teacher[0].idteacher });
-      res.redirect(`http://localhost:3000/gettoken?token=${token}`);
-    } else {
-      await Teacher.create({
-        prename_teacher: data.prename[0],
-        firstname_teacher: data.firstNameThai[0],
-        lastname_teacher: data.lastNameThai[0],
-        username_teacher: data.uid[0],
-        idrole: idrole || null,
-        idbranch: idbranch || null,
+      let token = generateToken({
+        id: teacher[0].idteacher,
       });
-      let token = generateToken({ id: data.uid[0] });
-      res.redirect(`http://localhost:3000/gettoken?token=${token}`);
+      res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
+    }else{
+      res.redirect(`http://127.0.0.1:5173/register?prename=${data.prename}&firstNameThai=${data.firstNameThai}&lastNameThai=${data.lastNameThai}&username_teacher=${data.uid[0]}`);
     }
   } 
 });

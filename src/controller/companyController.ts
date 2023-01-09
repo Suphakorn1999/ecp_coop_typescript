@@ -73,7 +73,7 @@ export const getAllCompany: RequestHandler = async (req:any, res:any, next) => {
   
 
   const countcompany = await Company.count({where: { [Op.or]: [{name_company: {[Op.like]: `%${search_name}%`}}, {name_company_eng: {[Op.like]: `%${search_name}%`}}] }});
-  const company = await Company.findAll({include: [{model: Province},{model: Qualification}],offset:offset,limit:limit,where: { [Op.or]: [{name_company: {[Op.like]: `%${search_name}%`}}, {name_company_eng: {[Op.like]: `%${search_name}%`}}] }});
+  const company = await Company.findAll({include: [{model: Province},{model: Qualification}],offset:offset,limit:limit,where: { [Op.or]: [{name_company: {[Op.like]: `%${search_name}%`}}, {name_company_eng: {[Op.like]: `%${search_name}%`}}] },order:[[ 'name_company', 'ASC' ]]});
 
   return res
     .status(200)

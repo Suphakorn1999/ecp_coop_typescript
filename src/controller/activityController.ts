@@ -1,6 +1,9 @@
 import express from 'express';
 import { RequestHandler } from 'express';
 import { Activity } from '../models/activityModel';
+import { Activity_Year } from '../models/activity_yearModel';
+import { Year } from '../models/YearModel';
+
 
 export const createActivity: RequestHandler = async (req,res,next: express.NextFunction) => {
     const activity = await Activity.create({...req.body});
@@ -11,7 +14,7 @@ export const createActivity: RequestHandler = async (req,res,next: express.NextF
 }
 
 export const getAllActivity: RequestHandler = async (req, res, next) => {
-    const Allactivities = await Activity.findAll({where: { status: 'active' },order: [['idactivity', 'ASC']]});
+    const Allactivities = await Activity.findAll({where: { status: 'active' },order: [['idactivity', 'ASC']],include:[{model:Activity_Year,where:{idyear:req.query.idyear}}]});
     
     return res
         .status(200)

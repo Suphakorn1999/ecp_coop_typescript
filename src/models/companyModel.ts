@@ -159,6 +159,12 @@ export class Company extends Model {
   })
   type_company_3!: string;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  urlmap!: string;
+
   @CreatedAt
   createdDate!: Date;
 

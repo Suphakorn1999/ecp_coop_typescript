@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const { verifyToken, verifyTokenStudent } = require('../middlewares/jwtHandler');
+const study_groupController_1 = require("../controller/study_groupController");
+const router = (0, express_1.Router)();
+router.post('/', verifyToken, study_groupController_1.createStudy_group);
+router.get('/', verifyToken, study_groupController_1.getStudy_group);
+router.get('/:id', verifyToken, study_groupController_1.getStudy_groupById);
+router.post('/update/:id', verifyToken, study_groupController_1.updateStudy_group);
+router.post('/delete/:id', verifyToken, study_groupController_1.deleteStudy_group);
+exports.default = router;

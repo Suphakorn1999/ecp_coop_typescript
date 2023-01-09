@@ -36,13 +36,17 @@ const createStudentCompany = (req, res, next) => __awaiter(void 0, void 0, void 
 });
 exports.createStudentCompany = createStudentCompany;
 const getAllStudentCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
     const student_company = yield config_1.default.query(`SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
       FROM student s 
       LEFT JOIN student_company st ON s.idstudent = st.idstudent 
       LEFT JOIN company c ON st.idcompany = c.idcompany 
       JOIN year y ON s.idyear = y.idyear 
-      WHERE s.idyear = y.idyear or s.idyear = null 
+      where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%'
       ORDER BY y.year ASC, y.term ASC
+      limit ${limit} offset ${offset}
       `, { type: sequelize_1.QueryTypes.SELECT });
     return res.status(200).json({
         message: 'Student Companies fetched successfully',

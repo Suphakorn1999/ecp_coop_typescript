@@ -12,7 +12,7 @@ router.get("/ById", verifyToken, studentController_1.getStudentById);
 router.get("/student_company", verifyToken, student_companyController_1.getAllStudentCompany);
 router.post("/student_company", student_companyController_1.createStudentCompany);
 router.get("/year", studentController_1.getAllStudentByYear);
-router.put("/", verifyToken, studentController_1.updateStudent);
+router.put("/update/:id", verifyToken, studentController_1.updateStudent);
 router.get("/company/ById", verifyToken, student_companyController_1.getStudentCompany);
 router.get("/token", verifyTokenStudent, studentController_1.getStudentByToken);
 router.get("/studentId", studentController_1.getStudentByStudentId);

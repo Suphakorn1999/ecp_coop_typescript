@@ -6,10 +6,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Year = void 0;
-const studentModel_1 = require("./studentModel");
+exports.Study_group = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-let Year = class Year extends sequelize_typescript_1.Model {
+const studentModel_1 = require("./studentModel");
+let Study_group = class Study_group extends sequelize_typescript_1.Model {
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -17,32 +17,20 @@ __decorate([
         primaryKey: true,
         autoIncrement: true,
     })
-], Year.prototype, "idyear", void 0);
+], Study_group.prototype, "idstudy_group", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.INTEGER,
+        type: sequelize_typescript_1.DataType.STRING(255),
         allowNull: false,
     })
-], Year.prototype, "term", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.INTEGER,
-        allowNull: false,
-    })
-], Year.prototype, "year", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-    })
-], Year.prototype, "status_year", void 0);
+], Study_group.prototype, "name_study_group", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => studentModel_1.Student)
-], Year.prototype, "students", void 0);
-Year = __decorate([
+], Study_group.prototype, "students", void 0);
+Study_group = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,
-        tableName: 'year',
+        tableName: 'study_group',
     })
-], Year);
-exports.Year = Year;
+], Study_group);
+exports.Study_group = Study_group;

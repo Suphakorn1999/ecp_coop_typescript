@@ -29,6 +29,7 @@ const answer10_21Model_1 = require("../models/answer10_21Model");
 const fm10_11coopModel_1 = require("../models/fm10_11coopModel");
 const answer10_11Model_1 = require("../models/answer10_11Model");
 const assignmentFileModel_1 = require("../models/assignmentFileModel");
+const study_groupModel_1 = require("../models/study_groupModel");
 const connection = new sequelize_typescript_1.Sequelize({
     dialect: 'mysql',
     host: 'localhost',
@@ -64,7 +65,9 @@ const connection = new sequelize_typescript_1.Sequelize({
         answer10_21Model_1.Answerfm10_21,
         fm10_11coopModel_1.Fm10_11_coop,
         answer10_11Model_1.Answerfm10_11,
-        assignmentFileModel_1.AssignmentFile
+        assignmentFileModel_1.AssignmentFile,
+        study_groupModel_1.Study_group,
     ],
+    sync: { force: false, alter: true },
 });
 exports.default = connection;
