@@ -60,8 +60,9 @@ const getActivityStudent = (req, res, next) => __awaiter(void 0, void 0, void 0,
         FROM student s 
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
-        JOIN year y ON s.idyear = y.idyear 
-        WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%'
+        JOIN year y ON s.idyear = y.idyear
+        JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
+        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear}
         group by s.idstudent 
         limit ${limit} offset ${offset}
         `, { type: Sequelize_1.QueryTypes.SELECT });

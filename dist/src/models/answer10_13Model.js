@@ -6,11 +6,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Fm10_20_coop = void 0;
+exports.Answerfm10_13 = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const answer10_20Model_1 = require("./answer10_20Model");
-const student_companyModel_1 = require("./student_companyModel");
-let Fm10_20_coop = class Fm10_20_coop extends sequelize_typescript_1.Model {
+const fm10_13coopModel_1 = require("./fm10_13coopModel");
+const questionModel_1 = require("./questionModel");
+let Answerfm10_13 = class Answerfm10_13 extends sequelize_typescript_1.Model {
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -18,45 +18,37 @@ __decorate([
         primaryKey: true,
         autoIncrement: true,
     })
-], Fm10_20_coop.prototype, "idfm10_20_coop", void 0);
+], Answerfm10_13.prototype, "idanswer", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => student_companyModel_1.Student_Company),
+    (0, sequelize_typescript_1.ForeignKey)(() => fm10_13coopModel_1.Fm10_13_coop),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: false,
         references: {
-            model: 'student_company',
+            model: 'fm10_13_coop',
         },
     })
-], Fm10_20_coop.prototype, "idstudent_company", void 0);
+], Answerfm10_13.prototype, "idfm10_13_coop", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => student_companyModel_1.Student_Company)
-], Fm10_20_coop.prototype, "student_company", void 0);
+    (0, sequelize_typescript_1.ForeignKey)(() => questionModel_1.Question),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: false,
+    })
+], Answerfm10_13.prototype, "idquestion", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => questionModel_1.Question)
+], Answerfm10_13.prototype, "question", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-], Fm10_20_coop.prototype, "total_score", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
-    })
-], Fm10_20_coop.prototype, "createdAt", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
-    })
-], Fm10_20_coop.prototype, "updatedAt", void 0);
-__decorate([
-    (0, sequelize_typescript_1.HasMany)(() => answer10_20Model_1.Answerfm10_20)
-], Fm10_20_coop.prototype, "answerfm10_20", void 0);
-Fm10_20_coop = __decorate([
+], Answerfm10_13.prototype, "answer", void 0);
+Answerfm10_13 = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,
-        tableName: 'fm10_20_coop',
+        tableName: 'answerfm10_13',
     })
-], Fm10_20_coop);
-exports.Fm10_20_coop = Fm10_20_coop;
+], Answerfm10_13);
+exports.Answerfm10_13 = Answerfm10_13;

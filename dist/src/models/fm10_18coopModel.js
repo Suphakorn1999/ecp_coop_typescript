@@ -121,6 +121,12 @@ __decorate([
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: true,
     })
+], Fm10_18_coop.prototype, "total_score", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
 ], Fm10_18_coop.prototype, "createdAt", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({

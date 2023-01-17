@@ -6,11 +6,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Fm10_14_coop = void 0;
+exports.Fm10_13_coop = void 0;
 const student_companyModel_1 = require("./student_companyModel");
 const sequelize_typescript_1 = require("sequelize-typescript");
-const answerModel_1 = require("./answerModel");
-let Fm10_14_coop = class Fm10_14_coop extends sequelize_typescript_1.Model {
+const answer10_13Model_1 = require("./answer10_13Model");
+let Fm10_13_coop = class Fm10_13_coop extends sequelize_typescript_1.Model {
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -18,7 +18,7 @@ __decorate([
         primaryKey: true,
         autoIncrement: true,
     })
-], Fm10_14_coop.prototype, "idfm10_14_coop", void 0);
+], Fm10_13_coop.prototype, "idfm10_13_coop", void 0);
 __decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => student_companyModel_1.Student_Company),
     (0, sequelize_typescript_1.Column)({
@@ -28,65 +28,71 @@ __decorate([
             model: 'student_company',
         },
     })
-], Fm10_14_coop.prototype, "idstudent_company", void 0);
+], Fm10_13_coop.prototype, "idstudent_company", void 0);
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => student_companyModel_1.Student_Company)
-], Fm10_14_coop.prototype, "student_company", void 0);
+], Fm10_13_coop.prototype, "student_company", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: false,
     })
-], Fm10_14_coop.prototype, "fname_assessor", void 0);
+], Fm10_13_coop.prototype, "fname_assessor", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: false,
     })
-], Fm10_14_coop.prototype, "lname_assessor", void 0);
+], Fm10_13_coop.prototype, "lname_assessor", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: false,
     })
-], Fm10_14_coop.prototype, "position_assessor", void 0);
+], Fm10_13_coop.prototype, "position_assessor", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: false,
     })
-], Fm10_14_coop.prototype, "department_assessor", void 0);
+], Fm10_13_coop.prototype, "department_assessor", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-], Fm10_14_coop.prototype, "other_Comments", void 0);
+], Fm10_13_coop.prototype, "report_title_th", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-], Fm10_14_coop.prototype, "total_score", void 0);
+], Fm10_13_coop.prototype, "report_title_en", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-], Fm10_14_coop.prototype, "createdAt", void 0);
+], Fm10_13_coop.prototype, "other_comments", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: false,
     })
-], Fm10_14_coop.prototype, "updatedAt", void 0);
+], Fm10_13_coop.prototype, "createdAt", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => answerModel_1.Answerfm10_14)
-], Fm10_14_coop.prototype, "answers", void 0);
-Fm10_14_coop = __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: false,
+    })
+], Fm10_13_coop.prototype, "updatedAt", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => answer10_13Model_1.Answerfm10_13)
+], Fm10_13_coop.prototype, "answerfm10_13", void 0);
+Fm10_13_coop = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,
-        tableName: 'fm10_14_coop',
+        tableName: 'fm10_13_coop',
     })
-], Fm10_14_coop);
-exports.Fm10_14_coop = Fm10_14_coop;
+], Fm10_13_coop);
+exports.Fm10_13_coop = Fm10_13_coop;

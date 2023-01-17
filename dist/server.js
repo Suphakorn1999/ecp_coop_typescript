@@ -16,6 +16,8 @@ const port = process.env.PORT;
 app.use((0, cors_1.default)({
     credentials: true,
     origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Host, Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-XSRF-TOKEN, Origin, Access-Control-Request-Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Allow-Origin, access-control-allow-origin, Access-Control-Allow-Credentials, access-control-allow-credentials, Access-Control-Allow-Headers, access-control-allow-headers, Access-Control-Allow-Methods, access-control-allow-methods']
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -47,6 +49,7 @@ const fileRouter_1 = __importDefault(require("./src/routes/fileRouter"));
 const qualificationRouter_1 = __importDefault(require("./src/routes/qualificationRouter"));
 const pointfm10_11Router_1 = __importDefault(require("./src/routes/pointfm10_11Router"));
 const study_groupRouter_1 = __importDefault(require("./src/routes/study_groupRouter"));
+const pointfm10_13Router_1 = __importDefault(require("./src/routes/pointfm10_13Router"));
 app.use('/company', companyRouter_1.default);
 app.use('/province', provinceRouter_1.default);
 app.use('/student', studentRouter_1.default);
@@ -72,6 +75,7 @@ app.use('/file', fileRouter_1.default);
 app.use('/qualification', qualificationRouter_1.default);
 app.use('/fm10_11', pointfm10_11Router_1.default);
 app.use('/study_group', study_groupRouter_1.default);
+app.use('/fm10_13', pointfm10_13Router_1.default);
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });

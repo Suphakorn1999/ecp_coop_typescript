@@ -10,8 +10,8 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
     const idteacher = req.query.idteacher;
     if(idteacher == undefined){
       const fm10_11coop: Array<any> = await Connection.query(
-    `SELECT c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.createdAt,f.updatedAt
+    `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -21,21 +21,20 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    GROUP BY s.idyear,sc.idstudent_company`,
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    `,
     { type: QueryTypes.SELECT },
   );
 
-  fm10_11coop.forEach(async (fm10_11coop) => {
-    fm10_11coop.student = JSON.parse(fm10_11coop.student);
-  });
 
   return res
     .status(200)
     .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
   }else{
      const fm10_11coop: Array<any> = await Connection.query(
-    `SELECT c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.createdAt,f.updatedAt
+    `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -45,14 +44,11 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    WHERE t.idteacher = ${req.query.idteacher}
-    GROUP BY s.idyear,sc.idstudent_company`,
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher}`,
     { type: QueryTypes.SELECT },
   );
-
-  fm10_11coop.forEach(async (fm10_11coop) => {
-    fm10_11coop.student = JSON.parse(fm10_11coop.student);
-  });
 
   return res
     .status(200)
@@ -261,7 +257,7 @@ export const getFm10_11_detailpart1: RequestHandler = async (req, res) => {
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
@@ -330,7 +326,7 @@ export const getFm10_11_detailpart2: RequestHandler = async (req, res) => {
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company

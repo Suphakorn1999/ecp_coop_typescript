@@ -18,8 +18,10 @@ const sequelize_1 = require("sequelize");
 const fm10_11coopModel_1 = require("../models/fm10_11coopModel");
 const answer10_11Model_1 = require("../models/answer10_11Model");
 const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_11coop = yield config_1.default.query(`SELECT c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.createdAt,f.updatedAt
+    const idteacher = req.query.idteacher;
+    if (idteacher == undefined) {
+        const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -29,13 +31,32 @@ const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    GROUP BY s.idyear,sc.idstudent_company`, { type: sequelize_1.QueryTypes.SELECT });
-    fm10_11coop.forEach((fm10_11coop) => __awaiter(void 0, void 0, void 0, function* () {
-        fm10_11coop.student = JSON.parse(fm10_11coop.student);
-    }));
-    return res
-        .status(200)
-        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    `, { type: sequelize_1.QueryTypes.SELECT });
+        return res
+            .status(200)
+            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    }
+    else {
+        const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher}`, { type: sequelize_1.QueryTypes.SELECT });
+        return res
+            .status(200)
+            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    }
 });
 exports.getFm10_11_coop = getFm10_11_coop;
 const getquestionfm10_11_part1 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -214,7 +235,7 @@ const getFm10_11_detailpart1 = (req, res) => __awaiter(void 0, void 0, void 0, f
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
@@ -271,7 +292,7 @@ const getFm10_11_detailpart2 = (req, res) => __awaiter(void 0, void 0, void 0, f
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company

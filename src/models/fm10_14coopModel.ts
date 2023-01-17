@@ -69,6 +69,12 @@ export class Fm10_14_coop extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  total_score!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   createdAt?: any;
 
   @Column({

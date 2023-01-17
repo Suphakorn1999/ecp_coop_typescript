@@ -9,7 +9,8 @@ import {
     updateStudent,
     getStudentByToken,
     getStudentByStudentId,
-    updateStudentByStudentId
+    updateStudentByStudentId,
+    getsummarizeStudent
 } from "../controller/studentController";
 
 import {
@@ -32,6 +33,7 @@ router.get("/company/ById",verifyToken, getStudentCompany);
 router.get("/token",verifyTokenStudent, getStudentByToken);
 router.get("/studentId", getStudentByStudentId);
 router.put("/studentId", updateStudentByStudentId);
+router.get("/summarize",verifyToken, getsummarizeStudent);
 
 
 

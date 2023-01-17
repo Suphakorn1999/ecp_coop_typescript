@@ -48,7 +48,7 @@ const getFm10_20detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 exports.getFm10_20detail = getFm10_20detail;
 const getFm10_20coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fm10_20coop = yield config_1.default.query(`SELECT sc.idstudent_company,c.name_company,c.address,c.tel,
-    t.prename_teacher,t.firstname_teacher,t.lastname_teacher,s.prename_student,s.fname_student,s.lname_student,b.name_branch,y.term,y.year,f.createdAt,f.updatedAt
+    t.prename_teacher,t.firstname_teacher,t.lastname_teacher,s.prename_student,s.fname_student,s.lname_student,b.name_branch,y.term,y.year,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -58,9 +58,6 @@ const getFm10_20coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory`, { type: sequelize_1.QueryTypes.SELECT });
-    fm10_20coop.forEach((fm10_20coop) => __awaiter(void 0, void 0, void 0, function* () {
-        fm10_20coop.student = JSON.parse(fm10_20coop.student);
-    }));
     return res
         .status(200)
         .json({ message: 'Fm10_20coop fetched successfully', data: fm10_20coop });

@@ -63,7 +63,7 @@ const getFm10_18coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
-    f.get_into_work,f.other_comments,f.createdAt,f.updatedAt
+    f.get_into_work,f.other_comments,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN fm10_18_coop f ON sc.idstudent_company = f.idstudent_company
@@ -72,9 +72,6 @@ const getFm10_18coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     `, { type: sequelize_1.QueryTypes.SELECT });
-    fm10_18coop.forEach((fm10_18coop) => __awaiter(void 0, void 0, void 0, function* () {
-        fm10_18coop.student = JSON.parse(fm10_18coop.student);
-    }));
     return res
         .status(200)
         .json({ message: 'Fm10_18coop fetched successfully', data: fm10_18coop });

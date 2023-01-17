@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFm10_14coop = exports.updateFM10_14point = exports.getquestionfm10_14 = exports.createFm10_14point = exports.createFm10_14coop = exports.getFm10_14totalpoint = exports.getFm10_14coop = exports.getFm10_14detail = void 0;
+exports.updateFm10_14coop = exports.updateFM10_14point = exports.getquestionfm10_14 = exports.createFm10_14point = exports.createFm10_14coop = exports.getFm10_14coop = exports.getFm10_14detail = void 0;
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
 const fm10_14coopModel_1 = require("../models/fm10_14coopModel");
@@ -49,7 +49,7 @@ exports.getFm10_14detail = getFm10_14detail;
 const getFm10_14coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
-      fm.department_assessor,fm.other_Comments,fm.createdAt,fm.updatedAt
+      fm.department_assessor,fm.other_Comments,f.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
@@ -60,27 +60,6 @@ const getFm10_14coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
 });
 exports.getFm10_14coop = getFm10_14coop;
-const getFm10_14totalpoint = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
-      c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
-      fm.department_assessor,fm.other_Comments,fm.createdAt,fm.updatedAt,
-      SUM(a.answer) AS point
-      FROM student_company sc 
-      LEFT JOIN student s ON sc.idstudent = s.idstudent 
-      LEFT JOIN company c ON sc.idcompany = c.idcompany 
-      LEFT JOIN branch b ON s.idbranch = b.idbranch 
-      LEFT JOIN year y ON s.idyear = y.idyear 
-      LEFT JOIN factory f ON b.idfactory = f.idfactory 
-      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company 
-      LEFT JOIN answerfm10_14 a ON fm.idfm10_14_coop = a.idfm10_14_coop
-      LEFT JOIN question q ON a.idquestion = q.idquestion
-      LEFT JOIN form fom ON q.idform = fom.idform
-      where q.count_question = 'yes'
-      AND q.idform = 2
-      GROUP BY sc.idstudent_company`, { type: sequelize_1.QueryTypes.SELECT });
-    return res.status(200).json({ message: 'Fm10_14totalpoint fetched successfully', data: fm10_14coop });
-});
-exports.getFm10_14totalpoint = getFm10_14totalpoint;
 const createFm10_14coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const Allfm10_14 = yield fm10_14coopModel_1.Fm10_14_coop.findAll({ where: { idstudent_company: req.body.idstudent_company } });
     if (Allfm10_14.length > 0) {

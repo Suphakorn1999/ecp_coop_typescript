@@ -6,7 +6,6 @@ const { verifyToken } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
 router.get('/detail', verifyToken, pointFm10_14Controller_1.getFm10_14detail);
 router.get('/coop', verifyToken, pointFm10_14Controller_1.getFm10_14coop);
-router.get('/totalpoint', verifyToken, pointFm10_14Controller_1.getFm10_14totalpoint);
 router.post('/coop', verifyToken, pointFm10_14Controller_1.createFm10_14coop);
 router.post('/point', verifyToken, pointFm10_14Controller_1.createFm10_14point);
 router.get('/question', verifyToken, pointFm10_14Controller_1.getquestionfm10_14);

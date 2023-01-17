@@ -154,6 +154,12 @@ __decorate([
     })
 ], Company.prototype, "type_company_3", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.TEXT,
+        allowNull: true,
+    })
+], Company.prototype, "urlmap", void 0);
+__decorate([
     sequelize_typescript_1.CreatedAt
 ], Company.prototype, "createdDate", void 0);
 __decorate([

@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteActivity = exports.updateActivity = exports.getActivityById = exports.getAllActivity = exports.createActivity = void 0;
 const activityModel_1 = require("../models/activityModel");
+const activity_yearModel_1 = require("../models/activity_yearModel");
 const createActivity = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const activity = yield activityModel_1.Activity.create(Object.assign({}, req.body));
     return res
@@ -19,7 +20,7 @@ const createActivity = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.createActivity = createActivity;
 const getAllActivity = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const Allactivities = yield activityModel_1.Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']] });
+    const Allactivities = yield activityModel_1.Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: activity_yearModel_1.Activity_Year, where: { idyear: req.query.idyear } }] });
     return res
         .status(200)
         .json({ message: 'Activities fetched successfully', data: Allactivities });

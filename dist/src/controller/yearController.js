@@ -12,13 +12,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateYear = exports.getAllYear = exports.createYear = void 0;
 const YearModel_1 = require("./../models/YearModel");
 const createYear = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const Allyear = yield YearModel_1.Year.findAll({ where: { year: req.body.year, term: req.body.term } });
-    if (Allyear.length > 0) {
-        return res.status(400).json({ message: 'ปีการศึกษามีอยู่แล้ว' });
+    try {
+        const status = req.body.status_year;
+        const Allyear = yield YearModel_1.Year.findAll({ where: { year: req.body.year, term: req.body.term } });
+        if (Allyear.length > 0) {
+            return res.status(400).json({ message: 'ปีการศึกษามีอยู่แล้ว' });
+        }
+        if (status == 'yes') {
+            const updateyear = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+            if (updateyear.length > 0) {
+                yield updateyear[0].update({ status_year: 'no' });
+            }
+            const year = yield YearModel_1.Year.create(Object.assign({}, req.body));
+            if (year) {
+                return res.status(200).json({ message: 'Year created successfully' });
+            }
+        }
+        else if (status == 'no') {
+            const year = yield YearModel_1.Year.create(Object.assign({}, req.body));
+            if (year) {
+                return res.status(200).json({ message: 'Year created successfully' });
+            }
+        }
     }
-    const year = yield YearModel_1.Year.create(Object.assign({}, req.body));
-    if (year) {
-        return res.status(200).json({ message: 'Year created successfully' });
+    catch (_a) {
+        return res.status(400).json({ message: 'Year created failed' });
     }
 });
 exports.createYear = createYear;
@@ -27,6 +45,7 @@ const getAllYear = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const Allyears = yield YearModel_1.Year.findAll({
         order: [
+            ['status_year', 'yes'],
             ['year', 'DESC'],
             ['term', 'DESC'],
         ],
@@ -39,13 +58,35 @@ const getAllYear = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getAllYear = getAllYear;
 const updateYear = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const year = yield YearModel_1.Year.findByPk(req.query.id);
-    if (year) {
-        yield year.update(Object.assign({}, req.body));
-        return res.status(200).json({ message: 'Year updated successfully' });
+    try {
+        const status = req.body.status_year;
+        if (status == 'yes') {
+            const updateyear = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+            if (updateyear.length > 0) {
+                yield updateyear[0].update({ status_year: 'no' });
+            }
+            const year = yield YearModel_1.Year.findByPk(req.query.id);
+            if (year) {
+                yield year.update(Object.assign({}, req.body));
+                return res.status(200).json({ message: 'Year updated successfully' });
+            }
+            else {
+                return res.status(400).json({ message: 'Year not found' });
+            }
+        }
+        else if (status == 'no') {
+            const year = yield YearModel_1.Year.findByPk(req.query.id);
+            if (year) {
+                yield year.update(Object.assign({}, req.body));
+                return res.status(200).json({ message: 'Year updated successfully' });
+            }
+            else {
+                return res.status(400).json({ message: 'Year not found' });
+            }
+        }
     }
-    else {
-        return res.status(400).json({ message: 'Year not found' });
+    catch (_b) {
+        return res.status(400).json({ message: 'Year updated failed' });
     }
 });
 exports.updateYear = updateYear;

@@ -6,11 +6,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Fm10_20_coop = void 0;
+exports.Activity_Year = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const answer10_20Model_1 = require("./answer10_20Model");
-const student_companyModel_1 = require("./student_companyModel");
-let Fm10_20_coop = class Fm10_20_coop extends sequelize_typescript_1.Model {
+const activityModel_1 = require("./activityModel");
+const YearModel_1 = require("./YearModel");
+let Activity_Year = class Activity_Year extends sequelize_typescript_1.Model {
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -18,45 +18,39 @@ __decorate([
         primaryKey: true,
         autoIncrement: true,
     })
-], Fm10_20_coop.prototype, "idfm10_20_coop", void 0);
+], Activity_Year.prototype, "idactivity_year", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => student_companyModel_1.Student_Company),
+    (0, sequelize_typescript_1.ForeignKey)(() => activityModel_1.Activity),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: false,
-        references: {
-            model: 'student_company',
-        },
     })
-], Fm10_20_coop.prototype, "idstudent_company", void 0);
+], Activity_Year.prototype, "idactivity", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => student_companyModel_1.Student_Company)
-], Fm10_20_coop.prototype, "student_company", void 0);
+    (0, sequelize_typescript_1.BelongsTo)(() => activityModel_1.Activity)
+], Activity_Year.prototype, "activity", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => YearModel_1.Year),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: false,
+    })
+], Activity_Year.prototype, "idyear", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => YearModel_1.Year)
+], Activity_Year.prototype, "year", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: 'active',
+        values: ['active', 'inactive'],
     })
-], Fm10_20_coop.prototype, "total_score", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
-    })
-], Fm10_20_coop.prototype, "createdAt", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
-    })
-], Fm10_20_coop.prototype, "updatedAt", void 0);
-__decorate([
-    (0, sequelize_typescript_1.HasMany)(() => answer10_20Model_1.Answerfm10_20)
-], Fm10_20_coop.prototype, "answerfm10_20", void 0);
-Fm10_20_coop = __decorate([
+], Activity_Year.prototype, "status_activity_year", void 0);
+Activity_Year = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,
-        tableName: 'fm10_20_coop',
+        tableName: 'activity_year',
     })
-], Fm10_20_coop);
-exports.Fm10_20_coop = Fm10_20_coop;
+], Activity_Year);
+exports.Activity_Year = Activity_Year;

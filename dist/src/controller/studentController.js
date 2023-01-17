@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateStudentByStudentId = exports.getStudentByStudentId = exports.getStudentByToken = exports.deleteStudent = exports.updateStudent = exports.getStudentById = exports.getAllStudentByYear = exports.getAllStudent = exports.createOneStudent = exports.createExcleStudent = void 0;
+exports.getsummarizeStudent = exports.updateStudentByStudentId = exports.getStudentByStudentId = exports.getStudentByToken = exports.deleteStudent = exports.updateStudent = exports.getStudentById = exports.getAllStudentByYear = exports.getAllStudent = exports.createOneStudent = exports.createExcleStudent = void 0;
 const studentModel_1 = require("../models/studentModel");
 const YearModel_1 = require("../models/YearModel");
 const branchModel_1 = require("../models/branchModel");
@@ -183,3 +183,36 @@ const updateStudentByStudentId = (req, res, next) => __awaiter(void 0, void 0, v
         .json({ message: 'Student updated successfully', data: updatedStudent });
 });
 exports.updateStudentByStudentId = updateStudentByStudentId;
+const getsummarizeStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const search_name = req.query.search ? req.query.search : '';
+    const students = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+      CONCAT(y.term,"/",y.year) AS year,
+      sg.name_study_group,b.name_branch,f.name_factory,s.status,
+      CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
+      fm.total_score AS FM10_14,fm18.total_score AS FM10_18,fm20.total_score AS FM10_20
+      FROM student s 
+      LEFT JOIN year y ON s.idyear = y.idyear
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+      LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent
+      LEFT JOIN activity a ON ac.idactivity = a.idactivity
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      LEFT JOIN fm10_18_coop fm18 ON sc.idstudent_company = fm18.idstudent_company
+      LEFT JOIN fm10_20_coop fm20 ON sc.idstudent_company = fm20.idstudent_company
+      where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or s.prename_student like '%${search_name}%'
+      GROUP BY s.idstudent
+      ORDER BY s.idstudent ASC
+      LIMIT ${limit} OFFSET ${offset}
+      `, { type: sequelize_1.QueryTypes.SELECT });
+    students.forEach((student) => {
+        student.student = JSON.parse(student.student);
+    });
+    return res
+        .status(200)
+        .json({ message: 'Students fetched successfully', data: students });
+});
+exports.getsummarizeStudent = getsummarizeStudent;

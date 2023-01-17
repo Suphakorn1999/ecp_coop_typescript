@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Activity = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const activity_studentModel_1 = require("./activity_studentModel");
+const activity_yearModel_1 = require("./activity_yearModel");
 let Activity = class Activity extends sequelize_typescript_1.Model {
 };
 __decorate([
@@ -35,6 +36,9 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => activity_studentModel_1.Activity_Student)
 ], Activity.prototype, "activity_students", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => activity_yearModel_1.Activity_Year)
+], Activity.prototype, "activity_years", void 0);
 Activity = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,

@@ -2,7 +2,6 @@ import express from 'express';
 import { RequestHandler } from 'express';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
-
 import { Fm10_18_coop } from '../models/fm10_18coopModel';
 import { Answerfm10_18 } from '../models/answer10_18Model';
 import { Question } from '../models/questionModel';
@@ -61,7 +60,7 @@ export const getFm10_18coop: RequestHandler = async (req, res, next) => {
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
-    f.get_into_work,f.other_comments,f.createdAt,f.updatedAt
+    f.get_into_work,f.other_comments,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN fm10_18_coop f ON sc.idstudent_company = f.idstudent_company
@@ -73,9 +72,6 @@ export const getFm10_18coop: RequestHandler = async (req, res, next) => {
     { type: QueryTypes.SELECT },
   );
 
-  fm10_18coop.forEach(async (fm10_18coop) => {
-    fm10_18coop.student = JSON.parse(fm10_18coop.student);
-  });
 
   return res
     .status(200)

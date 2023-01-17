@@ -10,4 +10,5 @@ router.get('/question', verifyToken, pointFm10_21Controller_1.getquestionfm10_21
 router.post('/coop', verifyTokenStudent, pointFm10_21Controller_1.createFm10_21coop);
 router.post('/point', verifyToken, pointFm10_21Controller_1.createFm10_21point);
 router.put('/point', verifyToken, pointFm10_21Controller_1.updateFm10_21point);
+router.get('/detailadmin', verifyToken, pointFm10_21Controller_1.getFm10_21detailadmin);
 exports.default = router;

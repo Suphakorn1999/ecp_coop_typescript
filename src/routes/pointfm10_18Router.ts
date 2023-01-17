@@ -22,6 +22,7 @@ router.put('/point',verifyToken, updateFm10_18point);
 
 
 
+
 export default router;
 
 

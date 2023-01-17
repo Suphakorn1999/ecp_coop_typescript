@@ -45,7 +45,7 @@ export const getFm10_14coop: RequestHandler = async (req, res, next) => {
     const fm10_14coop = await Connection.query(
       `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
-      fm.department_assessor,fm.other_Comments,fm.createdAt,fm.updatedAt
+      fm.department_assessor,fm.other_Comments,f.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
@@ -57,31 +57,6 @@ export const getFm10_14coop: RequestHandler = async (req, res, next) => {
     );
     
     return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
-}
-
-export const getFm10_14totalpoint: RequestHandler = async (req, res, next) => {
-    const fm10_14coop = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
-      c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
-      fm.department_assessor,fm.other_Comments,fm.createdAt,fm.updatedAt,
-      SUM(a.answer) AS point
-      FROM student_company sc 
-      LEFT JOIN student s ON sc.idstudent = s.idstudent 
-      LEFT JOIN company c ON sc.idcompany = c.idcompany 
-      LEFT JOIN branch b ON s.idbranch = b.idbranch 
-      LEFT JOIN year y ON s.idyear = y.idyear 
-      LEFT JOIN factory f ON b.idfactory = f.idfactory 
-      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company 
-      LEFT JOIN answerfm10_14 a ON fm.idfm10_14_coop = a.idfm10_14_coop
-      LEFT JOIN question q ON a.idquestion = q.idquestion
-      LEFT JOIN form fom ON q.idform = fom.idform
-      where q.count_question = 'yes'
-      AND q.idform = 2
-      GROUP BY sc.idstudent_company`,
-      { type: QueryTypes.SELECT },
-    );
-
-    return res.status(200).json({ message: 'Fm10_14totalpoint fetched successfully', data: fm10_14coop });
 }
 
 export const createFm10_14coop: RequestHandler = async (req, res, next) => {

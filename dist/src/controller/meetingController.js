@@ -48,7 +48,7 @@ const getMeeting = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
       LEFT JOIN province p ON c.idprovince = p.idprovince 
       LEFT JOIN year y ON s.idyear = y.idyear
       WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%' 
-      GROUP BY y.idyear
+      GROUP BY y.idyear,c.idcompany,s.idstudent
       limit ${limit} offset ${offset}
       `, { type: sequelize_1.QueryTypes.SELECT });
     meeting.forEach((item) => {
@@ -60,7 +60,7 @@ const getMeeting = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getMeeting = getMeeting;
 const getMeetingById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const meeting = yield config_1.default.query(`SELECT sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+    const meeting = yield config_1.default.query(`SELECT t.idteacher,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
       y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,m.startdate,m.enddate
       FROM student s 
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 

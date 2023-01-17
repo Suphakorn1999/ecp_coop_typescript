@@ -37,7 +37,7 @@ const connection = new Sequelize({
   host: 'localhost',
   username: 'root',
   password: '1234',
-  database: 'ecp_coop_db',
+  database: 'ecpcoop',
   logging: false,
   models: [
     Year,

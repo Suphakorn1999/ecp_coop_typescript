@@ -13,12 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = void 0;
-const branchModel_1 = require("./../models/branchModel");
 const studentModel_1 = require("../models/studentModel");
 const { generateToken } = require('../middlewares/jwtHandler');
 const XmlRpcService = require('../services/xmlrpc');
 const dotenv_1 = __importDefault(require("dotenv"));
-const roleModel_1 = require("../models/roleModel");
 const teacherModel_1 = require("../models/teacherModel");
 dotenv_1.default.config();
 const CryptoJS = require('crypto-js');
@@ -47,37 +45,17 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             }
         }
         else if (data.title[0] == 'Teachers') {
-            let idrole = 0;
-            let idbranch = 0;
-            const role = yield roleModel_1.Role.findAll({ where: { name: data.title[0] } });
-            if (role.length > 0) {
-                idrole = role[0].idrole;
-            }
-            let name_branch = data.program[0].replace('สาขาวิชา', '');
-            const branch = yield branchModel_1.Branch.findAll({
-                where: { name_branch: name_branch },
-            });
-            if (branch.length > 0) {
-                idbranch = branch[0].idbranch;
-            }
             const teacher = yield teacherModel_1.Teacher.findAll({
                 where: { username_teacher: data.uid[0] },
             });
             if (teacher.length > 0) {
-                let token = generateToken({ id: teacher[0].idteacher });
-                res.redirect(`http://localhost:3000/gettoken?token=${token}`);
+                let token = generateToken({
+                    id: teacher[0].idteacher,
+                });
+                res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
             }
             else {
-                yield teacherModel_1.Teacher.create({
-                    prename_teacher: data.prename[0],
-                    firstname_teacher: data.firstNameThai[0],
-                    lastname_teacher: data.lastNameThai[0],
-                    username_teacher: data.uid[0],
-                    idrole: idrole || null,
-                    idbranch: idbranch || null,
-                });
-                let token = generateToken({ id: data.uid[0] });
-                res.redirect(`http://localhost:3000/gettoken?token=${token}`);
+                res.redirect(`http://127.0.0.1:5173/register?prename=${data.prename}&firstNameThai=${data.firstNameThai}&lastNameThai=${data.lastNameThai}&username_teacher=${data.uid[0]}`);
             }
         }
     }));
