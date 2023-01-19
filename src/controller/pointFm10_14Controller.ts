@@ -45,7 +45,7 @@ export const getFm10_14coop: RequestHandler = async (req, res, next) => {
     const fm10_14coop = await Connection.query(
       `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
-      fm.department_assessor,fm.other_Comments,f.total_score,fm.createdAt,fm.updatedAt
+      fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 

@@ -101,5 +101,33 @@ function verifyTokenStudent(req: any, res: any, next: express.NextFunction) {
   }
 }
 
+function verifyTokenTeacher(req: any, res: any, next: express.NextFunction) {
+  const authHeader: any = req.headers['authorization'];
 
-module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent };
+  if (!authHeader) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  if (authHeader.split(' ')[0] != 'Bearer') {
+    return res.status(403).json('Not Bearer');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided.' });
+  }
+
+  const secretKey: any = process.env.secretKey;
+
+  try {
+    const decoded: any = verify(token, secretKey);
+    req.body.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Failed to authenticate token.' });
+  }
+}
+
+
+module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent, verifyTokenTeacher };

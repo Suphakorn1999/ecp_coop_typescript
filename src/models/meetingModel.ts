@@ -35,16 +35,4 @@ export class Meeting extends Model {
     })
     name_project!: string;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: true,
-    })
-    startdate!: string;
-
-    @Column({
-        type: DataType.STRING,
-        allowNull: true,
-    })
-    enddate!: string;
-
 }

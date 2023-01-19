@@ -53,6 +53,7 @@ import qualificationRouter from './src/routes/qualificationRouter';
 import pointFm10_11Router from './src/routes/pointfm10_11Router';
 import study_groupRouter from './src/routes/study_groupRouter';
 import pointFm10_13Router from './src/routes/pointfm10_13Router';
+import meetingtimesRouter from './src/routes/meetingtimesRouter';
 
 app.use('/company', companyRouter);
 app.use('/province', provinceRouter);
@@ -80,6 +81,7 @@ app.use('/qualification', qualificationRouter);
 app.use('/fm10_11', pointFm10_11Router);
 app.use('/study_group', study_groupRouter);
 app.use('/fm10_13', pointFm10_13Router);
+app.use('/meetingtimes', meetingtimesRouter);
 
 app.use(
   (err: Error, req: Request, res: Response, next: express.NextFunction) => {

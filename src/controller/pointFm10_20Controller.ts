@@ -24,7 +24,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    WHERE q.idform = 4 AND f.idstudent_company = ${req.query.idstudent_company} || f.idstudent_company IS NULL
+    WHERE q.idform = 4 AND f.idstudent_company = ${req.query.idstudent_company}
     GROUP BY f.idfm10_20_coop,sc.idcompany
     `,
     { type: QueryTypes.SELECT },

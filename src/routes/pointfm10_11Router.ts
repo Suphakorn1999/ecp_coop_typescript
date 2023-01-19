@@ -9,11 +9,12 @@ import {
     updateFm10_11point,
     getFm10_11_detailpart1,
     getFm10_11_detailpart2,
+    getFm10_11_coopAdmin
 } from '../controller/pointFm10_11Controller';
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenTeacher } = require('../middlewares/jwtHandler');
 const router = Router();
 
-router.get('/coop',verifyToken, getFm10_11_coop);
+router.get('/coop', verifyTokenTeacher, getFm10_11_coop);
 router.get('/question',verifyToken, getquestionfm10_11_part1);
 router.get('/question2',verifyToken, getquestionfm10_11_part2);
 router.post('/coop',verifyToken, createFm10_11_coop);
@@ -22,5 +23,6 @@ router.put('/coop',verifyToken, updateFm10_11_coop);
 router.put('/point',verifyToken, updateFm10_11point);
 router.get('/detail',verifyToken, getFm10_11_detailpart1);
 router.get('/detail2',verifyToken, getFm10_11_detailpart2);
+router.get('/coopadmin',verifyToken, getFm10_11_coopAdmin);
 
 export default router;

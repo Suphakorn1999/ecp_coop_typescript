@@ -83,3 +83,17 @@ export const allcount: RequestHandler = async (req, res, next) => {
     },
   });
 }
+
+export const gennerateToken: RequestHandler = async (req, res, next) => {
+  const token = generateToken({
+    id: req.body.id,
+    studentId: req.body.studentId,
+  });
+
+  return res.status(200).json({
+    message: 'Token generated',
+    data: {
+      token: token,
+    },
+  });
+}
