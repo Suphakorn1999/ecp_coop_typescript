@@ -5,6 +5,8 @@ import { Company } from '../models/companyModel';
 import { Province } from '../models/provinceModel';
 const compantdata = require('../services/company');
 const { Op } = require('sequelize');
+import Connection from '../config/config';
+import { QueryTypes } from 'sequelize';
 
 export const createCompany: RequestHandler = async (req,res,next: express.NextFunction) => {
     const province = await Province.findAll({where: {name_province: req.body.name_province}});
@@ -149,4 +151,32 @@ export const updateQualification: RequestHandler = async (req, res, next) => {
   }
 
   return res.status(400).json({message:'Qualification not found'});
+}
+
+export const companyByidteacher: RequestHandler = async (req:any, res, next) => {
+  const id = req.body.user.id
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const meeting: Array<any> = await Connection.query(
+    `SELECT m.idmeeting,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,c.address,c.urlmap
+      FROM student s 
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+      LEFT JOIN teacher t ON m.idteacher = t.idteacher 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN province p ON c.idprovince = p.idprovince 
+      LEFT JOIN year y ON s.idyear = y.idyear
+      WHERE t.idteacher = ${id} 
+      GROUP BY c.idcompany 
+      limit ${limit} offset ${offset}
+      `,
+    { type: QueryTypes.SELECT },
+  );
+  meeting.forEach((item) => {
+    item.student = JSON.parse(item.student);
+  })
+  return res
+    .status(200)
+    .json({ message: 'Meeting fetched successfully', data: meeting });
 }

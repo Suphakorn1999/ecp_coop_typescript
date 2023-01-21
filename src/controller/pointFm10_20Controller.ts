@@ -2,7 +2,6 @@ import express from 'express';
 import { RequestHandler } from 'express';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
-
 import { Fm10_20_coop } from '../models/fm10_20coopModel';
 import { Answerfm10_20 } from '../models/answer10_20Model';
 import { Question } from '../models/questionModel';
@@ -168,4 +167,15 @@ export const updateFm10_20point: RequestHandler = async (req, res, next) => {
     }
     
     return res.status(200).json({ message: 'Fm10_20point updated successfully'});
+}
+
+export const updateFm1_20coop: RequestHandler = async (req, res, next) => {
+    const fm10_20coop = await Fm10_20_coop.findAll({where: {idfm10_20_coop: req.query.idfm10_20_coop}});
+    if (fm10_20coop.length == 0) {
+        return res.status(400).json({ message: 'Fm10_20coop not found' });
+    }
+    else {
+        await Fm10_20_coop.update({...req.body}, {where: {idfm10_20_coop: req.query.idfm10_20_coop}});
+        return res.status(200).json({message: 'Fm10_20coop updated successfully'});
+    }
 }

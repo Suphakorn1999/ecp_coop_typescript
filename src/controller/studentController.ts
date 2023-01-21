@@ -9,43 +9,50 @@ import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
 import { Study_group } from '../models/study_groupModel';
 
-export const createExcleStudent: RequestHandler = async (req,res,next: express.NextFunction) => {
-  const jsondata = req.body;
-  var values:any[] = [];
-  var dataStudent = jsondata.data;
+export const createExcleStudent: RequestHandler = async (req, res, next: express.NextFunction) => {
+    const jsondata = req.body;
+    var values: any[] = [];
+    var dataStudent: any[] = jsondata.data;
 
-  const yearId = await Year.findAll({where:{year:dataStudent.year,term:dataStudent.term}});
-  const branchId = await Branch.findAll({where:{name_branch:dataStudent.branch}});
-  const study_groupId = await Study_group.findAll({where:{name_study_group:dataStudent.study_group}});
-
-    for (var i = 0; i < dataStudent.length; i++) {
-        let studentID = dataStudent[i].studentID;
+    dataStudent.forEach(async e => {
+        let student_id = e.studentID;
         let idrole = 1
-        let preName = dataStudent[i].prename_student?dataStudent[i].prename_student.replaceAll(" ", ""):null;
-        let fName = dataStudent[i].firstNameThai?dataStudent[i].firstNameThai.replaceAll(" ", ""):null;
-        let lName = dataStudent[i].lastNameThai?dataStudent[i].lastNameThai.replaceAll(" ", ""):null;
-        let year = yearId[0].idyear;
-        let Id_branch = branchId[0].idbranch;
-        let Id_study_group = study_groupId[0].idstudy_group;
-        values.push({studentID,idrole,preName,fName,lName,year,Id_branch,Id_study_group})
-    }
-    
-
-    values.forEach(async e=>{
-        await Student.findAll({
-            where:{
-                student_id : e.studentID
-            }
-        }).then(async data =>{
-            if(data.length == 0){
-                await Student.create({e})
-            }
-        })
+        let prename_student = e.prename_student ? e.prename_student.replaceAll(" ", "") : null;
+        let fname_student = e.firstNameThai ? e.firstNameThai.replaceAll(" ", "") : null;
+        let lname_student = e.lastNameThai ? e.lastNameThai.replaceAll(" ", "") : null;
+        let year = e.year;
+        let term = e.term;
+        let idbranch = e.branch;
+        let idstudy_group = e.study_group;
+        values.push({ student_id, idrole, prename_student, fname_student, lname_student, year, term, idbranch, idstudy_group })
     })
+    var data: any[] = [];
 
-    return res
-        .status(200)
-        .json({ message: 'Students created successfully'});
+    for (const e of values) {
+        const yearId = await Year.findAll({ where: { year: e.year, term: e.term } });
+        const branchId = await Branch.findAll({ where: { name_branch: e.idbranch } });
+        const study_groupId = await Study_group.findAll({ where: { name_study_group: e.idstudy_group } });
+        e.idyear = yearId[0].idyear
+        e.idbranch = branchId[0].idbranch
+        e.idstudy_group = study_groupId[0].idstudy_group
+        let student_id = e.student_id;
+        let idrole = 1
+        let prename_student = e.prename_student
+        let fname_student = e.fname_student
+        let lname_student = e.lname_student
+        let idyear = e.idyear;
+        let idbranch = e.idbranch;
+        let idstudy_group = e.idstudy_group;
+        data.push({ student_id, idrole, prename_student, fname_student, lname_student, idyear, idbranch, idstudy_group })
+    }
+
+    const student = await Student.bulkCreate(data);
+
+    if (student) {
+        return res
+            .status(200)
+            .json({ message: 'Students created successfully' });
+    }
 };
 export const createOneStudent: RequestHandler = async (req,res,next: express.NextFunction) => {
     req.body.idrole = 1;

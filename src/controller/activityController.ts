@@ -14,11 +14,20 @@ export const createActivity: RequestHandler = async (req,res,next: express.NextF
 }
 
 export const getAllActivity: RequestHandler = async (req, res, next) => {
-    const Allactivities = await Activity.findAll({where: { status: 'active' },order: [['idactivity', 'ASC']],include:[{model:Activity_Year,where:{idyear:req.query.idyear}}]});
-    
-    return res
-        .status(200)
-        .json({ message: 'Activities fetched successfully', data: Allactivities });
+    const year = await Year.findAll({where: { status_year: 'yes' }});
+    if(year.length > 0 && req.query.idyear == undefined){
+        const Allactivities = await Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: Activity_Year, where: { idyear: year[0].idyear } }] });
+
+        return res
+            .status(200)
+            .json({ message: 'Activities fetched successfully', data: Allactivities });
+    }else if(year.length > 0 && req.query.idyear != undefined){
+        const Allactivities = await Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: Activity_Year, where: { idyear: req.query.idyear } }] });
+
+        return res
+            .status(200)
+            .json({ message: 'Activities fetched successfully', data: Allactivities });
+    } 
 }
 
 export const getActivityById: RequestHandler = async (req, res, next) => {

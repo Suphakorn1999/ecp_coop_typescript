@@ -1,5 +1,5 @@
 import { Router } from 'express';
-const {verifyToken} = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenTeacher } = require('../middlewares/jwtHandler');
 import { verify } from '../validation/verify';
 import {
   createCompany,
@@ -9,6 +9,7 @@ import {
   deleteCompanyById,
   createQualification,
   updateQualification,
+  companyByidteacher
 } from '../controller/companyController';
 
 const router = Router();
@@ -23,6 +24,7 @@ router.put('/ById',verifyToken, updateCompanyById);
 router.delete('/ById',verifyToken, deleteCompanyById);
 router.post('/createQualification',verifyToken, createQualification);
 router.put('/updateQualification',verifyToken, updateQualification);
+router.get('/companyByidteacher', verifyTokenTeacher, companyByidteacher);
 
 
 
