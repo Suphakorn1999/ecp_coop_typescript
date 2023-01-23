@@ -59,8 +59,8 @@ export const getActivityStudent: RequestHandler = async (req:any, res, next) => 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
         JOIN year y ON s.idyear = y.idyear
         JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
-        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${year[0].idyear}
-        group by s.idstudent 
+        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${year[0].idyear} AND a.status = 'active'
+        group by s.idstudent
         limit ${limit} offset ${offset}
         `,
       { type: QueryTypes.SELECT },
@@ -89,8 +89,8 @@ export const getActivityStudent: RequestHandler = async (req:any, res, next) => 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
         JOIN year y ON s.idyear = y.idyear
         JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
-        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear}
-        group by s.idstudent 
+        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear} AND a.status = 'active'
+        group by s.idstudent
         limit ${limit} offset ${offset}
         `,
       { type: QueryTypes.SELECT },

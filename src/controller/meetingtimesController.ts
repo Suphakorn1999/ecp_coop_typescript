@@ -3,6 +3,7 @@ import { RequestHandler } from 'express';
 import { QueryTypes } from 'sequelize';
 import Connection from '../config/config';
 import { Meeting_Times } from '../models/meetingtimesModel';
+import { Year } from '../models/YearModel';
 
 export const createMeetingTimes: RequestHandler = async (req, res, next:express.NextFunction) => {
     try{
@@ -29,7 +30,7 @@ export const createMeetingTimes: RequestHandler = async (req, res, next:express.
 
 export const updateMeetingTimes: RequestHandler = async (req, res, next) => {
     try{
-        const meetingtimes = await Meeting_Times.update({ ...req.body }, { where: { idmeeting_times: req.body.idmeeting_times } });
+        const meetingtimes = await Meeting_Times.update({ ...req.body }, { where: { idyear: req.body.idyear, times: req.body.times } });
         if (meetingtimes) {
             return res.status(200).json({ message: 'Meeting times updated successfully' });
         }
@@ -41,9 +42,17 @@ export const updateMeetingTimes: RequestHandler = async (req, res, next) => {
 
 export const getMeetingTimes: RequestHandler = async (req, res, next) => {
     try{
-        const meetingtimes = await Meeting_Times.findAll({ where: { idyear: req.query.idyear,times:req.query.times } });
-        if (meetingtimes) {
-            return res.status(200).json({ message: 'Meeting times found', data: meetingtimes });
+        const year = await Year.findAll({ where: { status_year : 'yes' } });
+        if(year.length > 0){
+            const meetingtimes = await Meeting_Times.findAll({ where: { idyear: year[0].idyear, times: req.query.times } });
+            if (meetingtimes) {
+                return res.status(200).json({ message: 'Meeting times found', data: meetingtimes });
+            }
+        } else if (year.length > 0 && req.query.idyear != null) {
+            const meetingtimes = await Meeting_Times.findAll({ where: { idyear: req.query.idyear, times: req.query.times } });
+            if (meetingtimes) {
+                return res.status(200).json({ message: 'Meeting times found', data: meetingtimes });
+            }
         }
     }
     catch (error) {

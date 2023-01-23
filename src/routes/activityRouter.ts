@@ -5,6 +5,8 @@ import {
   getActivityById,
   updateActivity,
   deleteActivity,
+  getAllActivityByYear,
+  createActivityYear,
 } from '../controller/activityController';
 import {
   createActivityStudent,
@@ -22,6 +24,8 @@ router.get('/', verifyToken, getAllActivity);
 router.get('/ById', verifyToken, getActivityById);
 router.put('/', verifyToken, verifyActivity, updateActivity);
 router.delete('/', verifyToken, verifyActivity, deleteActivity);
+router.get('/ByYear', verifyToken, getAllActivityByYear);
+router.post('/createActivityYear',verifyToken, createActivityYear);
 
 
 router.post('/createActivity',verifyToken, createActivityStudent);
