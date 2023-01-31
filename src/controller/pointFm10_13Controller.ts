@@ -7,12 +7,13 @@ import { Answerfm10_13 } from '../models/answer10_13Model';
 import { Question } from '../models/questionModel';
 import { Student_Company } from '../models/student_companyModel';
 import { Form } from '../models/formModel';
+import { Teacher } from '../models/teacherModel';
 
 export const getFm10_13detail: RequestHandler = async (req, res) => {
     const fm13: Array<any> = await Connection.query(
         `SELECT f.idfm10_13_coop,fm.name_form,s.prename_student,s.fname_student,s.lname_student,s.student_id,
-    b.name_branch,fa.name_factory,c.name_company,
-    f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,f.report_title_th,f.report_title_en,f.other_Comments,f.updatedAt,
+    b.name_branch,fa.name_factory,c.name_company,f.idfile,
+    f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,f.report_title_th,f.report_title_en,f.other_Comments,f.createdAt,f.updatedAt,
     CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS point
     FROM student s
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
@@ -43,9 +44,10 @@ export const getFm10_13detail: RequestHandler = async (req, res) => {
 
 export const getFm10_13coop: RequestHandler = async (req, res) => {
     const fm13: Array<any> = await Connection.query(
-    `SELECT f.idfm10_13_coop,s.prename_student,s.fname_student,s.lname_student,s.student_id,
-    b.name_branch,fa.name_factory,c.name_company,
-    f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,f.report_title_th,f.report_title_en,f.other_Comments,f.updatedAt
+        `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
+    m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
     FROM student s
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN company c ON c.idcompany = sc.idcompany
@@ -53,10 +55,17 @@ export const getFm10_13coop: RequestHandler = async (req, res) => {
     LEFT JOIN factory fa ON fa.idfactory = b.idfactory
     LEFT JOIN year y ON y.idyear = s.idyear
     LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
-    ORDER BY f.idfm10_13_coop DESC
-    `,
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
+    LEFT JOIN teacher t ON f.idteacher = t.idteacher 
+    group by s.idstudent
+    ORDER BY f.idfm10_13_coop DESC`,
         { type: QueryTypes.SELECT }
     );
+
+    fm13.forEach(async (element: any) => {
+        element.teacher = JSON.parse(element.teacher)
+    })
 
     return res
         .status(200)
@@ -64,7 +73,7 @@ export const getFm10_13coop: RequestHandler = async (req, res) => {
             message: 'Fm10_13coop fetched successfully',
             data: fm13,
         });
-    
+
 }
 
 export const getFm10_13totalpoint: RequestHandler = async (req, res) => {
@@ -93,14 +102,27 @@ export const getFm10_13totalpoint: RequestHandler = async (req, res) => {
 }
 
 export const createFm10_13coop: RequestHandler = async (req, res, next) => {
-    const Allfm10_13 = await Fm10_13_coop.findAll({ where: { idstudent_company: req.body.idstudent_company } });
+    const jsondata = req.body;
+    var values: any[] = [];
+    var dataStudent = jsondata.teacher;
 
-    if (Allfm10_13.length > 0) {
-        return res.status(400).json({ message: 'Fm10_13coop already exists' });
-    } else {
-        const create = await Fm10_13_coop.create({ ...req.body });
-        return res.status(200).json({ message: 'Fm10_13coop created successfully', data: create });
+    for (var i = 0; i < dataStudent.length; i++) {
+        let idstudent_company = dataStudent[i].idstudent_company;
+        let idteacher = dataStudent[i].idteacher;
+        let idfile = dataStudent[i].idfile;
+        let other_Comments = dataStudent[i].other_Comments;
+        let createdAt = dataStudent[i].createdAt;
+        let updatedAt = dataStudent[i].updatedAt;
+        values.push({ idstudent_company, idteacher, idfile, other_Comments, createdAt, updatedAt });
     }
+
+    const fm10_13coop = await Fm10_13_coop.findAll({ where: { idstudent_company: dataStudent[0].idstudent_company } });
+
+    if (fm10_13coop.length == 0) {
+        const fm10_13coop = await Fm10_13_coop.bulkCreate(values);
+        return res.status(200).json({ message: 'Fm10_13coop created successfully', data: fm10_13coop });
+    }
+
 }
 
 export const createFm10_13point: RequestHandler = async (req, res, next) => {
@@ -190,20 +212,70 @@ export const updateFM10_13point: RequestHandler = async (req, res, next) => {
 }
 
 export const updateFm10_13coop: RequestHandler = async (req, res, next) => {
-    const fm10_13coop = await Fm10_13_coop.findAll({ where: { idfm10_13_coop: req.query.idfm10_13_coop } });
+    const jsondata = req.body;
+    var values: any[] = [];
+    var data = jsondata.teacher;
 
-    if (fm10_13coop.length == 0) {
-        return res.status(400).json({ message: 'Fm10_13coop not found' });
+    for (var i = 0; i < data.length; i++) {
+        let idfm10_13_coop = data[i].idfm10_13_coop;
+        let idstudent_company = data[i].idstudent_company;
+        let idteacher = data[i].idteacher;
+        let idfile = data[i].idfile;
+        let other_Comments = data[i].other_Comments;
+        let createdAt = data[i].createdAt;
+        let updatedAt = data[i].updatedAt;
+        values.push({ idfm10_13_coop,idstudent_company, idteacher, idfile, other_Comments, createdAt, updatedAt });
     }
 
-    await Fm10_13_coop.update({
-        ...req.body
-    }, {
-        where: {
-            idfm10_13_coop: req.query.idfm10_13_coop
-        }
-    });
+
+    for (var i = 0; i < values.length; i++) {
+        await Fm10_13_coop.update({
+            idteacher: values[i].idteacher,
+            idfile: values[i].idfile,
+            other_Comments: values[i].other_Comments,
+            createdAt: values[i].createdAt,
+            updatedAt: values[i].updatedAt,
+        }, {
+            where: {
+                idfm10_13_coop: values[i].idfm10_13_coop,
+            }
+        });
+    }
 
     return res.status(200).json({ message: 'Fm10_13coop updated successfully' });
+}
 
+export const getFm10_13coopBytokenteacher: RequestHandler = async (req, res, next) => {
+    const idteacher:any = req.body.user.id;
+    const fm13: Array<any> = await Connection.query(
+    `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
+    m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+    FROM student s
+    RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN year y ON y.idyear = s.idyear
+    LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    WHERE f.idteacher = ${idteacher}
+    group by s.idstudent
+    ORDER BY f.idfm10_13_coop DESC`,
+        { type: QueryTypes.SELECT }
+    );
+
+    fm13.forEach(async (element: any) => {
+        element.teacher = JSON.parse(element.teacher)
+    })
+
+    return res
+        .status(200)
+        .json({
+            message: 'Fm10_13coop fetched successfully',
+            data: fm13,
+        });
 }

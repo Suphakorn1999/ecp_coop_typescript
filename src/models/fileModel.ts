@@ -20,7 +20,7 @@ export class File extends Model {
         type: DataType.INTEGER,
         allowNull: false,
     })
-    idstudent!: string;
+    idstudent!: number;
 
     @BelongsTo(() => Student)
     student!: Student;

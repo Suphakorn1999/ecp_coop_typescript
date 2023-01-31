@@ -10,7 +10,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
   const fm20: Array<any> = await Connection.query(
     `SELECT f.idfm10_20_coop,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,f.updatedAt,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS FM10_20 
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer,"note",a.note)ORDER BY a.idquestion ASC),"]") AS FM10_20 
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -23,7 +23,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    WHERE q.idform = 4 AND f.idstudent_company = ${req.query.idstudent_company}
+    WHERE f.idstudent_company = ${req.query.idstudent_company}
     GROUP BY f.idfm10_20_coop,sc.idcompany
     `,
     { type: QueryTypes.SELECT },
@@ -42,7 +42,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
 
 export const getFm10_20coop: RequestHandler = async (req, res, next) => {
   const fm10_20coop: Array<any> = await Connection.query(
-    `SELECT sc.idstudent_company,c.name_company,c.address,c.tel,
+    `SELECT f.idfm10_20_coop,sc.idstudent_company,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,s.prename_student,s.fname_student,s.lname_student,b.name_branch,y.term,y.year,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent

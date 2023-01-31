@@ -64,9 +64,11 @@ export const getStudentCompany: RequestHandler = async (req, res, next) => {
       `,
       { type: QueryTypes.SELECT },
     );
+
     student.forEach((item) => {
       item.STUDENT = JSON.parse(item.STUDENT);
     })
+    
     return res
         .status(200)
         .json({message:'Meeting fetched successfully',data:student});

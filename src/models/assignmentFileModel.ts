@@ -11,7 +11,7 @@ import { File } from './fileModel';
 
 @Table({
   timestamps: false,
-  tableName: 'assingment_file',
+  tableName: 'assignment_file',
 })
 export class AssignmentFile extends Model {
   @Column({

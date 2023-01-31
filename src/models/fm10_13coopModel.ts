@@ -9,6 +9,8 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { Answerfm10_13 } from './answer10_13Model';
+import { Teacher } from './teacherModel';
+import { File } from './fileModel';
 
 @Table({
   timestamps: false,
@@ -35,42 +37,31 @@ export class Fm10_13_coop extends Model {
     @BelongsTo(() => Student_Company)
     student_company!: Student_Company;
 
-    
+    @ForeignKey(() => Teacher)
     @Column({
-        type: DataType.STRING,
+        type: DataType.INTEGER,
         allowNull: false,
+        references: {
+        model: 'teacher',
+        },
     })
-    fname_assessor!: string;
-    
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    lname_assessor!: string;
-    
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    position_assessor!: string;
-    
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    department_assessor!: string;
+    idteacher!: number;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    report_title_th!: string;
+    @BelongsTo(() => Teacher)
+    teacher!: Teacher;
 
+    @ForeignKey(() => File)
     @Column({
-        type: DataType.STRING,
+        type: DataType.INTEGER,
         allowNull: false,
+        references: {
+        model: 'file',
+        },
     })
-    report_title_en!: string;
+    idfile!: number;
+
+    @BelongsTo(() => File)
+    file!: File;
 
     @Column({
         type: DataType.STRING,

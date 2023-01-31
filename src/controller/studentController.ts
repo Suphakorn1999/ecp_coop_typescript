@@ -95,7 +95,7 @@ export const getAllStudent: RequestHandler = async (req:any, res, next) => {
 
     const students = await Connection.query(
       `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
-      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status 
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status,s.status_file 
       FROM student s 
       LEFT JOIN year y ON s.idyear = y.idyear 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
@@ -194,7 +194,7 @@ export const getsummarizeStudent: RequestHandler = async (req:any, res, next) =>
     const students = await Connection.query(
      `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,
-      sg.name_study_group,b.name_branch,f.name_factory,s.status,
+      sg.name_study_group,b.name_branch,f.name_factory,s.status,s.status_file,
       CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
       fm.total_score AS FM10_14,fm18.total_score AS FM10_18,fm20.total_score AS FM10_20
       FROM student s 
@@ -211,8 +211,7 @@ export const getsummarizeStudent: RequestHandler = async (req:any, res, next) =>
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or s.prename_student like '%${search_name}%'
       GROUP BY s.idstudent
       ORDER BY s.idstudent ASC
-      LIMIT ${limit} OFFSET ${offset}
-      `,
+      LIMIT ${limit} OFFSET ${offset}`,
         { type: QueryTypes.SELECT },
     );
 
@@ -220,7 +219,20 @@ export const getsummarizeStudent: RequestHandler = async (req:any, res, next) =>
         student.student = JSON.parse(student.student)
     })
 
+
     return res
         .status(200)
         .json({ message: 'Students fetched successfully', data: students }); 
+}
+export const updateStatusfile: RequestHandler = async (req:any, res, next) => {
+    const id: any = req.body.idstudent;
+    const student: Student | null = await Student.findByPk(id);
+    if (!student) {
+        return res.status(400).json({ message: 'Student not found' });
+    }else{
+        await Student.update({status_file: req.body.status_file}, { where: { idstudent: id } });
+        return res
+            .status(200)
+            .json({ message: 'Student updated successfully' });
+    }
 }

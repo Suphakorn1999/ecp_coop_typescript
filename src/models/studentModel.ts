@@ -90,6 +90,12 @@ export class Student extends Model {
 
   @Column({
     type: DataType.STRING(255),
+    allowNull: true,
+  })
+  status_file!: string;
+
+  @Column({
+    type: DataType.STRING(255),
     allowNull: false,
     values: ['satisfied', 'unsatisfied', 'null'],
     defaultValue: 'unsatisfied',

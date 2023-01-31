@@ -31,8 +31,13 @@ export class Meeting extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-    name_project!: string;
+    report_title_th!: string;
 
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+    })
+    report_title_en!: string;
 }
