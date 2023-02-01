@@ -40,8 +40,9 @@ export const getMeeting: RequestHandler = async (req:any, res, next) => {
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN province p ON c.idprovince = p.idprovince 
       LEFT JOIN year y ON s.idyear = y.idyear
-      WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%' 
+      WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%'
       GROUP BY y.idyear,c.idcompany,s.idstudent
+      ORDER BY m.idmeeting DESC
       limit ${limit} offset ${offset}
       `,
       { type: QueryTypes.SELECT },
