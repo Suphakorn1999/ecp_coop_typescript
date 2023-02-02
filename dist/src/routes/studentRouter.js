@@ -18,4 +18,5 @@ router.get("/token", verifyTokenStudent, studentController_1.getStudentByToken);
 router.get("/studentId", studentController_1.getStudentByStudentId);
 router.put("/studentId", studentController_1.updateStudentByStudentId);
 router.get("/summarize", verifyToken, studentController_1.getsummarizeStudent);
+router.put("/updateStatusfile", verifyToken, studentController_1.updateStatusfile);
 exports.default = router;

@@ -97,6 +97,12 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(255),
+        allowNull: true,
+    })
+], Student.prototype, "status_file", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(255),
         allowNull: false,
         values: ['satisfied', 'unsatisfied', 'null'],
         defaultValue: 'unsatisfied',

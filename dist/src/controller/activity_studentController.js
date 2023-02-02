@@ -16,6 +16,7 @@ exports.getActivityStudent = exports.deleteActivityStudent = exports.updateActiv
 const activity_studentModel_1 = require("../models/activity_studentModel");
 const config_1 = __importDefault(require("../config/config"));
 const Sequelize_1 = require("Sequelize");
+const YearModel_1 = require("../models/YearModel");
 const createActivityStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const activity = yield activity_studentModel_1.Activity_Student.findAll({
         where: { idstudent: req.body.idstudent, idactivity: req.body.idactivity },
@@ -54,29 +55,58 @@ const getActivityStudent = (req, res, next) => __awaiter(void 0, void 0, void 0,
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
     const search_name = req.query.search ? req.query.search : '';
-    // 1. Get Data from Database
-    const activity_student = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
+    const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+    if (year.length > 0 && req.query.idyear == undefined) {
+        // 1. Get Data from Database
+        const activity_student = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
         CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idactivity",a.idactivity,"name",a.name_activity,"status",ac.status_activity)ORDER BY a.idactivity ASC),"]") AS ACTIVITY 
         FROM student s 
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
         JOIN year y ON s.idyear = y.idyear
         JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
-        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear}
-        group by s.idstudent 
+        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${year[0].idyear} AND a.status = 'active'
+        group by s.idstudent
         limit ${limit} offset ${offset}
         `, { type: Sequelize_1.QueryTypes.SELECT });
-    // 2. Loop through each activity_student and parse the JSON into an object
-    activity_student.forEach((activity_student) => {
-        activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
-        // 3. If the student has no activities, set the ACTIVITY property to an empty array
-        if (Array.isArray(activity_student.ACTIVITY) && activity_student.ACTIVITY[0].name == null) {
-            activity_student.ACTIVITY = [];
-        }
-    });
-    return res.status(200).json({
-        message: 'Activity Student fetched successfully',
-        data: activity_student,
-    });
+        // 2. Loop through each activity_student and parse the JSON into an object
+        activity_student.forEach((activity_student) => {
+            activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
+            // 3. If the student has no activities, set the ACTIVITY property to an empty array
+            if (Array.isArray(activity_student.ACTIVITY) && activity_student.ACTIVITY[0].name == null) {
+                activity_student.ACTIVITY = [];
+            }
+        });
+        return res.status(200).json({
+            message: 'Activity Student fetched successfully',
+            data: activity_student,
+        });
+    }
+    else if (year.length > 0 && req.query.idyear != undefined) {
+        // 1. Get Data from Database
+        const activity_student = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
+        CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idactivity",a.idactivity,"name",a.name_activity,"status",ac.status_activity)ORDER BY a.idactivity ASC),"]") AS ACTIVITY 
+        FROM student s 
+        LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
+        LEFT JOIN activity a ON a.idactivity = ac.idactivity 
+        JOIN year y ON s.idyear = y.idyear
+        JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
+        WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear} AND a.status = 'active'
+        group by s.idstudent
+        limit ${limit} offset ${offset}
+        `, { type: Sequelize_1.QueryTypes.SELECT });
+        // 2. Loop through each activity_student and parse the JSON into an object
+        activity_student.forEach((activity_student) => {
+            activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
+            // 3. If the student has no activities, set the ACTIVITY property to an empty array
+            if (Array.isArray(activity_student.ACTIVITY) && activity_student.ACTIVITY[0].name == null) {
+                activity_student.ACTIVITY = [];
+            }
+        });
+        return res.status(200).json({
+            message: 'Activity Student fetched successfully',
+            data: activity_student,
+        });
+    }
 });
 exports.getActivityStudent = getActivityStudent;

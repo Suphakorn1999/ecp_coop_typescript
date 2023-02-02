@@ -24,7 +24,7 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
 
   if(meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date){
     const fm10_11coop: Array<any> = await Connection.query(
-      `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
@@ -60,11 +60,10 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}
-    `,
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}`,
       { type: QueryTypes.SELECT },
     );
-    
+
     return res
       .status(200)
       .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });

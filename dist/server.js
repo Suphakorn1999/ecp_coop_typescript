@@ -50,6 +50,7 @@ const qualificationRouter_1 = __importDefault(require("./src/routes/qualificatio
 const pointfm10_11Router_1 = __importDefault(require("./src/routes/pointfm10_11Router"));
 const study_groupRouter_1 = __importDefault(require("./src/routes/study_groupRouter"));
 const pointfm10_13Router_1 = __importDefault(require("./src/routes/pointfm10_13Router"));
+const meetingtimesRouter_1 = __importDefault(require("./src/routes/meetingtimesRouter"));
 app.use('/company', companyRouter_1.default);
 app.use('/province', provinceRouter_1.default);
 app.use('/student', studentRouter_1.default);
@@ -76,6 +77,7 @@ app.use('/qualification', qualificationRouter_1.default);
 app.use('/fm10_11', pointfm10_11Router_1.default);
 app.use('/study_group', study_groupRouter_1.default);
 app.use('/fm10_13', pointfm10_13Router_1.default);
+app.use('/meetingtimes', meetingtimesRouter_1.default);
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });

@@ -22,7 +22,7 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
     const student = await Student.findAll({
       where: { username_student: data.uid[0]},
     });
- 
+    
     if (student.length > 0) {
       let encodeId = CryptoJS.AES.encrypt(data.studentId[0],process.env.secretKey).toString();
       let token = generateToken({

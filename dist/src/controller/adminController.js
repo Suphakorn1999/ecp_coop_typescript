@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.allcount = exports.loginAdmin = exports.createAdmin = void 0;
+exports.gennerateToken = exports.allcount = exports.loginAdmin = exports.createAdmin = void 0;
 const adminModel_1 = require("../models/adminModel");
 const dotenv_1 = __importDefault(require("dotenv"));
 const companyModel_1 = require("../models/companyModel");
@@ -84,3 +84,16 @@ const allcount = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     });
 });
 exports.allcount = allcount;
+const gennerateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = generateToken({
+        id: req.body.id,
+        studentId: req.body.studentId,
+    });
+    return res.status(200).json({
+        message: 'Token generated',
+        data: {
+            token: token,
+        },
+    });
+});
+exports.gennerateToken = gennerateToken;

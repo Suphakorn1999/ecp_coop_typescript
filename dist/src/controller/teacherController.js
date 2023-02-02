@@ -27,11 +27,11 @@ const createTeacher = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             return res.status(400).json({ message: 'Branch not found' });
         }
     }
-    const teacher = yield teacherModel_1.Teacher.create(Object.assign({}, req.body));
     const Allteacher = yield teacherModel_1.Teacher.findAll({ where: { prename_teacher: req.body.prename_teacher, firstname_teacher: req.body.firstname_teacher, lastname_teacher: req.body.lastname_teacher } });
     if (Allteacher.length > 0) {
         return res.status(400).json({ message: 'มีชื่ออาจารย์อยู่แล้ว' });
     }
+    const teacher = yield teacherModel_1.Teacher.create(Object.assign({}, req.body));
     if (teacher) {
         return res.status(200).json({ message: 'Teacher created successfully' });
     }

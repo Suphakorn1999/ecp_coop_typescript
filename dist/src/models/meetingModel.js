@@ -36,21 +36,15 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-], Meeting.prototype, "name_project", void 0);
+], Meeting.prototype, "report_title_th", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
+        allowNull: false,
     })
-], Meeting.prototype, "startdate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
-    })
-], Meeting.prototype, "enddate", void 0);
+], Meeting.prototype, "report_title_en", void 0);
 Meeting = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,

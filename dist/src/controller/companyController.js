@@ -8,13 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateQualification = exports.createQualification = exports.deleteCompanyById = exports.updateCompanyById = exports.getCompanyById = exports.getAllCompany = exports.createCompany = void 0;
+exports.companyByidteacher = exports.updateQualification = exports.createQualification = exports.deleteCompanyById = exports.updateCompanyById = exports.getCompanyById = exports.getAllCompany = exports.createCompany = void 0;
 const qualificationModel_1 = require("./../models/qualificationModel");
 const companyModel_1 = require("../models/companyModel");
 const provinceModel_1 = require("../models/provinceModel");
 const compantdata = require('../services/company');
 const { Op } = require('sequelize');
+const config_1 = __importDefault(require("../config/config"));
+const sequelize_1 = require("sequelize");
 const createCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const province = yield provinceModel_1.Province.findAll({ where: { name_province: req.body.name_province } });
     if (province.length > 0) {
@@ -140,3 +145,28 @@ const updateQualification = (req, res, next) => __awaiter(void 0, void 0, void 0
     return res.status(400).json({ message: 'Qualification not found' });
 });
 exports.updateQualification = updateQualification;
+const companyByidteacher = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.body.user.id;
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const meeting = yield config_1.default.query(`SELECT m.idmeeting,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,c.address,c.urlmap
+      FROM student s 
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+      LEFT JOIN teacher t ON m.idteacher = t.idteacher 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN province p ON c.idprovince = p.idprovince 
+      LEFT JOIN year y ON s.idyear = y.idyear
+      WHERE t.idteacher = ${id} 
+      GROUP BY c.idcompany 
+      limit ${limit} offset ${offset}
+      `, { type: sequelize_1.QueryTypes.SELECT });
+    meeting.forEach((item) => {
+        item.student = JSON.parse(item.student);
+    });
+    return res
+        .status(200)
+        .json({ message: 'Meeting fetched successfully', data: meeting });
+});
+exports.companyByidteacher = companyByidteacher;

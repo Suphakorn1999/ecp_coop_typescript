@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFm10_20point = exports.createFm10_20coop = exports.createFm10_20point = exports.getquestionfm10_20 = exports.getFm10_20coop = exports.getFm10_20detail = void 0;
+exports.updateFm1_20coop = exports.updateFm10_20point = exports.createFm10_20coop = exports.createFm10_20point = exports.getquestionfm10_20 = exports.getFm10_20coop = exports.getFm10_20detail = void 0;
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
 const fm10_20coopModel_1 = require("../models/fm10_20coopModel");
@@ -21,7 +21,7 @@ const questionModel_1 = require("../models/questionModel");
 const getFm10_20detail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fm20 = yield config_1.default.query(`SELECT f.idfm10_20_coop,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,f.updatedAt,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS FM10_20 
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer,"note",a.note)ORDER BY a.idquestion ASC),"]") AS FM10_20 
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -34,7 +34,7 @@ const getFm10_20detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    WHERE q.idform = 4 AND f.idstudent_company = ${req.query.idstudent_company} || f.idstudent_company IS NULL
+    WHERE f.idstudent_company = ${req.query.idstudent_company}
     GROUP BY f.idfm10_20_coop,sc.idcompany
     `, { type: sequelize_1.QueryTypes.SELECT });
     fm20.forEach((fm20) => __awaiter(void 0, void 0, void 0, function* () {
@@ -47,7 +47,7 @@ const getFm10_20detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.getFm10_20detail = getFm10_20detail;
 const getFm10_20coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_20coop = yield config_1.default.query(`SELECT sc.idstudent_company,c.name_company,c.address,c.tel,
+    const fm10_20coop = yield config_1.default.query(`SELECT f.idfm10_20_coop,sc.idstudent_company,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,s.prename_student,s.fname_student,s.lname_student,b.name_branch,y.term,y.year,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
@@ -163,3 +163,14 @@ const updateFm10_20point = (req, res, next) => __awaiter(void 0, void 0, void 0,
     return res.status(200).json({ message: 'Fm10_20point updated successfully' });
 });
 exports.updateFm10_20point = updateFm10_20point;
+const updateFm1_20coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const fm10_20coop = yield fm10_20coopModel_1.Fm10_20_coop.findAll({ where: { idfm10_20_coop: req.query.idfm10_20_coop } });
+    if (fm10_20coop.length == 0) {
+        return res.status(400).json({ message: 'Fm10_20coop not found' });
+    }
+    else {
+        yield fm10_20coopModel_1.Fm10_20_coop.update(Object.assign({}, req.body), { where: { idfm10_20_coop: req.query.idfm10_20_coop } });
+        return res.status(200).json({ message: 'Fm10_20coop updated successfully' });
+    }
+});
+exports.updateFm1_20coop = updateFm1_20coop;

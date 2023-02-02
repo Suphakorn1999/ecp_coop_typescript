@@ -9,4 +9,6 @@ router.delete('/', verifyTokenStudent, fileController_1.deleteFile);
 router.get('/admin', verifyToken, fileController_1.getFileformadmin);
 router.get('/adminByid', verifyToken, fileController_1.getFileformadminbyid);
 router.put('/updateStatus', verifyToken, fileController_1.updateStatusFile);
+router.get('/getfileByidstudent', verifyToken, fileController_1.getfileByidstudent);
+router.get('/getfileByidassignment', verifyToken, fileController_1.getfileByidassignment);
 exports.default = router;

@@ -8,4 +8,5 @@ router.post("/", verifyToken, adminController_1.createAdmin);
 router.post("/login", adminController_1.loginAdmin);
 router.get("/verify", verifyTokenAdmin);
 router.get("/allcount", verifyToken, adminController_1.allcount);
+router.get("/token", adminController_1.gennerateToken);
 exports.default = router;

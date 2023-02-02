@@ -6,10 +6,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AssignmentFile = void 0;
+exports.Meeting_Times = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const fileModel_1 = require("./fileModel");
-let AssignmentFile = class AssignmentFile extends sequelize_typescript_1.Model {
+const YearModel_1 = require("./YearModel");
+let Meeting_Times = class Meeting_Times extends sequelize_typescript_1.Model {
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -17,46 +17,39 @@ __decorate([
         primaryKey: true,
         autoIncrement: true,
     })
-], AssignmentFile.prototype, "idassignmentFile", void 0);
+], Meeting_Times.prototype, "idmeeting_times", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => YearModel_1.Year),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: false,
+    })
+], Meeting_Times.prototype, "idyear", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => YearModel_1.Year)
+], Meeting_Times.prototype, "year", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
+        allowNull: true,
     })
-], AssignmentFile.prototype, "name_assignment_file", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-    })
-], AssignmentFile.prototype, "note_assignment", void 0);
+], Meeting_Times.prototype, "times", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DATE,
         allowNull: true,
     })
-], AssignmentFile.prototype, "start_date", void 0);
+], Meeting_Times.prototype, "start_date", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DATE,
         allowNull: true,
     })
-], AssignmentFile.prototype, "end_date", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-        values: ['active', 'inactive'],
-        defaultValue: 'active',
-    })
-], AssignmentFile.prototype, "status_assignment_file", void 0);
-__decorate([
-    (0, sequelize_typescript_1.HasMany)(() => fileModel_1.File)
-], AssignmentFile.prototype, "file", void 0);
-AssignmentFile = __decorate([
+], Meeting_Times.prototype, "end_date", void 0);
+Meeting_Times = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: false,
-        tableName: 'assignment_file',
+        tableName: 'meeting_times',
     })
-], AssignmentFile);
-exports.AssignmentFile = AssignmentFile;
+], Meeting_Times);
+exports.Meeting_Times = Meeting_Times;

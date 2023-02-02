@@ -11,6 +11,8 @@ router.get('/', verifyToken, activityController_1.getAllActivity);
 router.get('/ById', verifyToken, activityController_1.getActivityById);
 router.put('/', verifyToken, verify_1.verifyActivity, activityController_1.updateActivity);
 router.delete('/', verifyToken, verify_1.verifyActivity, activityController_1.deleteActivity);
+router.get('/ByYear', verifyToken, activityController_1.getAllActivityByYear);
+router.post('/createActivityYear', verifyToken, activityController_1.createActivityYear);
 router.post('/createActivity', verifyToken, activity_studentController_1.createActivityStudent);
 router.put('/updateActivity', verifyToken, activity_studentController_1.updateActivityStudent);
 router.delete('/deleteActivity', verifyToken, activity_studentController_1.deleteActivityStudent);

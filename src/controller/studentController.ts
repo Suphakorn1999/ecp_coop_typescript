@@ -24,7 +24,8 @@ export const createExcleStudent: RequestHandler = async (req, res, next: express
         let term = e.term;
         let idbranch = e.branch;
         let idstudy_group = e.study_group;
-        values.push({ student_id, idrole, prename_student, fname_student, lname_student, year, term, idbranch, idstudy_group })
+        let idyear = null;
+        values.push({ student_id, idrole, prename_student, fname_student, lname_student, year, term, idbranch, idstudy_group, idyear })
     })
     var data: any[] = [];
 
@@ -102,6 +103,7 @@ export const getAllStudent: RequestHandler = async (req:any, res, next) => {
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%'
+      order by s.idstudent desc
       limit ${limit} offset ${offset}`,
       { type: QueryTypes.SELECT },
     );

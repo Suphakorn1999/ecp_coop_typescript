@@ -12,8 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateStatusFile = exports.getFileformadminbyid = exports.getFileformadmin = exports.deleteFile = exports.getFile = void 0;
-const assignmentFileModel_1 = require("../models/assignmentFileModel");
+exports.getfileByidassignment = exports.getfileByidstudent = exports.updateStatusFile = exports.getFileformadminbyid = exports.getFileformadmin = exports.deleteFile = exports.getFile = void 0;
+const assignmentFileModel_1 = require("./../models/assignmentFileModel");
 const fileModel_1 = require("../models/fileModel");
 const studentModel_1 = require("../models/studentModel");
 const fs = require('fs');
@@ -201,3 +201,77 @@ const updateStatusFile = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.updateStatusFile = updateStatusFile;
+const getfileByidstudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = yield fileModel_1.File.findAll({
+        attributes: [
+            'idfile',
+            'idassignmentFile',
+            'name_file',
+            'path_file',
+            'type_file',
+            'date_file',
+            'note_file',
+            'status_file'
+        ],
+        include: [
+            {
+                model: studentModel_1.Student,
+                attributes: [
+                    'student_id',
+                    'prename_student',
+                    'fname_student',
+                    'lname_student',
+                ],
+                as: 'student',
+            },
+            { model: assignmentFileModel_1.AssignmentFile },
+        ],
+        where: {
+            '$student.student_id$': req.query.student_id,
+        },
+    });
+    if (file.length > 0) {
+        return res.status(200).json({ message: 'File fetched successfully', data: file });
+    }
+    else {
+        return res.status(200).json({ message: 'File fetched successfully', data: [] });
+    }
+});
+exports.getfileByidstudent = getfileByidstudent;
+const getfileByidassignment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = yield fileModel_1.File.findAll({
+        attributes: [
+            'idfile',
+            'idassignmentFile',
+            'name_file',
+            'path_file',
+            'type_file',
+            'date_file',
+            'note_file',
+            'status_file'
+        ],
+        include: [
+            {
+                model: studentModel_1.Student,
+                attributes: [
+                    'student_id',
+                    'prename_student',
+                    'fname_student',
+                    'lname_student',
+                ],
+                as: 'student',
+            },
+            { model: assignmentFileModel_1.AssignmentFile },
+        ],
+        where: {
+            idassignmentFile: 6,
+        },
+    });
+    if (file.length > 0) {
+        return res.status(200).json({ message: 'File fetched successfully', data: file });
+    }
+    else {
+        return res.status(200).json({ message: 'File fetched successfully', data: [] });
+    }
+});
+exports.getfileByidassignment = getfileByidassignment;

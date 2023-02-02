@@ -10,6 +10,8 @@ exports.Fm10_13_coop = void 0;
 const student_companyModel_1 = require("./student_companyModel");
 const sequelize_typescript_1 = require("sequelize-typescript");
 const answer10_13Model_1 = require("./answer10_13Model");
+const teacherModel_1 = require("./teacherModel");
+const fileModel_1 = require("./fileModel");
 let Fm10_13_coop = class Fm10_13_coop extends sequelize_typescript_1.Model {
 };
 __decorate([
@@ -33,41 +35,31 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => student_companyModel_1.Student_Company)
 ], Fm10_13_coop.prototype, "student_company", void 0);
 __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => teacherModel_1.Teacher),
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
+        type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: false,
+        references: {
+            model: 'teacher',
+        },
     })
-], Fm10_13_coop.prototype, "fname_assessor", void 0);
+], Fm10_13_coop.prototype, "idteacher", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-    })
-], Fm10_13_coop.prototype, "lname_assessor", void 0);
+    (0, sequelize_typescript_1.BelongsTo)(() => teacherModel_1.Teacher)
+], Fm10_13_coop.prototype, "teacher", void 0);
 __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => fileModel_1.File),
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
+        type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: false,
+        references: {
+            model: 'file',
+        },
     })
-], Fm10_13_coop.prototype, "position_assessor", void 0);
+], Fm10_13_coop.prototype, "idfile", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-    })
-], Fm10_13_coop.prototype, "department_assessor", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-    })
-], Fm10_13_coop.prototype, "report_title_th", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
-    })
-], Fm10_13_coop.prototype, "report_title_en", void 0);
+    (0, sequelize_typescript_1.BelongsTo)(() => fileModel_1.File)
+], Fm10_13_coop.prototype, "file", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,

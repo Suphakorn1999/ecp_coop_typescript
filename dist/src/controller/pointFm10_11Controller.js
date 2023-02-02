@@ -12,14 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFm10_11_detailpart2 = exports.getFm10_11_detailpart1 = exports.updateFm10_11point = exports.createFm10_11_point = exports.updateFm10_11_coop = exports.createFm10_11_coop = exports.getquestionfm10_11_part2 = exports.getquestionfm10_11_part1 = exports.getFm10_11_coop = void 0;
+exports.getFm10_11_detailpart2 = exports.getFm10_11_detailpart1 = exports.updateFm10_11point = exports.createFm10_11_point = exports.updateFm10_11_coop = exports.createFm10_11_coop = exports.getquestionfm10_11_part2 = exports.getquestionfm10_11_part1 = exports.getFm10_11_coopAdmin = exports.getFm10_11_coop = void 0;
+const meetingtimesModel_1 = require("./../models/meetingtimesModel");
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
 const fm10_11coopModel_1 = require("../models/fm10_11coopModel");
 const answer10_11Model_1 = require("../models/answer10_11Model");
+const YearModel_1 = require("../models/YearModel");
 const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const idteacher = req.query.idteacher;
-    if (idteacher == undefined) {
+    const idteacher = req.body.user.id;
+    const year = yield YearModel_1.Year.findAll({
+        where: { status_year: 'yes' },
+    });
+    const meettingtimes = yield meetingtimesModel_1.Meeting_Times.findAll({
+        where: { idyear: year[0].idyear, idtimes: req.query.time },
+    });
+    let date = new Date();
+    date.setHours(date.getHours() + 7);
+    if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
         const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
@@ -33,12 +43,13 @@ const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}
     `, { type: sequelize_1.QueryTypes.SELECT });
         return res
             .status(200)
-            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
     }
-    else {
+    else if (meettingtimes[0].end_date < date) {
         const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
@@ -52,13 +63,34 @@ const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE m.idteacher = ${idteacher}`, { type: sequelize_1.QueryTypes.SELECT });
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}`, { type: sequelize_1.QueryTypes.SELECT });
         return res
             .status(200)
-            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
     }
 });
 exports.getFm10_11_coop = getFm10_11_coop;
+const getFm10_11_coopAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time}
+    `, { type: sequelize_1.QueryTypes.SELECT });
+    return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+});
+exports.getFm10_11_coopAdmin = getFm10_11_coopAdmin;
 const getquestionfm10_11_part1 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const question = (idquestion) => __awaiter(void 0, void 0, void 0, function* () {
         return yield config_1.default.query(`SELECT CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"id",q.idsub_question,"topic",q.name_question)ORDER BY q.idquestion ASC),"]") AS FM10_11

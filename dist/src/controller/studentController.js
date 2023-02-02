@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getsummarizeStudent = exports.updateStudentByStudentId = exports.getStudentByStudentId = exports.getStudentByToken = exports.deleteStudent = exports.updateStudent = exports.getStudentById = exports.getAllStudentByYear = exports.getAllStudent = exports.createOneStudent = exports.createExcleStudent = void 0;
+exports.updateStatusfile = exports.getsummarizeStudent = exports.updateStudentByStudentId = exports.getStudentByStudentId = exports.getStudentByToken = exports.deleteStudent = exports.updateStudent = exports.getStudentById = exports.getAllStudentByYear = exports.getAllStudent = exports.createOneStudent = exports.createExcleStudent = void 0;
 const studentModel_1 = require("../models/studentModel");
 const YearModel_1 = require("../models/YearModel");
 const branchModel_1 = require("../models/branchModel");
@@ -24,34 +24,43 @@ const createExcleStudent = (req, res, next) => __awaiter(void 0, void 0, void 0,
     const jsondata = req.body;
     var values = [];
     var dataStudent = jsondata.data;
-    const yearId = yield YearModel_1.Year.findAll({ where: { year: dataStudent.year, term: dataStudent.term } });
-    const branchId = yield branchModel_1.Branch.findAll({ where: { name_branch: dataStudent.branch } });
-    const study_groupId = yield study_groupModel_1.Study_group.findAll({ where: { name_study_group: dataStudent.study_group } });
-    for (var i = 0; i < dataStudent.length; i++) {
-        let studentID = dataStudent[i].studentID;
+    dataStudent.forEach((e) => __awaiter(void 0, void 0, void 0, function* () {
+        let student_id = e.studentID;
         let idrole = 1;
-        let preName = dataStudent[i].prename_student ? dataStudent[i].prename_student.replaceAll(" ", "") : null;
-        let fName = dataStudent[i].firstNameThai ? dataStudent[i].firstNameThai.replaceAll(" ", "") : null;
-        let lName = dataStudent[i].lastNameThai ? dataStudent[i].lastNameThai.replaceAll(" ", "") : null;
-        let year = yearId[0].idyear;
-        let Id_branch = branchId[0].idbranch;
-        let Id_study_group = study_groupId[0].idstudy_group;
-        values.push({ studentID, idrole, preName, fName, lName, year, Id_branch, Id_study_group });
-    }
-    values.forEach((e) => __awaiter(void 0, void 0, void 0, function* () {
-        yield studentModel_1.Student.findAll({
-            where: {
-                student_id: e.studentID
-            }
-        }).then((data) => __awaiter(void 0, void 0, void 0, function* () {
-            if (data.length == 0) {
-                yield studentModel_1.Student.create({ e });
-            }
-        }));
+        let prename_student = e.prename_student ? e.prename_student.replaceAll(" ", "") : null;
+        let fname_student = e.firstNameThai ? e.firstNameThai.replaceAll(" ", "") : null;
+        let lname_student = e.lastNameThai ? e.lastNameThai.replaceAll(" ", "") : null;
+        let year = e.year;
+        let term = e.term;
+        let idbranch = e.branch;
+        let idstudy_group = e.study_group;
+        let idyear = null;
+        values.push({ student_id, idrole, prename_student, fname_student, lname_student, year, term, idbranch, idstudy_group, idyear });
     }));
-    return res
-        .status(200)
-        .json({ message: 'Students created successfully' });
+    var data = [];
+    for (const e of values) {
+        const yearId = yield YearModel_1.Year.findAll({ where: { year: e.year, term: e.term } });
+        const branchId = yield branchModel_1.Branch.findAll({ where: { name_branch: e.idbranch } });
+        const study_groupId = yield study_groupModel_1.Study_group.findAll({ where: { name_study_group: e.idstudy_group } });
+        e.idyear = yearId[0].idyear;
+        e.idbranch = branchId[0].idbranch;
+        e.idstudy_group = study_groupId[0].idstudy_group;
+        let student_id = e.student_id;
+        let idrole = 1;
+        let prename_student = e.prename_student;
+        let fname_student = e.fname_student;
+        let lname_student = e.lname_student;
+        let idyear = e.idyear;
+        let idbranch = e.idbranch;
+        let idstudy_group = e.idstudy_group;
+        data.push({ student_id, idrole, prename_student, fname_student, lname_student, idyear, idbranch, idstudy_group });
+    }
+    const student = yield studentModel_1.Student.bulkCreate(data);
+    if (student) {
+        return res
+            .status(200)
+            .json({ message: 'Students created successfully' });
+    }
 });
 exports.createExcleStudent = createExcleStudent;
 const createOneStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -88,13 +97,14 @@ const getAllStudent = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
     const search_name = req.query.search ? req.query.search : '';
     const students = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
-      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status 
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status,s.status_file 
       FROM student s 
       LEFT JOIN year y ON s.idyear = y.idyear 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%'
+      order by s.idstudent desc
       limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
     return res
         .status(200)
@@ -189,7 +199,7 @@ const getsummarizeStudent = (req, res, next) => __awaiter(void 0, void 0, void 0
     const search_name = req.query.search ? req.query.search : '';
     const students = yield config_1.default.query(`SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,
-      sg.name_study_group,b.name_branch,f.name_factory,s.status,
+      sg.name_study_group,b.name_branch,f.name_factory,s.status,s.status_file,
       CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
       fm.total_score AS FM10_14,fm18.total_score AS FM10_18,fm20.total_score AS FM10_20
       FROM student s 
@@ -206,8 +216,7 @@ const getsummarizeStudent = (req, res, next) => __awaiter(void 0, void 0, void 0
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or s.prename_student like '%${search_name}%'
       GROUP BY s.idstudent
       ORDER BY s.idstudent ASC
-      LIMIT ${limit} OFFSET ${offset}
-      `, { type: sequelize_1.QueryTypes.SELECT });
+      LIMIT ${limit} OFFSET ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
     students.forEach((student) => {
         student.student = JSON.parse(student.student);
     });
@@ -216,3 +225,17 @@ const getsummarizeStudent = (req, res, next) => __awaiter(void 0, void 0, void 0
         .json({ message: 'Students fetched successfully', data: students });
 });
 exports.getsummarizeStudent = getsummarizeStudent;
+const updateStatusfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.body.idstudent;
+    const student = yield studentModel_1.Student.findByPk(id);
+    if (!student) {
+        return res.status(400).json({ message: 'Student not found' });
+    }
+    else {
+        yield studentModel_1.Student.update({ status_file: req.body.status_file }, { where: { idstudent: id } });
+        return res
+            .status(200)
+            .json({ message: 'Student updated successfully' });
+    }
+});
+exports.updateStatusfile = updateStatusfile;

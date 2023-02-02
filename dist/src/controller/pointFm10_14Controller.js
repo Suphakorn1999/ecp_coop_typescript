@@ -49,7 +49,7 @@ exports.getFm10_14detail = getFm10_14detail;
 const getFm10_14coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
-      fm.department_assessor,fm.other_Comments,f.total_score,fm.createdAt,fm.updatedAt
+      fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
