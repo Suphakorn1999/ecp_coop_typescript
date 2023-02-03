@@ -20,7 +20,8 @@ export const getFm10_14detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN answerfm10_14 a ON f.idfm10_14_coop = a.idfm10_14_coop
     LEFT JOIN question q ON a.idquestion = q.idquestion
     LEFT JOIN form fm ON q.idform = fm.idform
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -50,7 +51,8 @@ export const getFm10_14coop: RequestHandler = async (req, res, next) => {
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
-      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company`,
       { type: QueryTypes.SELECT },

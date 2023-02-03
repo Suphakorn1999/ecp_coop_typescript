@@ -35,7 +35,8 @@ export const getAllStudentCompany: RequestHandler = async (req:any, res, next) =
       FROM student s 
       LEFT JOIN student_company st ON s.idstudent = st.idstudent 
       LEFT JOIN company c ON st.idcompany = c.idcompany 
-      JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%'
       ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
       limit ${limit} offset ${offset}
@@ -58,7 +59,8 @@ export const getStudentCompany: RequestHandler = async (req, res, next) => {
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN province p ON c.idprovince = p.idprovince 
-      LEFT JOIN year y ON s.idyear = y.idyear
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       where c.idcompany = ${req.query.id}
       GROUP BY sc.idcompany
       `,

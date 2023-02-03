@@ -8,6 +8,7 @@ import { Question } from '../models/questionModel';
 import { Student_Company } from '../models/student_companyModel';
 import { Form } from '../models/formModel';
 import { Teacher } from '../models/teacherModel';
+import { Year } from '../models/YearModel';
 
 export const getFm10_13detail: RequestHandler = async (req, res) => {
     const fm13: Array<any> = await Connection.query(
@@ -53,7 +54,8 @@ export const getFm10_13coop: RequestHandler = async (req, res) => {
     LEFT JOIN company c ON c.idcompany = sc.idcompany
     LEFT JOIN branch b ON b.idbranch = s.idbranch
     LEFT JOIN factory fa ON fa.idfactory = b.idfactory
-    LEFT JOIN year y ON y.idyear = s.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
     LEFT JOIN file f1 ON f1.idfile = f.idfile
     LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
@@ -86,7 +88,8 @@ export const getFm10_13totalpoint: RequestHandler = async (req, res) => {
       LEFT JOIN student s ON sc.idstudent = s.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
-      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN fm10_13_coop fm ON sc.idstudent_company = fm.idstudent_company 
       LEFT JOIN answerfm10_13 a ON fm.idfm10_13_coop = a.idfm10_13_coop
@@ -247,6 +250,12 @@ export const updateFm10_13coop: RequestHandler = async (req, res, next) => {
 
 export const getFm10_13coopBytokenteacher: RequestHandler = async (req, res, next) => {
     const idteacher:any = req.body.user.id;
+    const idyear: any = req.query.idyear
+
+    const year = await Year.findAll({
+        where: { status_year: 'yes' },
+    })
+    if (idyear === undefined) {
     const fm13: Array<any> = await Connection.query(
     `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
     b.name_branch,fa.name_factory,c.name_company,f1.idfile,
@@ -257,12 +266,13 @@ export const getFm10_13coopBytokenteacher: RequestHandler = async (req, res, nex
     LEFT JOIN company c ON c.idcompany = sc.idcompany
     LEFT JOIN branch b ON b.idbranch = s.idbranch
     LEFT JOIN factory fa ON fa.idfactory = b.idfactory
-    LEFT JOIN year y ON y.idyear = s.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
     LEFT JOIN file f1 ON f1.idfile = f.idfile
     RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
-    WHERE f.idteacher = ${idteacher}
+    WHERE f.idteacher = ${idteacher} AND y.idyear = ${year[0].idyear}
     group by s.idstudent
     ORDER BY f.idfm10_13_coop DESC`,
         { type: QueryTypes.SELECT }
@@ -278,4 +288,38 @@ export const getFm10_13coopBytokenteacher: RequestHandler = async (req, res, nex
             message: 'Fm10_13coop fetched successfully',
             data: fm13,
         });
+    } else {
+        const fm13: Array<any> = await Connection.query(
+            `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+            b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+            CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
+            m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+            FROM student s
+            RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
+            LEFT JOIN company c ON c.idcompany = sc.idcompany
+            LEFT JOIN branch b ON b.idbranch = s.idbranch
+            LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+            LEFT JOIN enroll e ON s.idstudent = e.idstudent
+            LEFT JOIN year y ON e.idyear = y.idyear
+            LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+            LEFT JOIN file f1 ON f1.idfile = f.idfile
+            RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
+            LEFT JOIN teacher t ON m.idteacher = t.idteacher
+            WHERE f.idteacher = ${idteacher} AND y.idyear = ${idyear}
+            group by s.idstudent
+            ORDER BY f.idfm10_13_coop DESC`,
+            { type: QueryTypes.SELECT }
+        );
+
+        fm13.forEach(async (element: any) => {
+            element.teacher = JSON.parse(element.teacher)
+        })
+
+        return res
+            .status(200)
+            .json({
+                message: 'Fm10_13coop fetched successfully',
+                data: fm13,
+            });
+    }
 }

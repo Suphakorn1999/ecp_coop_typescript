@@ -8,6 +8,7 @@ import { Role } from '../models/roleModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
 import { Study_group } from '../models/study_groupModel';
+import { Enroll } from '../models/enrollModel';
 
 export const createExcleStudent: RequestHandler = async (req, res, next: express.NextFunction) => {
     const jsondata = req.body;
@@ -96,9 +97,10 @@ export const getAllStudent: RequestHandler = async (req:any, res, next) => {
 
     const students = await Connection.query(
       `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
-      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,s.status,s.status_file 
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
       FROM student s 
-      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
@@ -125,7 +127,7 @@ export const getAllStudentByYear: RequestHandler = async (req, res, next) => {
 export const getStudentById: RequestHandler = async (req, res, next) => {
     const id: any = req.query.id;
 
-    const students: Student | null = await Student.findByPk(id,{include : [{model: Year},{model: Branch,include : [{model: Factory}]},{model:Study_group}],attributes:['idstudent','student_id','prename_student','fname_student','lname_student','status']});
+    const students: Student | null = await Student.findByPk(id,{include : [{model: Year},{model: Branch,include : [{model: Factory}]},{model:Study_group}],attributes:['idstudent','student_id','prename_student','fname_student','lname_student']});
 
     return res
         .status(200)
@@ -161,7 +163,7 @@ export const deleteStudent: RequestHandler = async (req, res, next) => {
 }
 export const getStudentByToken: RequestHandler = async (req, res, next) => {
     const id: any = req.body.user.id;
-    const students: Student | null = await Student.findByPk(id,{attributes:['prename_student','fname_student','lname_student','status']});
+    const students: Student | null = await Student.findByPk(id,{attributes:['prename_student','fname_student','lname_student']});
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });
@@ -196,11 +198,12 @@ export const getsummarizeStudent: RequestHandler = async (req:any, res, next) =>
     const students = await Connection.query(
      `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,
-      sg.name_study_group,b.name_branch,f.name_factory,s.status,s.status_file,
+      sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file,
       CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
       fm.total_score AS FM10_14,fm18.total_score AS FM10_18,fm20.total_score AS FM10_20
       FROM student s 
-      LEFT JOIN year y ON s.idyear = y.idyear
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
@@ -232,7 +235,7 @@ export const updateStatusfile: RequestHandler = async (req:any, res, next) => {
     if (!student) {
         return res.status(400).json({ message: 'Student not found' });
     }else{
-        await Student.update({status_file: req.body.status_file}, { where: { idstudent: id } });
+        await Enroll.update({status_file: req.body.status_file}, { where: { idstudent: id } });
         return res
             .status(200)
             .json({ message: 'Student updated successfully' });

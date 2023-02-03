@@ -34,7 +34,8 @@ export const getFm10_18detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN answerfm10_18 a ON f.idfm10_18_coop = a.idfm10_18_coop
     LEFT JOIN question q ON a.idquestion = q.idquestion
     LEFT JOIN form fm ON q.idform = fm.idform
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -64,7 +65,8 @@ export const getFm10_18coop: RequestHandler = async (req, res, next) => {
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN fm10_18_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory

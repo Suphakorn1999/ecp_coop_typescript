@@ -39,7 +39,8 @@ export const getMeeting: RequestHandler = async (req:any, res, next) => {
       LEFT JOIN teacher t ON m.idteacher = t.idteacher 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN province p ON c.idprovince = p.idprovince 
-      LEFT JOIN year y ON s.idyear = y.idyear
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%'
       GROUP BY y.idyear,c.idcompany,s.idstudent
       ORDER BY m.idmeeting DESC
@@ -65,7 +66,8 @@ export const getMeetingById: RequestHandler = async (req, res, next) => {
       LEFT JOIN teacher t ON m.idteacher = t.idteacher 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN province p ON c.idprovince = p.idprovince 
-      LEFT JOIN year y ON s.idyear = y.idyear
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       WHERE m.idmeeting = ${req.params.id}
       GROUP BY y.idyear`,
       { type: QueryTypes.SELECT },

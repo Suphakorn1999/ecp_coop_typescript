@@ -17,7 +17,8 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
@@ -48,7 +49,8 @@ export const getFm10_21detail: RequestHandler = async (req, res, next) => {
         LEFT JOIN answerfm10_21 an ON f.idfm10_21_coop = an.idfm10_21_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
@@ -122,7 +124,8 @@ export const getFm10_21detailadmin: RequestHandler = async (req, res, next) => {
         LEFT JOIN answerfm10_21 an ON f.idfm10_21_coop = an.idfm10_21_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany

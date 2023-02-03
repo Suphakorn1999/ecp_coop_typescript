@@ -11,27 +11,58 @@ import { Year } from '../models/YearModel';
 
 export const getFm10_11_coop: RequestHandler = async (req, res) => {
   const idteacher = req.body.user.id;
+  const idyear = req.query.idyear
   const year = await Year.findAll({
     where: { status_year: 'yes' },
   })
+  if (idyear === undefined) {
+    const meettingtimes = await Meeting_Times.findAll({
+      where: { idyear: year[0].idyear, times: req.query.time },
+    })
 
-  const meettingtimes = await Meeting_Times.findAll({
-    where: { idyear: year[0].idyear,idtimes: req.query.time },
-  })
-  
-  let date = new Date()
-  date.setHours(date.getHours() + 7)
+    if (meettingtimes.length == 0) {
+      return res
+        .status(400)
+        .json({ message: 'ปีการศึกษานี้ยังไม่ได้กำหนดวันส่งเอกสาร' });
+    }
 
-  if(meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date){
-    const fm10_11coop: Array<any> = await Connection.query(
-    `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    let date = new Date()
+    date.setHours(date.getHours() + 7)
+
+    if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}`,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
+    } else if (meettingtimes[0].end_date < date) {
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -39,35 +70,76 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
     WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}
     `,
-      { type: QueryTypes.SELECT },
-    );
+        { type: QueryTypes.SELECT },
+      );
 
-    return res
-      .status(200)
-      .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
-  }else if(meettingtimes[0].end_date < date){
-    const fm10_11coop: Array<any> = await Connection.query(
-    `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
+    }
+  } else {
+    const meettingtimes = await Meeting_Times.findAll({
+      where: { idyear: idyear, times: req.query.time },
+    })
+
+    if (meettingtimes.length == 0) {
+      return res
+        .status(400)
+        .json({ message: 'ปีการศึกษานี้ยังไม่ได้กำหนดวันส่งเอกสาร' });
+    }
+
+    let date = new Date()
+    date.setHours(date.getHours() + 7)
+
+    if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}`,
-      { type: QueryTypes.SELECT },
-    );
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time} AND e.idyear = ${idyear}`,
+        { type: QueryTypes.SELECT },
+      );
 
-    return res
-      .status(200)
-      .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
+    } else if (meettingtimes[0].end_date < date) {
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time} AND e.idyear = ${idyear}`,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
+    }
   }
+
 }
 
 export const getFm10_11_coopAdmin: RequestHandler = async (req, res) => {
@@ -79,7 +151,8 @@ export const getFm10_11_coopAdmin: RequestHandler = async (req, res) => {
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -303,7 +376,8 @@ export const getFm10_11_detailpart1: RequestHandler = async (req, res) => {
         LEFT JOIN answerfm10_11 an ON f.idfm10_11_coop = an.idfm10_11_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
@@ -372,7 +446,8 @@ export const getFm10_11_detailpart2: RequestHandler = async (req, res) => {
         LEFT JOIN answerfm10_11 an ON f.idfm10_11_coop = an.idfm10_11_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany

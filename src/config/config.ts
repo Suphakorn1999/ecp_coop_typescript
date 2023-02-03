@@ -32,6 +32,7 @@ import { Activity_Year } from '../models/activity_yearModel';
 import { Fm10_13_coop } from '../models/fm10_13coopModel';
 import { Answerfm10_13 } from '../models/answer10_13Model';
 import { Meeting_Times } from '../models/meetingtimesModel';
+import { Enroll } from '../models/enrollModel';
 
 const connection = new Sequelize({
   dialect: 'mysql',
@@ -74,6 +75,7 @@ const connection = new Sequelize({
     Fm10_13_coop,
     Answerfm10_13,
     Meeting_Times,
+    Enroll,
   ],
   sync: { force: false, alter: true },
 });

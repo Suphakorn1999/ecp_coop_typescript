@@ -57,7 +57,8 @@ export const getActivityStudent: RequestHandler = async (req:any, res, next) => 
         FROM student s 
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
-        JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON e.idstudent = s.idstudent
+        JOIN year y ON e.idyear = y.idyear
         JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
         WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${year[0].idyear} AND a.status = 'active'
         group by s.idstudent
@@ -87,7 +88,8 @@ export const getActivityStudent: RequestHandler = async (req:any, res, next) => 
         FROM student s 
         LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent 
         LEFT JOIN activity a ON a.idactivity = ac.idactivity 
-        JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON e.idstudent = s.idstudent
+        JOIN year y ON e.idyear = y.idyear
         JOIN activity_year ay ON ay.idactivity = a.idactivity AND ay.idyear = y.idyear
         WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND ay.idyear = ${req.query.idyear} AND a.status = 'active'
         group by s.idstudent
