@@ -1,5 +1,6 @@
 import { Table, Model, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Company } from './companyModel';
+import { Meeting } from './meetingModel';
 import { Student } from './studentModel';
 
 
@@ -43,4 +44,5 @@ export class Student_Company extends Model<Student_Company> {
         defaultValue: 'active',
     })
     status_student_company!: string;
+
 }

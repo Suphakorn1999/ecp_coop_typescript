@@ -5,7 +5,11 @@ import { File } from '../models/fileModel';
 import { Student } from '../models/studentModel';
 const fs = require('fs');
 import path from 'path';
+import { Meeting } from '../models/meetingModel';
+import { Student_Company } from '../models/student_companyModel';
 const { Op } = require('sequelize');
+import Connection from '../config/config';
+import { QueryTypes } from 'sequelize/types';
 
 export const getFile: RequestHandler = async (req, res, next) => {
   try{
@@ -252,34 +256,19 @@ export const getfileByidassignment: RequestHandler = async (
   res: Response,
   next: express.NextFunction,
 ) => {
-  const file = await File.findAll({
-    attributes: [
-      'idfile',
-      'idassignmentFile',
-      'name_file',
-      'path_file',
-      'type_file',
-      'date_file',
-      'note_file',
-      'status_file'
-    ],
-    include: [
-      {
-        model: Student,
-        attributes: [
-          'student_id',
-          'prename_student',
-          'fname_student',
-          'lname_student',
-        ],
-        as: 'student',
-      },
-      { model: AssignmentFile },
-    ],
-    where: {
-      idassignmentFile: 6,
-    },
-  });
+  const file: Array<any> = await Connection.query(
+    `SELECT f.idfile,f.idassignmentFile,f.name_file,f.path_file,f.type_file,f.date_file,f.note_file,f.status_file,
+    s.student_id,s.prename_student,s.fname_student,s.lname_student,m.report_title_th,m.report_title_en
+    FROM file f 
+    JOIN student s ON f.idstudent = s.idstudent 
+    JOIN assignmentFile af ON f.idassignmentFile = af.idassignmentFile
+    JOIN student_company sc ON s.idstudent = sc.idstudent
+    JOIN company c ON sc.idcompany = c.idcompany
+    JOIN meeting m ON c.idcompany = m.idcompany
+    WHERE af.idassignmentFile = 6 AND f.status_file = 'checked'`,
+    { type: QueryTypes.SELECT },
+  );
+
   if (file.length > 0) {
     return res.status(200).json({ message: 'File fetched successfully', data: file });
   }else{

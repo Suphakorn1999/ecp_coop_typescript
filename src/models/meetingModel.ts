@@ -40,4 +40,5 @@ export class Meeting extends Model {
         allowNull: false,
     })
     report_title_en!: string;
+
 }
