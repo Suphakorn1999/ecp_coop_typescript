@@ -134,7 +134,18 @@ export const getAllStudentByYear: RequestHandler = async (req, res, next) => {
 export const getStudentById: RequestHandler = async (req, res, next) => {
     const id: any = req.query.id;
 
-    const students: Student | null = await Student.findByPk(id, { include: [{ model: Year }, { model: Branch, include: [{ model: Factory }] }, { model: Study_group }], attributes: ['idstudent', 'student_id', 'prename_student', 'fname_student', 'lname_student'] });
+    const students = await Connection.query(
+        `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+        CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
+        FROM student s
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
+        LEFT JOIN branch b ON s.idbranch = b.idbranch
+        LEFT JOIN factory f ON b.idfactory = f.idfactory
+        LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+        where s.idstudent = ${id}`,
+        { type: QueryTypes.SELECT },
+    )
 
     return res
         .status(200)

@@ -105,6 +105,7 @@ export const getFileformadmin: RequestHandler = async (
       {
         model: Student,
         attributes: [
+          'idstudent',
           'student_id',
           'prename_student',
           'fname_student',
@@ -275,8 +276,3 @@ export const getfileByidassignment: RequestHandler = async (
     return res.status(200).json({ message: 'File fetched successfully', data: [] });
   }
 }
-
-
-
-
-

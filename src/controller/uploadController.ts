@@ -9,6 +9,7 @@ import { Student } from '../models/studentModel';
 import dotenv from 'dotenv';
 import { AssignmentFile } from '../models/assignmentFileModel';
 import { Year } from '../models/YearModel';
+import { Enroll } from '../models/enrollModel';
 const fs = require('fs');
 dotenv.config();
 const datenow = moment().tz('Asia/Bangkok').format('DD-MM-YYYY');
@@ -20,11 +21,13 @@ export const uploadfile: RequestHandler = async (
   next: express.NextFunction,
 ) => {
   const UserId = req.body.user.id;
-  const student: Student[] = await Student.findAll({where: { idstudent: UserId },include:[{model:Year,where:{status_year:"yes"}}]});
+  const student: Student[] = await Student.findAll({where: { idstudent: UserId }});
+  const year = await Year.findAll({where: { status_year: 'yes' }});
+  const enroll = await Enroll.findAll({where: { idstudent: UserId, idyear: year[0].idyear }});
   if(!req.query.id){
     return res.status(400).json({ message: 'id is required' });
   }
-  if (student.length > 0) {
+  if (student.length > 0 && enroll.length > 0) {
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {
         cb(null, './public/uploads/');

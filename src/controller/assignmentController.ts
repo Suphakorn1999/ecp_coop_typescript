@@ -2,6 +2,7 @@ import express from 'express';
 import { RequestHandler } from 'express';
 import sequelize from 'sequelize/types/sequelize';
 import { AssignmentFile } from '../models/assignmentFileModel';
+import { Enroll } from '../models/enrollModel';
 import { Student } from '../models/studentModel';
 import { Year } from '../models/YearModel';
 const { Op } = require('sequelize');
@@ -38,11 +39,11 @@ export const getAssignment: RequestHandler = async (
 ) => {
   const id = req.body.user.id
   const date:any = req.query.time
-  const student = await Student.findAll({
-    where: { idstudent: id },
-    include: [{ model: Year, as: 'year', where: { status_year: 'yes' } }],
-  })
-  if (student.length > 0) {
+  const student = await Student.findAll({where: { idstudent: id }})
+  const year = await Year.findAll({ where: { status_year: 'yes' }})
+  const enroll = await Enroll.findAll({ where: { idstudent: id, idyear: year[0].idyear }})
+
+  if (student.length > 0 && enroll.length > 0) {
     const assignment = await AssignmentFile.findAll({
       where: { status_assignment_file: 'active' },
     })
