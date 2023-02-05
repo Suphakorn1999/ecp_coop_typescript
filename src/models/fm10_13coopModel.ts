@@ -70,6 +70,12 @@ export class Fm10_13_coop extends Model {
     other_comments!: string;
 
     @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    total_score!: string;
+
+    @Column({
         type: DataType.DATE,
         allowNull: false,
     })

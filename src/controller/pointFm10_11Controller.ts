@@ -31,8 +31,8 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
 
     if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
       const fm10_11coop: Array<any> = await Connection.query(
-        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+        `SELECT f.idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -54,8 +54,8 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
         .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
     } else if (meettingtimes[0].end_date < date) {
       const fm10_11coop: Array<any> = await Connection.query(
-        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+        `SELECT idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -93,8 +93,8 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
 
     if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
       const fm10_11coop: Array<any> = await Connection.query(
-        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+        `SELECT idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -116,8 +116,8 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
         .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
     } else if (meettingtimes[0].end_date < date) {
       const fm10_11coop: Array<any> = await Connection.query(
-        `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+        `SELECT idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
@@ -142,9 +142,14 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
 
 }
 
-export const getFm10_11_coopAdmin: RequestHandler = async (req, res) => {
-  const fm10_11coop: Array<any> = await Connection.query(
-    `SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+export const getFm10_11_coopAdmin: RequestHandler = async (req: any, res) => {
+  const create: any = req.query.create
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
+  if (create === undefined) {
+    const fm10_11coop: Array<any> = await Connection.query(
+      `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
@@ -159,13 +164,39 @@ export const getFm10_11_coopAdmin: RequestHandler = async (req, res) => {
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
     WHERE f.time = ${req.query.time}
-    `,
-    { type: QueryTypes.SELECT },
-  );
+    limit ${limit} offset ${offset}`,
+      { type: QueryTypes.SELECT },
+    );
 
-  return res
-    .status(200)
-    .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    return res
+      .status(200)
+      .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+  } else {
+    const fm10_11coop: Array<any> = await Connection.query(
+      `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} OR f.idfm10_11_coop IS NULL
+    limit ${limit} offset ${offset}`,
+      { type: QueryTypes.SELECT },
+    );
+
+    return res
+      .status(200)
+      .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+  }
+
 }
 
 export const getquestionfm10_11_part1: RequestHandler = async (req, res) => {
@@ -240,27 +271,27 @@ export const getquestionfm10_11_part2: RequestHandler = async (req, res) => {
 }
 
 export const createFm10_11_coop: RequestHandler = async (req, res) => {
-  const fm10_11coopALL = await Fm10_11_coop.findAll({ where: { idstudent_company: req.body.idstudent_company } });
-  if (fm10_11coopALL.length == 0) {
-    const fm10_11coop = await Fm10_11_coop.create({ ...req.body, time: 1 });
-    return res
-      .status(201)
-      .json({ message: 'Fm10_11coop created successfully', data: fm10_11coop });
-  } else if (fm10_11coopALL.length == 1) {
-    const fm10_11coop = await Fm10_11_coop.create({ ...req.body, time: 2 });
-    return res
-      .status(201)
-      .json({ message: 'Fm10_11coop created successfully', data: fm10_11coop });
-  } else if (fm10_11coopALL.length == 2) {
-    return res
+  const jsondata:[] = req.body;
+
+  if(jsondata.length > 0){
+
+    const fm10_11coop = await Fm10_11_coop.bulkCreate(jsondata);
+
+    if(!fm10_11coop){
+      return res
       .status(400)
-      .json({ message: 'Fm10_11coop created fail', data: null });
+      .json({ message: 'Fm10_11coop created failed', data: jsondata });
+    }
+  
+    return res
+      .status(201)
+      .json({ message: 'Fm10_11coop created successfully', data: jsondata });
   }
 }
 
 export const updateFm10_11_coop: RequestHandler = async (req, res) => {
-  const fm10_11coop = await Fm10_11_coop.findOne({ where: { idfm10_11_coop: req.body.idfm10_11_coop } });
-  if (fm10_11coop) {
+  const fm10_11coop = await Fm10_11_coop.findAll({ where: { idfm10_11_coop: req.body.idfm10_11_coop } });
+  if (fm10_11coop.length >0) {
     const fm10_11coop = await Fm10_11_coop.update({ ...req.body }, { where: { idfm10_11_coop: req.body.idfm10_11_coop } });
     return res
       .status(201)
@@ -369,7 +400,7 @@ export const getFm10_11_detailpart1: RequestHandler = async (req, res) => {
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.other_comments,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
@@ -439,7 +470,7 @@ export const getFm10_11_detailpart2: RequestHandler = async (req, res) => {
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.other_comments,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company

@@ -43,7 +43,7 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
       });
       res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
     }else{
-      res.redirect(`http://127.0.0.1:5173/register?prename=${data.prename}&firstNameThai=${data.firstNameThai}&lastNameThai=${data.lastNameThai}&username_teacher=${data.uid[0]}`);
+      res.redirect(`http://127.0.0.1:5173/login`);
     }
   } 
 });

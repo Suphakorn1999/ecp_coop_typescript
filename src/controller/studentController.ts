@@ -29,6 +29,7 @@ export const createExcleStudent: RequestHandler = async (req, res, next: express
         values.push({ student_id, idrole, prename_student, fname_student, lname_student, year, term, idbranch, idstudy_group, idyear })
     })
     var data: any[] = [];
+    var dataEnroll: any[] = [];
 
     for (const e of values) {
         const yearId = await Year.findAll({ where: { year: e.year, term: e.term } });
@@ -45,58 +46,64 @@ export const createExcleStudent: RequestHandler = async (req, res, next: express
         let idyear = e.idyear;
         let idbranch = e.idbranch;
         let idstudy_group = e.idstudy_group;
-        data.push({ student_id, idrole, prename_student, fname_student, lname_student, idyear, idbranch, idstudy_group })
+        data.push({ student_id, idrole, prename_student, fname_student, lname_student, idbranch, idstudy_group })
+        dataEnroll.push({ idyear })
     }
 
-    const student = await Student.bulkCreate(data);
+    for (let i = 0; i < data.length; i++) {
+        const student = await Student.create(data[i]);
+        dataEnroll[i].idstudent = student.idstudent;
+        const enroll = await Enroll.create(dataEnroll[i]);
 
-    if (student) {
-        return res
-            .status(200)
-            .json({ message: 'Students created successfully' });
     }
+
+    return res
+        .status(200)
+        .json({ message: 'Students created successfully' });
+
 };
-export const createOneStudent: RequestHandler = async (req,res,next: express.NextFunction) => {
+export const createOneStudent: RequestHandler = async (req, res, next: express.NextFunction) => {
     req.body.idrole = 1;
     let term = req.body.year.split('/')[0];
     let year = req.body.year.split('/')[1];
-    
-    const yearId = await Year.findAll({where:{year:year,term:term}});
+
+    const yearId = await Year.findAll({ where: { year: year, term: term } });
     const branchId = await Branch.findAll({
-      where: { name_branch: req.body.branch },
+        where: { name_branch: req.body.branch },
     });
 
-    if(yearId.length > 0){
+    if (yearId.length > 0) {
         req.body.idyear = yearId[0].idyear;
-    }else{
+    } else {
         return res.status(400).json({ message: 'Year not found' });
     }
 
-    const Allstudent = await Student.findAll({where:{student_id: req.body.student_id,idyear:req.body.idyear}});
+    const Allstudent = await Student.findAll({ where: { student_id: req.body.student_id } });
 
-    if(Allstudent.length > 0){
+    if (Allstudent.length > 0) {
         return res.status(400).json({ message: 'StudentId is already exist' });
     }
 
-    if(branchId.length > 0){
+    if (branchId.length > 0) {
         req.body.idbranch = branchId[0].idbranch;
     }
 
-    const student = await Student.create({...req.body});
+    const student = await Student.create({ idrole: req.body.idrole, student_id: req.body.student_id, prename_student: req.body.prename_student, fname_student: req.body.fname_student, lname_student: req.body.lname_student, idbranch: req.body.idbranch, idstudy_group: req.body.idstudy_group });
+    const enroll = await Enroll.create({ idstudent: student.idstudent, idyear: req.body.idyear, grade: req.body.grade, status_file: req.body.status_file });
 
-    if(student){
+    if (student && enroll) {
         return res
-        .status(200)
-        .json({ message: 'Student created successfully', data: student });
+            .status(200)
+            .json({ message: 'Student created successfully', data: student });
     }
 }
-export const getAllStudent: RequestHandler = async (req:any, res, next) => {
+export const getAllStudent: RequestHandler = async (req: any, res, next) => {
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
     const search_name = req.query.search ? req.query.search : '';
 
     const students = await Connection.query(
-      `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+        `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
       FROM student s 
       LEFT JOIN enroll e ON s.idstudent = e.idstudent
@@ -107,7 +114,7 @@ export const getAllStudent: RequestHandler = async (req:any, res, next) => {
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%'
       order by s.idstudent desc
       limit ${limit} offset ${offset}`,
-      { type: QueryTypes.SELECT },
+        { type: QueryTypes.SELECT },
     );
 
     return res
@@ -116,10 +123,10 @@ export const getAllStudent: RequestHandler = async (req:any, res, next) => {
 }
 export const getAllStudentByYear: RequestHandler = async (req, res, next) => {
     const id = req.query.idyear;
-    if(!id){
+    if (!id) {
         return res.status(400).json({ message: 'idyear is required' });
     }
-    const students = await Student.findAll({where: {idyear: id}});
+    const students = await Student.findAll({ where: { idyear: id } });
     return res
         .status(200)
         .json({ message: 'Students fetched successfully', data: students });
@@ -127,35 +134,37 @@ export const getAllStudentByYear: RequestHandler = async (req, res, next) => {
 export const getStudentById: RequestHandler = async (req, res, next) => {
     const id: any = req.query.id;
 
-    const students: Student | null = await Student.findByPk(id,{include : [{model: Year},{model: Branch,include : [{model: Factory}]},{model:Study_group}],attributes:['idstudent','student_id','prename_student','fname_student','lname_student']});
+    const students: Student | null = await Student.findByPk(id, { include: [{ model: Year }, { model: Branch, include: [{ model: Factory }] }, { model: Study_group }], attributes: ['idstudent', 'student_id', 'prename_student', 'fname_student', 'lname_student'] });
 
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });
-        
+
 }
 export const updateStudent: RequestHandler = async (req, res, next) => {
-    const {id} = req.params;
-    const student = await Student.findAll({where:{idstudent: id}});
-    if(student.length > 0){
-        await Student.update({...req
-            .body}, { where: { idstudent: id } });
+    const { id } = req.params;
+    const student = await Student.findAll({ where: { idstudent: id } });
+    if (student.length > 0) {
+        await Student.update({
+            ...req
+                .body
+        }, { where: { idstudent: id } });
         return res
             .status(200)
             .json({ message: 'Student updated successfully' });
-    }else{
+    } else {
         return res.status(400).json({ message: 'Student not found' });
     }
 }
 export const deleteStudent: RequestHandler = async (req, res, next) => {
     const id: any = req.body.id;
     const students: Student | null = await Student.findByPk(id);
-    if(students){
-        await Student.destroy({where: {idstudent: id}});
+    if (students) {
+        await Student.destroy({ where: { idstudent: id } });
         return res
             .status(200)
             .json({ message: 'Student deleted successfully', data: students });
-    }else{
+    } else {
         return res
             .status(400)
             .json({ message: 'Student not found' });
@@ -163,40 +172,43 @@ export const deleteStudent: RequestHandler = async (req, res, next) => {
 }
 export const getStudentByToken: RequestHandler = async (req, res, next) => {
     const id: any = req.body.user.id;
-    const students: Student | null = await Student.findByPk(id,{attributes:['prename_student','fname_student','lname_student']});
+    const students: Student | null = await Student.findByPk(id, { attributes: ['prename_student', 'fname_student', 'lname_student'] });
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });
 }
 export const getStudentByStudentId: RequestHandler = async (req, res, next) => {
     const id: any = req.query.StudentId;
-    const students: Student | null = await Student.findOne({where:{student_id:id},include : [{model: Year},{model: Branch,include : [{model: Factory}]},{model:Study_group}],attributes:['idstudent','student_id','prename_student','fname_student','lname_student','status']});
+    const students: Student | null = await Student.findOne({ where: { student_id: id }, include: [{ model: Year }, { model: Branch, include: [{ model: Factory }] }, { model: Study_group }], attributes: ['idstudent', 'student_id', 'prename_student', 'fname_student', 'lname_student', 'status'] });
     return res
         .status(200)
         .json({ message: 'Student fetched successfully', data: students });
 }
 export const updateStudentByStudentId: RequestHandler = async (req, res, next) => {
     const id: any = req.body.StudentId;
-    const student: Student | null = await Student.findOne({where:{student_id:id}});
+    const student: Student | null = await Student.findOne({ where: { student_id: id } });
     if (!student) {
         return res.status(400).json({ message: 'Student not found' });
     }
     const updatedStudent = await student.update({
-        idrole : 1,
-        idbranch : req.body.idbranch,
-        username_student : req.body.username_student,
+        idrole: 1,
+        idbranch: req.body.idbranch,
+        username_student: req.body.username_student,
     });
     return res
         .status(200)
         .json({ message: 'Student updated successfully', data: updatedStudent });
 }
-export const getsummarizeStudent: RequestHandler = async (req:any, res, next) => {
+export const getsummarizeStudent: RequestHandler = async (req: any, res, next) => {
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const search_name = req.query.search ? req.query.search : '';
+    const idyear = req.query.idyear ? req.query.idyear : '';
 
-    const students = await Connection.query(
-     `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+    if (idyear == undefined || idyear == '') {
+        const year = await Year.findAll({ where: { status_year: 'yes' } });
+        const students = await Connection.query(
+            `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,
       sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file,
       CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
@@ -213,29 +225,65 @@ export const getsummarizeStudent: RequestHandler = async (req:any, res, next) =>
       LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
       LEFT JOIN fm10_18_coop fm18 ON sc.idstudent_company = fm18.idstudent_company
       LEFT JOIN fm10_20_coop fm20 ON sc.idstudent_company = fm20.idstudent_company
-      where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or s.prename_student like '%${search_name}%'
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or s.prename_student like '%${search_name}%') AND e.idyear = ${year[0].idyear}
       GROUP BY s.idstudent
       ORDER BY s.idstudent ASC
       LIMIT ${limit} OFFSET ${offset}`,
-        { type: QueryTypes.SELECT },
-    );
+            { type: QueryTypes.SELECT },
+        );
 
-    students.forEach((student:any) => {
-        student.student = JSON.parse(student.student)
-    })
+        students.forEach((student: any) => {
+            student.student = JSON.parse(student.student)
+        })
 
 
-    return res
-        .status(200)
-        .json({ message: 'Students fetched successfully', data: students }); 
+        return res
+            .status(200)
+            .json({ message: 'Students fetched successfully', data: students });
+    }
+    else {
+        const students = await Connection.query(
+            `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+      CONCAT(y.term,"/",y.year) AS year,
+      sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file,
+      CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
+      fm.total_score AS FM10_14,fm18.total_score AS FM10_18,fm20.total_score AS FM10_20
+      FROM student s 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+      LEFT JOIN activity_student ac ON s.idstudent = ac.idstudent
+      LEFT JOIN activity a ON ac.idactivity = a.idactivity
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      LEFT JOIN fm10_18_coop fm18 ON sc.idstudent_company = fm18.idstudent_company
+      LEFT JOIN fm10_20_coop fm20 ON sc.idstudent_company = fm20.idstudent_company
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or s.prename_student like '%${search_name}%') AND e.idyear = ${idyear}
+      GROUP BY s.idstudent
+      ORDER BY s.idstudent ASC
+      LIMIT ${limit} OFFSET ${offset}`,
+            { type: QueryTypes.SELECT },
+        );
+
+        students.forEach((student: any) => {
+            student.student = JSON.parse(student.student)
+        })
+
+
+        return res
+            .status(200)
+            .json({ message: 'Students fetched successfully', data: students });
+    }
 }
-export const updateStatusfile: RequestHandler = async (req:any, res, next) => {
+export const updateStatusfile: RequestHandler = async (req: any, res, next) => {
     const id: any = req.body.idstudent;
     const student: Student | null = await Student.findByPk(id);
     if (!student) {
         return res.status(400).json({ message: 'Student not found' });
-    }else{
-        await Enroll.update({status_file: req.body.status_file}, { where: { idstudent: id } });
+    } else {
+        await Enroll.update({ status_file: req.body.status_file }, { where: { idstudent: id } });
         return res
             .status(200)
             .json({ message: 'Student updated successfully' });

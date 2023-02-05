@@ -43,6 +43,18 @@ export class Fm10_11_coop extends Model {
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
+  })
+  other_comments!: string;
+  
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  total_score!: string;
+
+  @Column({
+    type: DataType.STRING,
     allowNull: true,
   })
   createdAt?: any;

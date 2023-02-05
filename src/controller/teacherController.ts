@@ -43,7 +43,7 @@ export const getAllTeacher: RequestHandler = async (req:any, res, next) => {
         include: [{ model: Factory }],
       },
     ],
-    attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher', 'status_teacher'],
+    attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher','username_teacher','status_teacher'],
     offset: offset,
     limit: limit,
     where: {
