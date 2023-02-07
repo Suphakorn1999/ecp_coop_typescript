@@ -44,6 +44,40 @@ export const getFm10_13detail: RequestHandler = async (req, res) => {
 
 }
 
+export const getFm10_13detailAdmin: RequestHandler = async (req, res) => {
+    const idteacher: any = req.query.idteacher;
+    const fm13: Array<any> = await Connection.query(
+    `SELECT f.idfm10_13_coop,fm.name_form,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    b.name_branch,fa.name_factory,c.name_company,f.idfile,f1.name_file,f1.path_file,f.other_Comments,f.createdAt,f.updatedAt,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS point
+    FROM student s
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN answerfm10_13 a ON a.idfm10_13_coop = f.idfm10_13_coop
+    LEFT JOIN question q ON q.idquestion = a.idquestion
+    LEFT JOIN form fm ON fm.idform = q.idform
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    WHERE f.idstudent_company = ${req.query.idstudent_company} AND f.idteacher = ${idteacher}
+    GROUP BY f.idfm10_13_coop`,
+        { type: QueryTypes.SELECT }
+    );
+
+    fm13.forEach((element: any) => {
+        element.point = JSON.parse(element.point)
+    })
+
+    return res
+        .status(200)
+        .json({
+            message: 'Fm10_13detail fetched successfully',
+            data: fm13,
+        });
+
+}
+
 export const getFm10_13coop: RequestHandler = async (req:any, res) => {
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
@@ -52,7 +86,7 @@ export const getFm10_13coop: RequestHandler = async (req:any, res) => {
     const fm13: Array<any> = await Connection.query(
     `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
     b.name_branch,fa.name_factory,c.name_company,f1.idfile,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher,"total_score",f.total_score)),"]") AS teacher,
     m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
     FROM student s
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
@@ -300,7 +334,7 @@ export const getFm10_13coopBytokenteacher: RequestHandler = async (req, res, nex
             `SELECT f.idfm10_13_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
             b.name_branch,fa.name_factory,c.name_company,f1.idfile,
             CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
-            m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+            m.report_title_th,m.report_title_en,f.other_Comments,f.total_score,f.createdAt,f.updatedAt
             FROM student s
             RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
             LEFT JOIN company c ON c.idcompany = sc.idcompany
@@ -346,4 +380,41 @@ export const updateFm10_13cooptotal: RequestHandler = async (req, res, next) => 
     });
 
     return res.status(200).json({ message: 'Fm10_13coop updated successfully' });
+}
+
+export const getFm10_13coopByidfile: RequestHandler = async (req, res, next) => {
+    const idfile: any = req.query.idfile;
+
+    const fm13: Array<any> = await Connection.query(
+        `SELECT f.idfm10_13_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+        b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+        CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher,"total_score",f.total_score)),"]") AS teacher,
+        m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+        FROM student s
+        RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
+        LEFT JOIN company c ON c.idcompany = sc.idcompany
+        LEFT JOIN branch b ON b.idbranch = s.idbranch
+        LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
+        LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+        LEFT JOIN file f1 ON f1.idfile = f.idfile
+        RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
+        LEFT JOIN teacher t ON m.idteacher = t.idteacher AND t.idteacher = f.idteacher
+        WHERE f.idfile = ${idfile}
+        group by s.idstudent
+        ORDER BY f.idfm10_13_coop DESC`,
+        { type: QueryTypes.SELECT }
+    );
+
+    fm13.forEach(async (element: any) => {
+        element.teacher = JSON.parse(element.teacher)
+    })
+
+    return res
+        .status(200)
+        .json({
+            message: 'Fm10_13coop fetched successfully',
+            data: fm13,
+        });
 }

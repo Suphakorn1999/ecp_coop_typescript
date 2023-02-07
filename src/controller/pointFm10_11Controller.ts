@@ -31,7 +31,7 @@ export const getFm10_11_coop: RequestHandler = async (req, res) => {
 
     if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
       const fm10_11coop: Array<any> = await Connection.query(
-        `SELECT f.idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    `SELECT f.idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent

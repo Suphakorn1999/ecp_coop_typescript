@@ -42,7 +42,10 @@ export const getFm10_14detail: RequestHandler = async (req, res, next) => {
       });
 }
 
-export const getFm10_14coop: RequestHandler = async (req, res, next) => {
+export const getFm10_14coop: RequestHandler = async (req:any, res, next) => {
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
     const fm10_14coop = await Connection.query(
       `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
@@ -54,7 +57,10 @@ export const getFm10_14coop: RequestHandler = async (req, res, next) => {
       LEFT JOIN enroll e ON s.idstudent = e.idstudent
       LEFT JOIN year y ON e.idyear = y.idyear 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
-      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company`,
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' 
+      ORDER BY sc.idstudent_company DESC 
+      LIMIT ${offset},${limit}`,
       { type: QueryTypes.SELECT },
     );
     

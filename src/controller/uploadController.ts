@@ -24,7 +24,9 @@ export const uploadfile: RequestHandler = async (
   const student: Student[] = await Student.findAll({where: { idstudent: UserId }});
   const year = await Year.findAll({where: { status_year: 'yes' }});
   const enroll = await Enroll.findAll({where: { idstudent: UserId, idyear: year[0].idyear }});
-  if(!req.query.id){
+  const idassignmentFile = req.query.id;
+  const assignmentFile: AssignmentFile[] = await AssignmentFile.findAll({where: { idassignmentFile: idassignmentFile }});
+  if (!idassignmentFile){
     return res.status(400).json({ message: 'id is required' });
   }
   if (student.length > 0 && enroll.length > 0) {
@@ -51,7 +53,7 @@ export const uploadfile: RequestHandler = async (
           }
           const filess = await File.create({
             idstudent: UserId,
-            idassignmentFile: req.query.id,
+            idassignmentFile: idassignmentFile,
             name_file: file.originalname,
             path_file: file.path,
             type_file: file.mimetype,

@@ -4,10 +4,10 @@ import {
     createRole
 } from '../controller/roleController';
 
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.post('/', createRole);
+router.post('/', verifyTokenAdmin, createRole);
 
 export default router;

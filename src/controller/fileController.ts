@@ -62,6 +62,11 @@ export const deleteFile: RequestHandler = async (
   const absolutePath:string = path.resolve('public/uploads/' + namefile);
 
   if(fs.existsSync(absolutePath)) {
+    const filede = await File.findAll({ where: { idstudent:req.body.user.id,name_file:namefile}}) 
+    if(filede.length > 0){
+      await File.update({name_file:namefile},{where:{idstudent:req.body.user.id}})
+      return res.status(200).json({ message: 'Delete file success' });
+    }
     File.destroy({
       where: { name_file: namefile },
     })

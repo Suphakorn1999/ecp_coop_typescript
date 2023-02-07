@@ -16,22 +16,22 @@ import {
 } from '../controller/activity_studentController';
 
 import {verifyActivity} from '../validation/verify';
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = Router();
 
-router.post('/',verifyToken, createActivity);
-router.get('/', verifyToken, getAllActivity);
-router.get('/ById', verifyToken, getActivityById);
-router.put('/', verifyToken, verifyActivity, updateActivity);
-router.delete('/', verifyToken, verifyActivity, deleteActivity);
-router.get('/ByYear', verifyToken, getAllActivityByYear);
-router.post('/createActivityYear',verifyToken, createActivityYear);
+router.post('/', verifyTokenAdmin, createActivity);
+router.get('/', verifyTokenAdmin, getAllActivity);
+router.get('/ById', verifyTokenAdmin, getActivityById);
+router.put('/', verifyTokenAdmin, verifyActivity, updateActivity);
+router.delete('/', verifyTokenAdmin, verifyActivity, deleteActivity);
+router.get('/ByYear', verifyTokenAdmin, getAllActivityByYear);
+router.post('/createActivityYear', verifyTokenAdmin, createActivityYear);
 
 
-router.post('/createActivity',verifyToken, createActivityStudent);
-router.put('/updateActivity', verifyToken, updateActivityStudent);
-router.delete('/deleteActivity', verifyToken, deleteActivityStudent);
-router.get('/getActivityStudent',verifyToken ,getActivityStudent);
+router.post('/createActivity',verifyTokenAdmin, createActivityStudent);
+router.put('/updateActivity', verifyTokenAdmin, updateActivityStudent);
+router.delete('/deleteActivity', verifyTokenAdmin, deleteActivityStudent);
+router.get('/getActivityStudent', verifyTokenAdmin ,getActivityStudent);
 
 export default router;
 

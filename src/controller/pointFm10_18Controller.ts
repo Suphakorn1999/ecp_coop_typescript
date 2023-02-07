@@ -55,7 +55,10 @@ export const getFm10_18detail: RequestHandler = async (req, res, next) => {
   });
 };
 
-export const getFm10_18coop: RequestHandler = async (req, res, next) => {
+export const getFm10_18coop: RequestHandler = async (req:any, res, next) => {
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
   const fm10_18coop: Array<any> = await Connection.query(
     `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
@@ -70,7 +73,10 @@ export const getFm10_18coop: RequestHandler = async (req, res, next) => {
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    `,
+    WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' 
+    GROUP BY f.idfm10_18_coop
+    ORDER BY f.createdAt DESC
+    LIMIT ${limit} OFFSET ${offset}`,
     { type: QueryTypes.SELECT },
   );
 

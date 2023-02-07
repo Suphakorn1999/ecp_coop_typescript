@@ -2,7 +2,10 @@ import { Admin } from './../models/adminModel';
 import { sign, SignOptions, verify } from 'jsonwebtoken';
 import express from 'express';
 import dotenv from 'dotenv';
+import { Student } from '../models/studentModel';
+import { Teacher } from '../models/teacherModel';
 dotenv.config();
+const CryptoJS = require('crypto-js');
 
 function generateToken(json: any) {
   const secretKey: any = process.env.secretKey;
@@ -62,11 +65,15 @@ function verifyTokenAdmin(req: any, res: any, next: express.NextFunction) {
 
   try {
     const decoded:any = verify(token, secretKey);
-    const admin = Admin.findByPk(decoded.idrole);
+    let decrypt = CryptoJS.AES.decrypt(decoded.id,process.env.secretKey,).toString(CryptoJS.enc.Utf8);
+    const admin = Admin.findAll({
+      where: { idadmin: decrypt },
+    });
     if(admin == null){
       return res.status(401).json({ message: 'Failed to authenticate token.' });
     }else{
-      return res.status(200).json({ message: 'Success to authenticate token.' });
+      req.body.user = decoded;
+      next();
     }
   } catch (err) {
     return res.status(401).json({ message: 'Failed to authenticate token.' });
@@ -94,8 +101,14 @@ function verifyTokenStudent(req: any, res: any, next: express.NextFunction) {
 
   try {
     const decoded: any = verify(token, secretKey);
-    req.body.user = decoded;
-    next();
+    let decrypt = CryptoJS.AES.decrypt(decoded.username_student, process.env.secretKey,).toString(CryptoJS.enc.Utf8);
+    const student = Student.findAll({where: {username_student: decrypt}})
+    if(student == null){
+      return res.status(401).json({ message: 'Failed to authenticate token.' });
+    }else{
+      req.body.user = decoded;
+      next();
+    }
   } catch (err) {
     return res.status(401).json({ message: 'Failed to authenticate token.' });
   }
@@ -122,8 +135,14 @@ function verifyTokenTeacher(req: any, res: any, next: express.NextFunction) {
 
   try {
     const decoded: any = verify(token, secretKey);
-    req.body.user = decoded;
-    next();
+    let decrypt = CryptoJS.AES.decrypt(decoded.username_teacher, process.env.secretKey,).toString(CryptoJS.enc.Utf8);
+    const teacher = Teacher.findAll({where: {username_teacher: decrypt}})
+    if(teacher == null){
+      return res.status(401).json({ message: 'Failed to authenticate token.' });
+    }else{
+      req.body.user = decoded;
+      next();
+    }
   } catch (err) {
     return res.status(401).json({ message: 'Failed to authenticate token.' });
   }

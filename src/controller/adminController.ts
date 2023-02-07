@@ -48,9 +48,11 @@ export const loginAdmin: RequestHandler = async (req, res, next) => {
             process.env.secretKey,
         ).toString(CryptoJS.enc.Utf8);
         if (passworddecrypt === password) {
+          let encodeId = CryptoJS.AES.encrypt(admin.idadmin, process.env.secretKey).toString();
+          let encodeuser = CryptoJS.AES.encrypt(admin.name, process.env.secretKey).toString();
             const token = generateToken({
-              idrole: admin.idrole,
-              user: admin.name,
+              id: encodeId,
+              user: encodeuser,
             });
             return res
               .cookie('token', token)

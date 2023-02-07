@@ -25,9 +25,11 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
     
     if (student.length > 0) {
       let encodeId = CryptoJS.AES.encrypt(data.studentId[0],process.env.secretKey).toString();
+      let encodeuser = CryptoJS.AES.encrypt(data.uid[0], process.env.secretKey).toString();
       let token = generateToken({
         id: student[0].idstudent,
         studentId: encodeId,
+        username_student: encodeuser
       });
       res.redirect(`https://ecp-coop.ddns.net/gettoken?token=${token}`);
     }else{
@@ -38,8 +40,10 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
       where: { username_teacher: data.uid[0]},
     });
     if (teacher.length > 0) {
+      let encodeuser = CryptoJS.AES.encrypt(data.uid[0], process.env.secretKey).toString();
       let token = generateToken({
         id: teacher[0].idteacher,
+        username_teacher: encodeuser
       });
       res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
     }else{

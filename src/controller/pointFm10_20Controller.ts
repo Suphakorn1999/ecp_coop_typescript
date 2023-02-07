@@ -8,7 +8,7 @@ import { Question } from '../models/questionModel';
 
 export const getFm10_20detail: RequestHandler = async (req, res, next) => {
   const fm20: Array<any> = await Connection.query(
-    `SELECT f.idfm10_20_coop,c.name_company,c.address,c.tel,
+    `SELECT f.idfm10_20_coop,c.name_company,c.address,c.tel,s.prename_student,s.fname_student,s.lname_student,b.name_branch,y.term,y.year,f.total_score,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,f.updatedAt,
     CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer,"note",a.note)ORDER BY a.idquestion ASC),"]") AS FM10_20 
     FROM student s 
@@ -25,7 +25,7 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     WHERE f.idstudent_company = ${req.query.idstudent_company}
-    GROUP BY f.idfm10_20_coop,sc.idcompany
+    GROUP BY f.idfm10_20_coop
     `,
     { type: QueryTypes.SELECT },
   );
@@ -41,7 +41,10 @@ export const getFm10_20detail: RequestHandler = async (req, res, next) => {
   });
 };
 
-export const getFm10_20coop: RequestHandler = async (req, res, next) => {
+export const getFm10_20coop: RequestHandler = async (req:any, res, next) => {
+  const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+  const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+  const search_name = req.query.search ? req.query.search : '';
   const fm10_20coop: Array<any> = await Connection.query(
     `SELECT f.idfm10_20_coop,sc.idstudent_company,c.name_company,c.address,c.tel,
     t.prename_teacher,t.firstname_teacher,t.lastname_teacher,s.prename_student,s.fname_student,s.lname_student,b.name_branch,y.term,y.year,f.total_score,f.createdAt,f.updatedAt
@@ -54,7 +57,11 @@ export const getFm10_20coop: RequestHandler = async (req, res, next) => {
     LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
-    LEFT JOIN factory fa ON b.idfactory = fa.idfactory`,
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%'
+    GROUP BY f.idfm10_20_coop
+    ORDER BY f.updatedAt DESC
+    LIMIT ${limit} OFFSET ${offset}`,
     { type: QueryTypes.SELECT },
   );
 

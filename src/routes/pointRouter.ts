@@ -8,17 +8,17 @@ import {
   updateFM10_14point,
   updateFm10_14coop
 } from '../controller/pointFm10_14Controller';
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.get('/detail',verifyToken,getFm10_14detail);
-router.get('/coop',verifyToken,getFm10_14coop);
-router.post('/coop',verifyToken, createFm10_14coop);
-router.post('/point',verifyToken, createFm10_14point);
-router.get('/question',verifyToken, getquestionfm10_14);
-router.put('/point',verifyToken, updateFM10_14point);
-router.put('/coop',verifyToken, updateFm10_14coop);
+router.get('/detail', verifyTokenAdmin,getFm10_14detail);
+router.get('/coop',verifyTokenAdmin,getFm10_14coop);
+router.post('/coop',verifyTokenAdmin, createFm10_14coop);
+router.post('/point',verifyTokenAdmin, createFm10_14point);
+router.get('/question',verifyTokenAdmin, getquestionfm10_14);
+router.put('/point',verifyTokenAdmin, updateFM10_14point);
+router.put('/coop', verifyTokenAdmin, updateFm10_14coop);
 
 
 

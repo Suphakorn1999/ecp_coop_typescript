@@ -34,6 +34,35 @@ export const getFm10_21coop: RequestHandler = async (req, res, next) => {
     
 }
 
+export const getFm10_21coopBytoken: RequestHandler = async (req, res, next) => {
+  const fm21: Array<any> = await Connection.query(
+    `SELECT f.idfm10_21_coop,sc.idstudent_company,s.prename_student, s.fname_student, s.lname_student,s.student_id,y.term,y.year,
+        b.name_branch, fa.name_factory, p.name_province ,p.region,
+        qu.job_position , qu.job_description ,qu.job_topic,
+        qu.working_hours, qu.compensation ,
+        c.name_company, c.address, c.tel,
+        c.number_of_employee,f.createdAt,f.updatedAt
+        FROM student s 
+        LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+        LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
+        LEFT JOIN branch b ON s.idbranch = b.idbranch
+        LEFT JOIN company c ON sc.idcompany = c.idcompany
+        LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
+        LEFT JOIN province p ON c.idprovince = p.idprovince
+        LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+        WHERE s.idstudent = ${req.body.user.id}`,
+    { type: QueryTypes.SELECT },
+  );
+
+  return res.status(200).json({
+    message: 'Fm10_21point fetched successfully',
+    data: fm21,
+  });
+
+}
+
 export const getFm10_21detail: RequestHandler = async (req, res, next) => {
     const id: any = req.body.user.id;
     const fm21: Array<any> = await Connection.query(

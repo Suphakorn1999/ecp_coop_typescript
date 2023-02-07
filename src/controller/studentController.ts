@@ -136,7 +136,7 @@ export const getStudentById: RequestHandler = async (req, res, next) => {
 
     const students = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
-        CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
+        CONCAT(y.term,"/",y.year) AS year,y.idyear,sg.name_study_group,sg.idstudy_group,b.name_branch,f.name_factory,e.grade,e.status_file
         FROM student s
         LEFT JOIN enroll e ON s.idstudent = e.idstudent
         LEFT JOIN year y ON e.idyear = y.idyear
@@ -155,11 +155,11 @@ export const getStudentById: RequestHandler = async (req, res, next) => {
 export const updateStudent: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
     const student = await Student.findAll({ where: { idstudent: id } });
-    if (student.length > 0) {
-        await Student.update({
-            ...req
-                .body
-        }, { where: { idstudent: id } });
+    const enroll = await Enroll.findAll({ where: { idstudent: id } });
+    const branch = await Branch.findAll({ where: { name_branch: req.body.branch } });
+    if (student.length > 0 && enroll.length > 0) {
+        await Student.update({ student_id: req.body.student_id, prename_student: req.body.prename_student, fname_student: req.body.fname_student, lname_student: req.body.lname_student, idbranch: branch[0].idbranch, idstudy_group: req.body.idstudy_group }, { where: { idstudent: id } });
+        await Enroll.update({ idyear: req.body.idyear, grade: req.body.grade }, { where: { idstudent: id } })
         return res
             .status(200)
             .json({ message: 'Student updated successfully' });
@@ -219,7 +219,7 @@ export const getsummarizeStudent: RequestHandler = async (req: any, res, next) =
     if (idyear == undefined || idyear == '') {
         const year = await Year.findAll({ where: { status_year: 'yes' } });
         const students = await Connection.query(
-            `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+    `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,
       sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file,
       CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,
@@ -295,6 +295,18 @@ export const updateStatusfile: RequestHandler = async (req: any, res, next) => {
         return res.status(400).json({ message: 'Student not found' });
     } else {
         await Enroll.update({ status_file: req.body.status_file }, { where: { idstudent: id } });
+        return res
+            .status(200)
+            .json({ message: 'Student updated successfully' });
+    }
+}
+export const updateGrade: RequestHandler = async (req: any, res, next) => {
+    const id: any = req.body.idstudent;
+    const student: Student | null = await Student.findByPk(id);
+    if (!student) {
+        return res.status(400).json({ message: 'Student not found' });
+    } else {
+        await Enroll.update({ grade: req.body.grade }, { where: { idstudent: id } });
         return res
             .status(200)
             .json({ message: 'Student updated successfully' });

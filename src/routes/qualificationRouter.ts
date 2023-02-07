@@ -4,11 +4,11 @@ import {
     updateQualification,
 } from '../controller/qualificationController';
 
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.post('/',verifyToken, createQualification);
-router.put('/',verifyToken, updateQualification);
+router.post('/', verifyTokenAdmin, createQualification);
+router.put('/', verifyTokenAdmin, updateQualification);
 
 export default router;

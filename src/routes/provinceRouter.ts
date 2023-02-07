@@ -5,11 +5,11 @@ import {
   getAllProvince,
 } from '../controller/provinceController';
 
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.post('/',verifyToken, createProvince);
+router.post('/', verifyTokenAdmin, createProvince);
 router.get('/', getAllProvince);
 
 export default router;

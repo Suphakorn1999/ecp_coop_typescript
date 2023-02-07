@@ -4,10 +4,10 @@ const { verifyTokenAdmin,verifyToken } = require('../middlewares/jwtHandler');
 
 const router = Router();
 
-router.post("/",verifyToken, createAdmin);
+router.post("/", verifyTokenAdmin, createAdmin);
 router.post("/login", loginAdmin);
 router.get("/verify", verifyTokenAdmin);
-router.get("/allcount",verifyToken, allcount);
+router.get("/allcount", verifyTokenAdmin, allcount);
 router.get("/token", gennerateToken);
 
 

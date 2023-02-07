@@ -5,11 +5,11 @@ import {
   getAllTeacher,
   updateTeacher,
 } from '../controller/teacherController';
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = Router();
 
-router.post('/', createTeacher);
-router.get('/',verifyToken, getAllTeacher);
-router.post('/update', updateTeacher);
+router.post('/', verifyTokenAdmin, createTeacher);
+router.get('/', verifyTokenAdmin, getAllTeacher);
+router.post('/update', verifyTokenAdmin ,updateTeacher);
 
 export default router;
