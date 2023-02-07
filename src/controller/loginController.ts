@@ -45,9 +45,9 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
         id: teacher[0].idteacher,
         username_teacher: encodeuser
       });
-      res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
+      res.redirect(`https://teacher-ecpcoop.ddns.net/gettoken?token=${token}`);
     }else{
-      res.redirect(`http://127.0.0.1:5173/login`);
+      res.redirect(`https://teacher-ecpcoop.ddns.net/login`);
     }
   } 
 });

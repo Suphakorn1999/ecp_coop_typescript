@@ -14,6 +14,7 @@ const fs = require('fs');
 dotenv.config();
 const datenow = moment().tz('Asia/Bangkok').format('DD-MM-YYYY');
 const time = moment().tz('Asia/Bangkok').format('HH:mm:ss');
+const CryptoJS = require('crypto-js');
 
 export const uploadfile: RequestHandler = async (
   req: Request,
@@ -21,6 +22,8 @@ export const uploadfile: RequestHandler = async (
   next: express.NextFunction,
 ) => {
   const UserId = req.body.user.id;
+  let decrypt = CryptoJS.AES.decrypt(req.body.user.student_id, process.env.secretKey,).toString(CryptoJS.enc.Utf8);
+  const student_id = decrypt;
   const student: Student[] = await Student.findAll({where: { idstudent: UserId }});
   const year = await Year.findAll({where: { status_year: 'yes' }});
   const enroll = await Enroll.findAll({where: { idstudent: UserId, idyear: year[0].idyear }});
@@ -29,13 +32,14 @@ export const uploadfile: RequestHandler = async (
   if (!idassignmentFile){
     return res.status(400).json({ message: 'id is required' });
   }
+  let namefile = assignmentFile[0].name_assignment_file.split('_')[0]
   if (student.length > 0 && enroll.length > 0) {
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {
         cb(null, './public/uploads/');
       },
       filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        cb(null, namefile + '_' + student_id + path.extname(file.originalname));
       },
     });
     const upload = multer({ storage: storage,limits:{fileSize:100000 * 1024} }).array('file');
@@ -54,7 +58,7 @@ export const uploadfile: RequestHandler = async (
           const filess = await File.create({
             idstudent: UserId,
             idassignmentFile: idassignmentFile,
-            name_file: file.originalname,
+            name_file: namefile + '_' + student_id + path.extname(file.originalname),
             path_file: file.path,
             type_file: file.mimetype,
             date_file: time + ' ' + datenow,
