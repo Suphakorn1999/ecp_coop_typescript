@@ -21,23 +21,51 @@ const answer10_11Model_1 = require("../models/answer10_11Model");
 const YearModel_1 = require("../models/YearModel");
 const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idteacher = req.body.user.id;
+    const idyear = req.query.idyear;
     const year = yield YearModel_1.Year.findAll({
         where: { status_year: 'yes' },
     });
-    const meettingtimes = yield meetingtimesModel_1.Meeting_Times.findAll({
-        where: { idyear: year[0].idyear, idtimes: req.query.time },
-    });
-    let date = new Date();
-    date.setHours(date.getHours() + 7);
-    if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
-        const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    if (idyear === undefined) {
+        const meettingtimes = yield meetingtimesModel_1.Meeting_Times.findAll({
+            where: { idyear: year[0].idyear, times: req.query.time },
+        });
+        if (meettingtimes.length == 0) {
+            return res
+                .status(400)
+                .json({ message: 'ปีการศึกษานี้ยังไม่ได้กำหนดวันส่งเอกสาร' });
+        }
+        let date = new Date();
+        date.setHours(date.getHours() + 7);
+        if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
+            const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
+        }
+        else if (meettingtimes[0].end_date < date) {
+            const fm10_11coop = yield config_1.default.query(`SELECT idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -45,50 +73,207 @@ const getFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
     WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}
     `, { type: sequelize_1.QueryTypes.SELECT });
-        return res
-            .status(200)
-            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
+        }
     }
-    else if (meettingtimes[0].end_date < date) {
-        const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
-    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    else {
+        const meettingtimes = yield meetingtimesModel_1.Meeting_Times.findAll({
+            where: { idyear: idyear, times: req.query.time },
+        });
+        if (meettingtimes.length == 0) {
+            return res
+                .status(400)
+                .json({ message: 'ปีการศึกษานี้ยังไม่ได้กำหนดวันส่งเอกสาร' });
+        }
+        let date = new Date();
+        date.setHours(date.getHours() + 7);
+        if (meettingtimes[0].start_date <= date && meettingtimes[0].end_date >= date) {
+            const fm10_11coop = yield config_1.default.query(`SELECT idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time}`, { type: sequelize_1.QueryTypes.SELECT });
-        return res
-            .status(200)
-            .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time} AND e.idyear = ${idyear}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'inTime' });
+        }
+        else if (meettingtimes[0].end_date < date) {
+            const fm10_11coop = yield config_1.default.query(`SELECT idfm10_11_coop,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.total_score,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE m.idteacher = ${idteacher} AND f.time = ${req.query.time} AND e.idyear = ${idyear}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop, status: 'end' });
+        }
     }
 });
 exports.getFm10_11_coop = getFm10_11_coop;
 const getFm10_11_coopAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_11coop = yield config_1.default.query(`SELECT s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    const create = req.query.create;
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const idyear = req.query.idyear;
+    if (create === undefined) {
+        if (idyear === undefined && search_name === '') {
+            const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+            if (year.length > 0) {
+                const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE f.time = ${req.query.time}
-    `, { type: sequelize_1.QueryTypes.SELECT });
-    return res
-        .status(200)
-        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    WHERE f.time = ${req.query.time} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND e.idyear = ${year[0].idyear}
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+                return res
+                    .status(200)
+                    .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+            }
+        }
+        else if (idyear != undefined) {
+            const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND e.idyear = ${idyear}
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+        }
+        else if (idyear === undefined && search_name != '') {
+            const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%')
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+        }
+    }
+    else {
+        if (idyear === undefined && search_name === '') {
+            const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+            if (year.length > 0) {
+                const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} OR f.idfm10_11_coop IS NULL AND e.idyear = ${year[0].idyear} AND(s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%')
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+                return res
+                    .status(200)
+                    .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+            }
+        }
+        else if (idyear != undefined) {
+            const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} OR f.idfm10_11_coop IS NULL AND e.idyear = ${idyear} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%')
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+        }
+        else if (idyear === undefined && search_name != '') {
+            const fm10_11coop = yield config_1.default.query(`SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} OR f.idfm10_11_coop IS NULL AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%')
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+        }
+    }
 });
 exports.getFm10_11_coopAdmin = getFm10_11_coopAdmin;
 const getquestionfm10_11_part1 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -146,29 +331,23 @@ const getquestionfm10_11_part2 = (req, res) => __awaiter(void 0, void 0, void 0,
 });
 exports.getquestionfm10_11_part2 = getquestionfm10_11_part2;
 const createFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_11coopALL = yield fm10_11coopModel_1.Fm10_11_coop.findAll({ where: { idstudent_company: req.body.idstudent_company } });
-    if (fm10_11coopALL.length == 0) {
-        const fm10_11coop = yield fm10_11coopModel_1.Fm10_11_coop.create(Object.assign(Object.assign({}, req.body), { time: 1 }));
+    const jsondata = req.body;
+    if (jsondata.length > 0) {
+        const fm10_11coop = yield fm10_11coopModel_1.Fm10_11_coop.bulkCreate(jsondata);
+        if (!fm10_11coop) {
+            return res
+                .status(400)
+                .json({ message: 'Fm10_11coop created failed', data: jsondata });
+        }
         return res
             .status(201)
-            .json({ message: 'Fm10_11coop created successfully', data: fm10_11coop });
-    }
-    else if (fm10_11coopALL.length == 1) {
-        const fm10_11coop = yield fm10_11coopModel_1.Fm10_11_coop.create(Object.assign(Object.assign({}, req.body), { time: 2 }));
-        return res
-            .status(201)
-            .json({ message: 'Fm10_11coop created successfully', data: fm10_11coop });
-    }
-    else if (fm10_11coopALL.length == 2) {
-        return res
-            .status(400)
-            .json({ message: 'Fm10_11coop created fail', data: null });
+            .json({ message: 'Fm10_11coop created successfully', data: jsondata });
     }
 });
 exports.createFm10_11_coop = createFm10_11_coop;
 const updateFm10_11_coop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_11coop = yield fm10_11coopModel_1.Fm10_11_coop.findOne({ where: { idfm10_11_coop: req.body.idfm10_11_coop } });
-    if (fm10_11coop) {
+    const fm10_11coop = yield fm10_11coopModel_1.Fm10_11_coop.findAll({ where: { idfm10_11_coop: req.body.idfm10_11_coop } });
+    if (fm10_11coop.length > 0) {
         const fm10_11coop = yield fm10_11coopModel_1.Fm10_11_coop.update(Object.assign({}, req.body), { where: { idfm10_11_coop: req.body.idfm10_11_coop } });
         return res
             .status(201)
@@ -267,14 +446,15 @@ const getFm10_11_detailpart1 = (req, res) => __awaiter(void 0, void 0, void 0, f
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.other_comments,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
         LEFT JOIN answerfm10_11 an ON f.idfm10_11_coop = an.idfm10_11_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
@@ -324,14 +504,15 @@ const getFm10_11_detailpart2 = (req, res) => __awaiter(void 0, void 0, void 0, f
         c.name_company,c.name_company_eng,c.address,c.tel,p.name_province,
         s.prename_student, s.fname_student, s.lname_student,s.student_id,
         b.name_branch, fa.name_factory, y.term, y.year,
-        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.createdAt,f.updatedAt
+        t.prename_teacher, t.firstname_teacher, t.lastname_teacher,f.other_comments,f.createdAt,f.updatedAt
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
         LEFT JOIN answerfm10_11 an ON f.idfm10_11_coop = an.idfm10_11_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany

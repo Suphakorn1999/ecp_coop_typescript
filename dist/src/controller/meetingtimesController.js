@@ -17,7 +17,7 @@ const createMeetingTimes = (req, res, next) => __awaiter(void 0, void 0, void 0,
         const ALLmeetingtimes = yield meetingtimesModel_1.Meeting_Times.findAll({
             where: {
                 idyear: req.body.idyear,
-                idtimes: req.body.idtimes,
+                times: req.body.times,
             }
         });
         if (ALLmeetingtimes.length > 0) {

@@ -16,6 +16,7 @@ exports.getStudentCompany = exports.getAllStudentCompany = exports.createStudent
 const student_companyModel_1 = require("../models/student_companyModel");
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
+const YearModel_1 = require("../models/YearModel");
 const createStudentCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const All3 = yield student_companyModel_1.Student_Company.findAll({ where: { idstudent: req.body.idstudent } });
     if (All3.length > 0) {
@@ -39,19 +40,56 @@ const getAllStudentCompany = (req, res, next) => __awaiter(void 0, void 0, void 
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
     const search_name = req.query.search ? req.query.search : '';
-    const student_company = yield config_1.default.query(`SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
+    const idyear = req.query.idyear;
+    if (idyear === undefined && search_name === '') {
+        const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+        const student_company = yield config_1.default.query(`SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
       FROM student s 
       LEFT JOIN student_company st ON s.idstudent = st.idstudent 
       LEFT JOIN company c ON st.idcompany = c.idcompany 
-      JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%') and y.idyear = ${year[0].idyear}
+      ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
+      limit ${limit} offset ${offset}
+      `, { type: sequelize_1.QueryTypes.SELECT });
+        return res.status(200).json({
+            message: 'Student Companies fetched successfully',
+            data: student_company,
+        });
+    }
+    else if (idyear != undefined) {
+        const student_company = yield config_1.default.query(`SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
+      FROM student s 
+      LEFT JOIN student_company st ON s.idstudent = st.idstudent 
+      LEFT JOIN company c ON st.idcompany = c.idcompany 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%' ) and y.idyear = ${idyear}
+      ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
+      limit ${limit} offset ${offset}
+      `, { type: sequelize_1.QueryTypes.SELECT });
+        return res.status(200).json({
+            message: 'Student Companies fetched successfully',
+            data: student_company,
+        });
+    }
+    else if (search_name != '' && idyear === undefined) {
+        const student_company = yield config_1.default.query(`SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
+      FROM student s 
+      LEFT JOIN student_company st ON s.idstudent = st.idstudent 
+      LEFT JOIN company c ON st.idcompany = c.idcompany 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%'
       ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
       limit ${limit} offset ${offset}
       `, { type: sequelize_1.QueryTypes.SELECT });
-    return res.status(200).json({
-        message: 'Student Companies fetched successfully',
-        data: student_company,
-    });
+        return res.status(200).json({
+            message: 'Student Companies fetched successfully',
+            data: student_company,
+        });
+    }
 });
 exports.getAllStudentCompany = getAllStudentCompany;
 const getStudentCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -61,7 +99,8 @@ const getStudentCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, 
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN province p ON c.idprovince = p.idprovince 
-      LEFT JOIN year y ON s.idyear = y.idyear
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       where c.idcompany = ${req.query.id}
       GROUP BY sc.idcompany
       `, { type: sequelize_1.QueryTypes.SELECT });

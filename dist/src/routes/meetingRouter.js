@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const meetingController_1 = require("../controller/meetingController");
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
-router.post('/', verifyToken, meetingController_1.createMeeting);
-router.get('/', verifyToken, meetingController_1.getMeeting);
-router.get('/:id', verifyToken, meetingController_1.getMeetingById);
-router.put('/:id', verifyToken, meetingController_1.updateMeeting);
-router.delete('/:id', verifyToken, meetingController_1.deleteMeeting);
+router.post('/', verifyTokenAdmin, meetingController_1.createMeeting);
+router.get('/', verifyTokenAdmin, meetingController_1.getMeeting);
+router.get('/:id', verifyTokenAdmin, meetingController_1.getMeetingById);
+router.put('/:id', verifyTokenAdmin, meetingController_1.updateMeeting);
+router.delete('/:id', verifyTokenAdmin, meetingController_1.deleteMeeting);
 exports.default = router;

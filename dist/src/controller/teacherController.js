@@ -48,7 +48,7 @@ const getAllTeacher = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 include: [{ model: factoryModel_1.Factory }],
             },
         ],
-        attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher', 'status_teacher'],
+        attributes: ['idteacher', 'prename_teacher', 'firstname_teacher', 'lastname_teacher', 'username_teacher', 'status_teacher'],
         offset: offset,
         limit: limit,
         where: {

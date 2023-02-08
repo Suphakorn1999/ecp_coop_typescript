@@ -101,9 +101,50 @@ export const getAllStudent: RequestHandler = async (req: any, res, next) => {
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
     const search_name = req.query.search ? req.query.search : '';
-
-    const students = await Connection.query(
+    const idyear = req.query.idyear
+    if (idyear === undefined && search_name === '') {
+        const year = await Year.findAll({ where: { status_year: 'yes' } });
+        if (year.length > 0) {
+            const students = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
+      FROM student s 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      LEFT JOIN branch b ON s.idbranch = b.idbranch
+      LEFT JOIN factory f ON b.idfactory = f.idfactory
+      LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%') and y.idyear = ${year[0].idyear}
+      order by s.idstudent desc
+      limit ${limit} offset ${offset}`, { type: QueryTypes.SELECT });
+
+            return res
+                .status(200)
+                .json({ message: 'Students fetched successfully', data: students });
+        }
+
+    } else if (idyear != undefined) {
+        const students = await Connection.query(
+            `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+      CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
+      FROM student s 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN study_group sg ON s.idstudy_group = sg.idstudy_group
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%') and y.idyear = ${idyear}
+      order by s.idstudent desc
+      limit ${limit} offset ${offset}`,
+            { type: QueryTypes.SELECT },
+        );
+
+        return res
+            .status(200)
+            .json({ message: 'Students fetched successfully', data: students });
+    } else if (search_name != '' && idyear === undefined) {
+        const students = await Connection.query(
+            `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file
       FROM student s 
       LEFT JOIN enroll e ON s.idstudent = e.idstudent
@@ -114,12 +155,14 @@ export const getAllStudent: RequestHandler = async (req: any, res, next) => {
       where s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%'
       order by s.idstudent desc
       limit ${limit} offset ${offset}`,
-        { type: QueryTypes.SELECT },
-    );
+            { type: QueryTypes.SELECT },
+        );
 
-    return res
-        .status(200)
-        .json({ message: 'Students fetched successfully', data: students });
+        return res
+            .status(200)
+            .json({ message: 'Students fetched successfully', data: students });
+    }
+
 }
 export const getAllStudentByYear: RequestHandler = async (req, res, next) => {
     const id = req.query.idyear;
@@ -219,7 +262,7 @@ export const getsummarizeStudent: RequestHandler = async (req: any, res, next) =
     if (idyear == undefined || idyear == '') {
         const year = await Year.findAll({ where: { status_year: 'yes' } });
         const students = await Connection.query(
-    `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
+            `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,
       CONCAT(y.term,"/",y.year) AS year,
       sg.name_study_group,b.name_branch,f.name_factory,e.grade,e.status_file,
       CONCAT("[",GROUP_CONCAT(JSON_OBJECT("name_activity",a.name_activity,"status_activity",ac.status_activity)),"]") AS student,

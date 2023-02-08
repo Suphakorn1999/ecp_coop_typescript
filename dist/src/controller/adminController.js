@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.gennerateToken = exports.allcount = exports.loginAdmin = exports.createAdmin = void 0;
+exports.conuntWithyear = exports.gennerateToken = exports.allcount = exports.loginAdmin = exports.createAdmin = void 0;
 const adminModel_1 = require("../models/adminModel");
 const dotenv_1 = __importDefault(require("dotenv"));
 const companyModel_1 = require("../models/companyModel");
@@ -22,6 +22,8 @@ const teacherModel_1 = require("../models/teacherModel");
 dotenv_1.default.config();
 const CryptoJS = require('crypto-js');
 const { generateToken } = require('../middlewares/jwtHandler');
+const config_1 = __importDefault(require("../config/config"));
+const sequelize_1 = require("sequelize");
 const createAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     const username = req.body.username;
@@ -47,9 +49,11 @@ const loginAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     if (admin) {
         let passworddecrypt = CryptoJS.AES.decrypt(admin.password, process.env.secretKey).toString(CryptoJS.enc.Utf8);
         if (passworddecrypt === password) {
+            let encodeId = CryptoJS.AES.encrypt(admin.idadmin, process.env.secretKey).toString();
+            let encodeuser = CryptoJS.AES.encrypt(admin.name, process.env.secretKey).toString();
             const token = generateToken({
-                idrole: admin.idrole,
-                user: admin.name,
+                id: encodeId,
+                user: encodeuser,
             });
             return res
                 .cookie('token', token)
@@ -97,3 +101,19 @@ const gennerateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     });
 });
 exports.gennerateToken = gennerateToken;
+const conuntWithyear = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const dataValues = [];
+    const idyear = yield YearModel_1.Year.findAll();
+    for (let i = 0; i < idyear.length; i++) {
+        const count_student = yield config_1.default.query(`SELECT COUNT(*) 
+    FROM student as s 
+    INNER JOIN enroll e ON s.idstudent = e.idstudent
+    WHERE idyear = ${idyear[i].idyear}`, { type: sequelize_1.QueryTypes.SELECT });
+        dataValues.push({ id: i, year: idyear[i].year, term: idyear[i].term, count_student: count_student });
+    }
+    return res.status(200).json({
+        message: 'Count data',
+        data: dataValues,
+    });
+});
+exports.conuntWithyear = conuntWithyear;

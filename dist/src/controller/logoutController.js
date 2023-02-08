@@ -11,6 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logout = void 0;
 const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.query.msg == 'logoutByTeacher') {
+        res.redirect('https://teacher-ecpcoop.ddns.net/login');
+    }
     res.redirect('https://ecp-coop.ddns.net/');
 });
 exports.logout = logout;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFm10_21point = exports.createFm10_21coop = exports.createFm10_21point = exports.getquestionfm10_21 = exports.getFm10_21detailadmin = exports.getFm10_21detail = exports.getFm10_21coop = void 0;
+exports.updateFm10_21point = exports.createFm10_21coop = exports.createFm10_21point = exports.getquestionfm10_21 = exports.getFm10_21detailadmin = exports.getFm10_21detail = exports.getFm10_21coopBytoken = exports.getFm10_21coop = void 0;
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
 const fm10_21coopModel_1 = require("../models/fm10_21coopModel");
@@ -27,7 +27,8 @@ const getFm10_21coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         FROM student s 
         LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
         LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
@@ -39,6 +40,30 @@ const getFm10_21coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     });
 });
 exports.getFm10_21coop = getFm10_21coop;
+const getFm10_21coopBytoken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const fm21 = yield config_1.default.query(`SELECT f.idfm10_21_coop,sc.idstudent_company,s.prename_student, s.fname_student, s.lname_student,s.student_id,y.term,y.year,
+        b.name_branch, fa.name_factory, p.name_province ,p.region,
+        qu.job_position , qu.job_description ,qu.job_topic,
+        qu.working_hours, qu.compensation ,
+        c.name_company, c.address, c.tel,
+        c.number_of_employee,f.createdAt,f.updatedAt
+        FROM student s 
+        LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+        LEFT JOIN fm10_21_coop f ON s.idstudent = f.idstudent
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
+        LEFT JOIN branch b ON s.idbranch = b.idbranch
+        LEFT JOIN company c ON sc.idcompany = c.idcompany
+        LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
+        LEFT JOIN province p ON c.idprovince = p.idprovince
+        LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+        WHERE s.idstudent = ${req.body.user.id}`, { type: sequelize_1.QueryTypes.SELECT });
+    return res.status(200).json({
+        message: 'Fm10_21point fetched successfully',
+        data: fm21,
+    });
+});
+exports.getFm10_21coopBytoken = getFm10_21coopBytoken;
 const getFm10_21detail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.body.user.id;
     const fm21 = yield config_1.default.query(`SELECT f.idfm10_21_coop,an.idfm10_21_coop,s.prename_student, s.fname_student, s.lname_student,s.student_id,
@@ -53,7 +78,8 @@ const getFm10_21detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         LEFT JOIN answerfm10_21 an ON f.idfm10_21_coop = an.idfm10_21_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany
@@ -110,7 +136,8 @@ const getFm10_21detailadmin = (req, res, next) => __awaiter(void 0, void 0, void
         LEFT JOIN answerfm10_21 an ON f.idfm10_21_coop = an.idfm10_21_coop
         LEFT JOIN question q ON an.idquestion = q.idquestion
         LEFT JOIN form fm ON q.idform = fm.idform
-        LEFT JOIN year y ON s.idyear = y.idyear
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
         LEFT JOIN branch b ON s.idbranch = b.idbranch
         LEFT JOIN company c ON sc.idcompany = c.idcompany
         LEFT JOIN qualification qu ON c.idcompany = qu.idcompany

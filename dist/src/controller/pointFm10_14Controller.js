@@ -18,6 +18,7 @@ const sequelize_1 = require("sequelize");
 const fm10_14coopModel_1 = require("../models/fm10_14coopModel");
 const answerModel_1 = require("../models/answerModel");
 const questionModel_1 = require("../models/questionModel");
+const YearModel_1 = require("../models/YearModel");
 const getFm10_14detail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fm14 = yield config_1.default.query(`SELECT f.idfm10_14_coop,fm.name_form,s.prename_student,s.fname_student,s.lname_student,s.student_id,
     b.name_branch,fa.name_factory,c.name_company,
@@ -29,7 +30,8 @@ const getFm10_14detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     LEFT JOIN answerfm10_14 a ON f.idfm10_14_coop = a.idfm10_14_coop
     LEFT JOIN question q ON a.idquestion = q.idquestion
     LEFT JOIN form fm ON q.idform = fm.idform
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -47,17 +49,62 @@ const getFm10_14detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.getFm10_14detail = getFm10_14detail;
 const getFm10_14coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const idyear = req.query.idyear;
+    if (idyear === undefined && search_name === '') {
+        const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+        const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
       fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
-      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
-      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company`, { type: sequelize_1.QueryTypes.SELECT });
-    return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%') AND y.idyear = ${year[0].idyear}
+      ORDER BY sc.idstudent_company DESC 
+      LIMIT ${offset},${limit}`, { type: sequelize_1.QueryTypes.SELECT });
+        return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+    }
+    else if (idyear != undefined) {
+        const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
+      fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
+      FROM student s  
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%') AND y.idyear = ${idyear}
+      ORDER BY sc.idstudent_company DESC 
+      LIMIT ${offset},${limit}`, { type: sequelize_1.QueryTypes.SELECT });
+        return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+    }
+    else if (search_name != '') {
+        const fm10_14coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
+      fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
+      FROM student s  
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%'
+      ORDER BY sc.idstudent_company DESC 
+      LIMIT ${offset},${limit}`, { type: sequelize_1.QueryTypes.SELECT });
+        return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+    }
 });
 exports.getFm10_14coop = getFm10_14coop;
 const createFm10_14coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

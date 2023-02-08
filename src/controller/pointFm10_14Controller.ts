@@ -7,6 +7,7 @@ import { Answerfm10_14 } from '../models/answerModel';
 import { Question } from '../models/questionModel';
 import { Student_Company } from '../models/student_companyModel';
 import { Form } from '../models/formModel';
+import { Year } from '../models/YearModel';
 
 export const getFm10_14detail: RequestHandler = async (req, res, next) => {
     const fm14: Array<any> = await Connection.query(
@@ -46,6 +47,9 @@ export const getFm10_14coop: RequestHandler = async (req:any, res, next) => {
   const offset = req.query.offset ? parseInt(req.query.offset) : 0;
   const limit = req.query.limit ? parseInt(req.query.limit) : 100;
   const search_name = req.query.search ? req.query.search : '';
+  const idyear = req.query.idyear
+  if (idyear === undefined && search_name === ''){
+    const year = await Year.findAll({where:{status_year:'yes'}});
     const fm10_14coop = await Connection.query(
       `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
@@ -58,13 +62,54 @@ export const getFm10_14coop: RequestHandler = async (req:any, res, next) => {
       LEFT JOIN year y ON e.idyear = y.idyear 
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
-      WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' 
+      WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%') AND y.idyear = ${year[0].idyear}
+      ORDER BY sc.idstudent_company DESC 
+      LIMIT ${offset},${limit}`,
+      { type: QueryTypes.SELECT },
+    );
+
+    return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+  }else if(idyear != undefined){
+    const fm10_14coop = await Connection.query(
+      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
+      fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
+      FROM student s  
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%') AND y.idyear = ${idyear}
       ORDER BY sc.idstudent_company DESC 
       LIMIT ${offset},${limit}`,
       { type: QueryTypes.SELECT },
     );
     
     return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+  }else if(search_name != ''){
+    const fm10_14coop = await Connection.query(
+      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
+      fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
+      FROM student s  
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN branch b ON s.idbranch = b.idbranch 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear 
+      LEFT JOIN factory f ON b.idfactory = f.idfactory 
+      LEFT JOIN fm10_14_coop fm ON sc.idstudent_company = fm.idstudent_company
+      WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%'
+      ORDER BY sc.idstudent_company DESC 
+      LIMIT ${offset},${limit}`,
+      { type: QueryTypes.SELECT },
+    );
+
+    return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
+  }
 }
 
 export const createFm10_14coop: RequestHandler = async (req, res, next) => {

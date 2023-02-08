@@ -147,9 +147,13 @@ export const getFm10_11_coopAdmin: RequestHandler = async (req: any, res) => {
   const offset = req.query.offset ? parseInt(req.query.offset) : 0;
   const limit = req.query.limit ? parseInt(req.query.limit) : 100;
   const search_name = req.query.search ? req.query.search : '';
+  const idyear = req.query.idyear
   if (create === undefined) {
+    if (idyear === undefined && search_name === ''){
+      const year = await Year.findAll({ where: { status_year: 'yes' } });
+      if (year.length > 0) {
     const fm10_11coop: Array<any> = await Connection.query(
-      `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
@@ -163,40 +167,142 @@ export const getFm10_11_coopAdmin: RequestHandler = async (req: any, res) => {
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE f.time = ${req.query.time}
+    WHERE f.time = ${req.query.time} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND e.idyear = ${year[0].idyear}
     limit ${limit} offset ${offset}`,
-      { type: QueryTypes.SELECT },
-    );
+          { type: QueryTypes.SELECT },
+        );
 
-    return res
-      .status(200)
-      .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+        return res
+          .status(200)
+          .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+      }
+    }else if (idyear != undefined){
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND e.idyear = ${idyear}
+    limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    } else if (idyear === undefined && search_name != ''){
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE f.time = ${req.query.time} AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%')
+    limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    }
   } else {
-    const fm10_11coop: Array<any> = await Connection.query(
-      `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    if (idyear === undefined && search_name === ''){
+      const year = await Year.findAll({ where: { status_year: 'yes' } });
+      if (year.length > 0) {
+        const fm10_11coop: Array<any> = await Connection.query(
+          `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
     s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
-    LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
-    LEFT JOIN teacher t ON m.idteacher = t.idteacher
-    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
     LEFT JOIN enroll e ON s.idstudent = e.idstudent
     LEFT JOIN year y ON e.idyear = y.idyear
-    LEFT JOIN branch b ON s.idbranch = b.idbranch
-    LEFT JOIN company c ON sc.idcompany = c.idcompany
-    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
     LEFT JOIN province p ON c.idprovince = p.idprovince
     LEFT JOIN qualification q ON c.idcompany = q.idcompany
-    WHERE f.time = ${req.query.time} OR f.idfm10_11_coop IS NULL
+    WHERE e.idyear = ${idyear} AND (f.time = ${req.query.time} OR f.time IS NULL) AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND m.idteacher IS NOT NULL AND f.idfm10_11_coop IS NULL
     limit ${limit} offset ${offset}`,
-      { type: QueryTypes.SELECT },
-    );
+          { type: QueryTypes.SELECT },
+        );
 
-    return res
-      .status(200)
-      .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+        return res
+          .status(200)
+          .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+      }
+    }else if (idyear != undefined){
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE e.idyear = ${idyear} AND (f.time = ${req.query.time} OR f.time IS NULL) AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND m.idteacher IS NOT NULL AND f.idfm10_11_coop IS NULL
+    limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    }else if (idyear === undefined && search_name != ''){
+      const fm10_11coop: Array<any> = await Connection.query(
+        `SELECT f.idfm10_11_coop,sc.idstudent_company,s.idstudent,c.name_company,c.address,c.tel,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,
+    s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,f.time,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN fm10_11_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
+    LEFT JOIN teacher t ON m.idteacher = t.idteacher
+    LEFT JOIN province p ON c.idprovince = p.idprovince
+    LEFT JOIN qualification q ON c.idcompany = q.idcompany
+    WHERE e.idyear = ${idyear} AND (f.time = ${req.query.time} OR f.time IS NULL) AND (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND m.idteacher IS NOT NULL AND f.idfm10_11_coop IS NULL
+    limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res
+        .status(200)
+        .json({ message: 'Fm10_11coop fetched successfully', data: fm10_11coop });
+    }
   }
-
 }
 
 export const getquestionfm10_11_part1: RequestHandler = async (req, res) => {

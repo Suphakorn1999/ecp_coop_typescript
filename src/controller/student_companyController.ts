@@ -5,6 +5,7 @@ import { Student } from '../models/studentModel';
 import { Company } from '../models/companyModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'sequelize';
+import { Year } from '../models/YearModel';
 
 export const createStudentCompany: RequestHandler = async (req, res, next: express.NextFunction) => {
     const All3 = await Student_Company.findAll({where: { idstudent: req.body.idstudent}});
@@ -29,9 +30,49 @@ export const getAllStudentCompany: RequestHandler = async (req:any, res, next) =
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
     const search_name = req.query.search ? req.query.search : '';
-
-    const student_company: Array<any> = await Connection.query(
+    const idyear = req.query.idyear
+  if (idyear === undefined && search_name === ''){
+      const year = await Year.findAll({ where: { status_year: 'yes' } });
+      const student_company: Array<any> = await Connection.query(
       `SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
+      FROM student s 
+      LEFT JOIN student_company st ON s.idstudent = st.idstudent 
+      LEFT JOIN company c ON st.idcompany = c.idcompany 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%') and y.idyear = ${year[0].idyear}
+      ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
+      limit ${limit} offset ${offset}
+      `,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res.status(200).json({
+        message: 'Student Companies fetched successfully',
+        data: student_company,
+      });
+    }else if(idyear != undefined){
+      const student_company: Array<any> = await Connection.query(
+        `SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
+      FROM student s 
+      LEFT JOIN student_company st ON s.idstudent = st.idstudent 
+      LEFT JOIN company c ON st.idcompany = c.idcompany 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      where (s.fname_student like '%${search_name}%' or s.lname_student like '%${search_name}%' or s.student_id like '%${search_name}%' or c.name_company like '%${search_name}%' ) and y.idyear = ${idyear}
+      ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
+      limit ${limit} offset ${offset}
+      `,
+        { type: QueryTypes.SELECT },
+      );
+
+      return res.status(200).json({
+        message: 'Student Companies fetched successfully',
+        data: student_company,
+      });
+  } else if (search_name != '' && idyear === undefined){
+      const student_company: Array<any> = await Connection.query(
+        `SELECT s.idstudent,c.idcompany,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,c.name_company 
       FROM student s 
       LEFT JOIN student_company st ON s.idstudent = st.idstudent 
       LEFT JOIN company c ON st.idcompany = c.idcompany 
@@ -41,14 +82,15 @@ export const getAllStudentCompany: RequestHandler = async (req:any, res, next) =
       ORDER BY y.year ASC, y.term ASC,s.idstudent ASC
       limit ${limit} offset ${offset}
       `,
-      { type: QueryTypes.SELECT },
-    );   
-    
-    return res.status(200).json({
-      message: 'Student Companies fetched successfully',
-      data: student_company,
-    });
-    
+        { type: QueryTypes.SELECT },
+      );
+
+      return res.status(200).json({
+        message: 'Student Companies fetched successfully',
+        data: student_company,
+      });
+    }
+     
 }
 
 export const getStudentCompany: RequestHandler = async (req, res, next) => {

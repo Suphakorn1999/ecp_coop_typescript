@@ -12,27 +12,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFm10_13coopBytokenteacher = exports.updateFm10_13coop = exports.updateFM10_13point = exports.getquestionfm10_13 = exports.createFm10_13point = exports.createFm10_13coop = exports.getFm10_13totalpoint = exports.getFm10_13coop = exports.getFm10_13detail = void 0;
+exports.getFm10_13coopByidfile = exports.updateFm10_13cooptotal = exports.getFm10_13coopBytokenteacher = exports.updateFm10_13coop = exports.updateFM10_13point = exports.getquestionfm10_13 = exports.createFm10_13point = exports.createFm10_13coop = exports.getFm10_13totalpoint = exports.getFm10_13coop = exports.getFm10_13detailAdmin = exports.getFm10_13detail = void 0;
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
 const fm10_13coopModel_1 = require("../models/fm10_13coopModel");
 const answer10_13Model_1 = require("../models/answer10_13Model");
 const questionModel_1 = require("../models/questionModel");
+const YearModel_1 = require("../models/YearModel");
 const getFm10_13detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const idteacher = req.body.user.id;
     const fm13 = yield config_1.default.query(`SELECT f.idfm10_13_coop,fm.name_form,s.prename_student,s.fname_student,s.lname_student,s.student_id,
-    b.name_branch,fa.name_factory,c.name_company,f.idfile,
-    f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,f.report_title_th,f.report_title_en,f.other_Comments,f.createdAt,f.updatedAt,
+    b.name_branch,fa.name_factory,c.name_company,f.idfile,f1.name_file,f1.path_file,f.other_Comments,f.createdAt,f.updatedAt,
     CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS point
     FROM student s
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN form fm ON fm.idform = f.idform
     LEFT JOIN branch b ON b.idbranch = s.idbranch
     LEFT JOIN factory fa ON fa.idfactory = b.idfactory
     LEFT JOIN company c ON c.idcompany = sc.idcompany
     LEFT JOIN answerfm10_13 a ON a.idfm10_13_coop = f.idfm10_13_coop
     LEFT JOIN question q ON q.idquestion = a.idquestion
-    WHERE q.idform = 6 AND f.idstudent_company = ${req.query.idstudent_company}
+    LEFT JOIN form fm ON fm.idform = q.idform
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    WHERE f.idstudent_company = ${req.query.idstudent_company} AND f.idteacher = ${idteacher}
     GROUP BY f.idfm10_13_coop`, { type: sequelize_1.QueryTypes.SELECT });
     fm13.forEach((element) => {
         element.point = JSON.parse(element.point);
@@ -45,32 +47,132 @@ const getFm10_13detail = (req, res) => __awaiter(void 0, void 0, void 0, functio
     });
 });
 exports.getFm10_13detail = getFm10_13detail;
+const getFm10_13detailAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const idteacher = req.query.idteacher;
+    const fm13 = yield config_1.default.query(`SELECT f.idfm10_13_coop,fm.name_form,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    b.name_branch,fa.name_factory,c.name_company,f.idfile,f1.name_file,f1.path_file,f.other_Comments,f.createdAt,f.updatedAt,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idquestion",q.idquestion,"topic",q.name_question,"point",a.answer)ORDER BY a.idquestion ASC),"]") AS point
+    FROM student s
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN answerfm10_13 a ON a.idfm10_13_coop = f.idfm10_13_coop
+    LEFT JOIN question q ON q.idquestion = a.idquestion
+    LEFT JOIN form fm ON fm.idform = q.idform
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    WHERE f.idstudent_company = ${req.query.idstudent_company} AND f.idteacher = ${idteacher}
+    GROUP BY f.idfm10_13_coop`, { type: sequelize_1.QueryTypes.SELECT });
+    fm13.forEach((element) => {
+        element.point = JSON.parse(element.point);
+    });
+    return res
+        .status(200)
+        .json({
+        message: 'Fm10_13detail fetched successfully',
+        data: fm13,
+    });
+});
+exports.getFm10_13detailAdmin = getFm10_13detailAdmin;
 const getFm10_13coop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm13 = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const idyear = req.query.idyear;
+    if (idyear === undefined && search_name === '') {
+        const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+        if (year.length > 0) {
+            const fm13 = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
     b.name_branch,fa.name_factory,c.name_company,f1.idfile,
-    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher,"total_score",f.total_score)),"]") AS teacher,
     m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
     FROM student s
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN company c ON c.idcompany = sc.idcompany
     LEFT JOIN branch b ON b.idbranch = s.idbranch
     LEFT JOIN factory fa ON fa.idfactory = b.idfactory
-    LEFT JOIN year y ON y.idyear = s.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
     LEFT JOIN file f1 ON f1.idfile = f.idfile
     LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
     LEFT JOIN teacher t ON f.idteacher = t.idteacher 
+    WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND y.idyear = ${year[0].idyear}
     group by s.idstudent
-    ORDER BY f.idfm10_13_coop DESC`, { type: sequelize_1.QueryTypes.SELECT });
-    fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
-        element.teacher = JSON.parse(element.teacher);
-    }));
-    return res
-        .status(200)
-        .json({
-        message: 'Fm10_13coop fetched successfully',
-        data: fm13,
-    });
+    ORDER BY f.idfm10_13_coop DESC
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+            fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
+                element.teacher = JSON.parse(element.teacher);
+            }));
+            return res
+                .status(200)
+                .json({
+                message: 'Fm10_13coop fetched successfully',
+                data: fm13,
+            });
+        }
+    }
+    else if (idyear !== undefined) {
+        const fm13 = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher,"total_score",f.total_score)),"]") AS teacher,
+    m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+    FROM student s
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
+    LEFT JOIN teacher t ON f.idteacher = t.idteacher 
+    WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND y.idyear = ${idyear}
+    group by s.idstudent
+    ORDER BY f.idfm10_13_coop DESC
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+        fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
+            element.teacher = JSON.parse(element.teacher);
+        }));
+        return res
+            .status(200)
+            .json({
+            message: 'Fm10_13coop fetched successfully',
+            data: fm13,
+        });
+    }
+    else if (search_name != '' && idyear === undefined) {
+        const fm13 = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+    CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher,"total_score",f.total_score)),"]") AS teacher,
+    m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+    FROM student s
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN company c ON c.idcompany = sc.idcompany
+    LEFT JOIN branch b ON b.idbranch = s.idbranch
+    LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN file f1 ON f1.idfile = f.idfile
+    LEFT JOIN meeting m ON m.idstudent_company = sc.idstudent_company
+    LEFT JOIN teacher t ON f.idteacher = t.idteacher 
+    WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%'
+    group by s.idstudent
+    ORDER BY f.idfm10_13_coop DESC
+    limit ${limit} offset ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+        fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
+            element.teacher = JSON.parse(element.teacher);
+        }));
+        return res
+            .status(200)
+            .json({
+            message: 'Fm10_13coop fetched successfully',
+            data: fm13,
+        });
+    }
 });
 exports.getFm10_13coop = getFm10_13coop;
 const getFm10_13totalpoint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -82,7 +184,8 @@ const getFm10_13totalpoint = (req, res) => __awaiter(void 0, void 0, void 0, fun
       LEFT JOIN student s ON sc.idstudent = s.idstudent 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN branch b ON s.idbranch = b.idbranch 
-      LEFT JOIN year y ON s.idyear = y.idyear 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
       LEFT JOIN factory f ON b.idfactory = f.idfactory 
       LEFT JOIN fm10_13_coop fm ON sc.idstudent_company = fm.idstudent_company 
       LEFT JOIN answerfm10_13 a ON fm.idfm10_13_coop = a.idfm10_13_coop
@@ -226,23 +329,105 @@ const updateFm10_13coop = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.updateFm10_13coop = updateFm10_13coop;
 const getFm10_13coopBytokenteacher = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const idteacher = req.body.user.id;
-    const fm13 = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+    const idyear = req.query.idyear;
+    const year = yield YearModel_1.Year.findAll({
+        where: { status_year: 'yes' },
+    });
+    if (idyear === undefined) {
+        const fm13 = yield config_1.default.query(`SELECT f.idfm10_13_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
     b.name_branch,fa.name_factory,c.name_company,f1.idfile,
     CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
-    m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+    m.report_title_th,m.report_title_en,f.other_Comments,f.total_score,f.createdAt,f.updatedAt
     FROM student s
     RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN company c ON c.idcompany = sc.idcompany
     LEFT JOIN branch b ON b.idbranch = s.idbranch
     LEFT JOIN factory fa ON fa.idfactory = b.idfactory
-    LEFT JOIN year y ON y.idyear = s.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
     LEFT JOIN file f1 ON f1.idfile = f.idfile
     RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
     LEFT JOIN teacher t ON m.idteacher = t.idteacher
-    WHERE f.idteacher = ${idteacher}
+    WHERE f.idteacher = ${idteacher} AND y.idyear = ${year[0].idyear}
     group by s.idstudent
     ORDER BY f.idfm10_13_coop DESC`, { type: sequelize_1.QueryTypes.SELECT });
+        fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
+            element.teacher = JSON.parse(element.teacher);
+        }));
+        return res
+            .status(200)
+            .json({
+            message: 'Fm10_13coop fetched successfully',
+            data: fm13,
+        });
+    }
+    else {
+        const fm13 = yield config_1.default.query(`SELECT f.idfm10_13_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+            b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+            CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher)),"]") AS teacher,
+            m.report_title_th,m.report_title_en,f.other_Comments,f.total_score,f.createdAt,f.updatedAt
+            FROM student s
+            RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
+            LEFT JOIN company c ON c.idcompany = sc.idcompany
+            LEFT JOIN branch b ON b.idbranch = s.idbranch
+            LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+            LEFT JOIN enroll e ON s.idstudent = e.idstudent
+            LEFT JOIN year y ON e.idyear = y.idyear
+            LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+            LEFT JOIN file f1 ON f1.idfile = f.idfile
+            RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
+            LEFT JOIN teacher t ON m.idteacher = t.idteacher
+            WHERE f.idteacher = ${idteacher} AND y.idyear = ${idyear}
+            group by s.idstudent
+            ORDER BY f.idfm10_13_coop DESC`, { type: sequelize_1.QueryTypes.SELECT });
+        fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
+            element.teacher = JSON.parse(element.teacher);
+        }));
+        return res
+            .status(200)
+            .json({
+            message: 'Fm10_13coop fetched successfully',
+            data: fm13,
+        });
+    }
+});
+exports.getFm10_13coopBytokenteacher = getFm10_13coopBytokenteacher;
+const updateFm10_13cooptotal = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const idfm10_13_coop = req.body.idfm10_13_coop;
+    const total_score = req.body.total_score;
+    const updatedAt = req.body.updatedAt;
+    yield fm10_13coopModel_1.Fm10_13_coop.update({
+        total_score: total_score,
+        updatedAt: updatedAt,
+    }, {
+        where: {
+            idfm10_13_coop: idfm10_13_coop,
+        }
+    });
+    return res.status(200).json({ message: 'Fm10_13coop updated successfully' });
+});
+exports.updateFm10_13cooptotal = updateFm10_13cooptotal;
+const getFm10_13coopByidfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const idfile = req.query.idfile;
+    const fm13 = yield config_1.default.query(`SELECT f.idfm10_13_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,
+        b.name_branch,fa.name_factory,c.name_company,f1.idfile,
+        CONCAT("[",GROUP_CONCAT(JSON_OBJECT("idfm10_13_coop",f.idfm10_13_coop,"idteacher",t.idteacher,"prename_teacher",t.prename_teacher,"firstname_teacher",t.firstname_teacher,"lastname_teacher",t.lastname_teacher,"total_score",f.total_score)),"]") AS teacher,
+        m.report_title_th,m.report_title_en,f.other_Comments,f.createdAt,f.updatedAt
+        FROM student s
+        RIGHT JOIN student_company sc ON s.idstudent = sc.idstudent
+        LEFT JOIN company c ON c.idcompany = sc.idcompany
+        LEFT JOIN branch b ON b.idbranch = s.idbranch
+        LEFT JOIN factory fa ON fa.idfactory = b.idfactory
+        LEFT JOIN enroll e ON s.idstudent = e.idstudent
+        LEFT JOIN year y ON e.idyear = y.idyear
+        LEFT JOIN fm10_13_coop f ON sc.idstudent_company = f.idstudent_company
+        LEFT JOIN file f1 ON f1.idfile = f.idfile
+        RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
+        LEFT JOIN teacher t ON m.idteacher = t.idteacher AND t.idteacher = f.idteacher
+        WHERE f.idfile = ${idfile}
+        group by s.idstudent
+        ORDER BY f.idfm10_13_coop DESC`, { type: sequelize_1.QueryTypes.SELECT });
     fm13.forEach((element) => __awaiter(void 0, void 0, void 0, function* () {
         element.teacher = JSON.parse(element.teacher);
     }));
@@ -253,4 +438,4 @@ const getFm10_13coopBytokenteacher = (req, res, next) => __awaiter(void 0, void 
         data: fm13,
     });
 });
-exports.getFm10_13coopBytokenteacher = getFm10_13coopBytokenteacher;
+exports.getFm10_13coopByidfile = getFm10_13coopByidfile;

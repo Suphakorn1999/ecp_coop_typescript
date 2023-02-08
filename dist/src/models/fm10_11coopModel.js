@@ -41,6 +41,18 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
+        allowNull: false,
+    })
+], Fm10_11_coop.prototype, "other_comments", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], Fm10_11_coop.prototype, "total_score", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
         allowNull: true,
     })
 ], Fm10_11_coop.prototype, "createdAt", void 0);

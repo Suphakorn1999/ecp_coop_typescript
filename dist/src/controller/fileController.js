@@ -19,6 +19,8 @@ const studentModel_1 = require("../models/studentModel");
 const fs = require('fs');
 const path_1 = __importDefault(require("path"));
 const { Op } = require('sequelize');
+const config_1 = __importDefault(require("../config/config"));
+const sequelize_1 = require("sequelize");
 const getFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.body.user.id;
@@ -65,6 +67,11 @@ const deleteFile = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
     const absolutePath = path_1.default.resolve('public/uploads/' + namefile);
     if (fs.existsSync(absolutePath)) {
+        const filede = yield fileModel_1.File.findAll({ where: { idstudent: req.body.user.id, name_file: namefile } });
+        if (filede.length > 0) {
+            yield fileModel_1.File.update({ name_file: namefile }, { where: { idstudent: req.body.user.id } });
+            return res.status(200).json({ message: 'Delete file success' });
+        }
         fileModel_1.File.destroy({
             where: { name_file: namefile },
         })
@@ -105,6 +112,7 @@ const getFileformadmin = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             {
                 model: studentModel_1.Student,
                 attributes: [
+                    'idstudent',
                     'student_id',
                     'prename_student',
                     'fname_student',
@@ -239,34 +247,15 @@ const getfileByidstudent = (req, res, next) => __awaiter(void 0, void 0, void 0,
 });
 exports.getfileByidstudent = getfileByidstudent;
 const getfileByidassignment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = yield fileModel_1.File.findAll({
-        attributes: [
-            'idfile',
-            'idassignmentFile',
-            'name_file',
-            'path_file',
-            'type_file',
-            'date_file',
-            'note_file',
-            'status_file'
-        ],
-        include: [
-            {
-                model: studentModel_1.Student,
-                attributes: [
-                    'student_id',
-                    'prename_student',
-                    'fname_student',
-                    'lname_student',
-                ],
-                as: 'student',
-            },
-            { model: assignmentFileModel_1.AssignmentFile },
-        ],
-        where: {
-            idassignmentFile: 6,
-        },
-    });
+    const file = yield config_1.default.query(`SELECT f.idfile,f.idassignmentFile,f.name_file,f.path_file,f.type_file,f.date_file,f.note_file,f.status_file,
+    s.student_id,s.prename_student,s.fname_student,s.lname_student,m.report_title_th,m.report_title_en
+    FROM file f 
+    JOIN student s ON f.idstudent = s.idstudent 
+    JOIN assignmentFile af ON f.idassignmentFile = af.idassignmentFile
+    JOIN student_company sc ON s.idstudent = sc.idstudent
+    JOIN company c ON sc.idcompany = c.idcompany
+    JOIN meeting m ON c.idcompany = m.idcompany
+    WHERE af.idassignmentFile = 6 AND f.status_file = 'checked'`, { type: sequelize_1.QueryTypes.SELECT });
     if (file.length > 0) {
         return res.status(200).json({ message: 'File fetched successfully', data: file });
     }

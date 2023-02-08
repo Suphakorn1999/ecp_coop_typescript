@@ -34,6 +34,7 @@ const activity_yearModel_1 = require("../models/activity_yearModel");
 const fm10_13coopModel_1 = require("../models/fm10_13coopModel");
 const answer10_13Model_1 = require("../models/answer10_13Model");
 const meetingtimesModel_1 = require("../models/meetingtimesModel");
+const enrollModel_1 = require("../models/enrollModel");
 const connection = new sequelize_typescript_1.Sequelize({
     dialect: 'mysql',
     host: 'localhost',
@@ -75,6 +76,7 @@ const connection = new sequelize_typescript_1.Sequelize({
         fm10_13coopModel_1.Fm10_13_coop,
         answer10_13Model_1.Answerfm10_13,
         meetingtimesModel_1.Meeting_Times,
+        enrollModel_1.Enroll,
     ],
     sync: { force: false, alter: true },
 });

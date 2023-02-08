@@ -34,9 +34,11 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             });
             if (student.length > 0) {
                 let encodeId = CryptoJS.AES.encrypt(data.studentId[0], process.env.secretKey).toString();
+                let encodeuser = CryptoJS.AES.encrypt(data.uid[0], process.env.secretKey).toString();
                 let token = generateToken({
                     id: student[0].idstudent,
                     studentId: encodeId,
+                    username_student: encodeuser
                 });
                 res.redirect(`https://ecp-coop.ddns.net/gettoken?token=${token}`);
             }
@@ -49,13 +51,15 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                 where: { username_teacher: data.uid[0] },
             });
             if (teacher.length > 0) {
+                let encodeuser = CryptoJS.AES.encrypt(data.uid[0], process.env.secretKey).toString();
                 let token = generateToken({
                     id: teacher[0].idteacher,
+                    username_teacher: encodeuser
                 });
-                res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
+                res.redirect(`https://teacher-ecpcoop.ddns.net/gettoken?token=${token}`);
             }
             else {
-                res.redirect(`http://127.0.0.1:5173/register?prename=${data.prename}&firstNameThai=${data.firstNameThai}&lastNameThai=${data.lastNameThai}&username_teacher=${data.uid[0]}`);
+                res.redirect(`https://teacher-ecpcoop.ddns.net/login`);
             }
         }
     }));

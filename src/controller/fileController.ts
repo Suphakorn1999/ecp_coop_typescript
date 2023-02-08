@@ -9,7 +9,7 @@ import { Meeting } from '../models/meetingModel';
 import { Student_Company } from '../models/student_companyModel';
 const { Op } = require('sequelize');
 import Connection from '../config/config';
-import { QueryTypes } from 'sequelize/types';
+import { QueryTypes } from 'sequelize';
 
 export const getFile: RequestHandler = async (req, res, next) => {
   try{

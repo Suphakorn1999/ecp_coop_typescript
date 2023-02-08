@@ -18,6 +18,7 @@ const sequelize_1 = require("sequelize");
 const fm10_18coopModel_1 = require("../models/fm10_18coopModel");
 const answer10_18Model_1 = require("../models/answer10_18Model");
 const questionModel_1 = require("../models/questionModel");
+const YearModel_1 = require("../models/YearModel");
 const getquestion10_18 = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const question10_18 = yield questionModel_1.Question.findAll({ where: { idform: 3 } });
     return res
@@ -42,7 +43,8 @@ const getFm10_18detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     LEFT JOIN answerfm10_18 a ON f.idfm10_18_coop = a.idfm10_18_coop
     LEFT JOIN question q ON a.idquestion = q.idquestion
     LEFT JOIN form fm ON q.idform = fm.idform
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
@@ -59,7 +61,14 @@ const getFm10_18detail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.getFm10_18detail = getFm10_18detail;
 const getFm10_18coop = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const fm10_18coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const search_name = req.query.search ? req.query.search : '';
+    const idyear = req.query.idyear;
+    if (idyear === undefined && search_name === '') {
+        const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+        if (year.length > 0) {
+            const fm10_18coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
@@ -67,14 +76,61 @@ const getFm10_18coop = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     FROM student s 
     LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
     LEFT JOIN fm10_18_coop f ON sc.idstudent_company = f.idstudent_company
-    LEFT JOIN year y ON s.idyear = y.idyear
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
     LEFT JOIN branch b ON s.idbranch = b.idbranch
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
-    `, { type: sequelize_1.QueryTypes.SELECT });
-    return res
-        .status(200)
-        .json({ message: 'Fm10_18coop fetched successfully', data: fm10_18coop });
+    WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' 
+    ORDER BY f.createdAt DESC
+    LIMIT ${limit} OFFSET ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+            return res
+                .status(200)
+                .json({ message: 'Fm10_18coop fetched successfully', data: fm10_18coop });
+        }
+    }
+    else if (idyear != undefined) {
+        const fm10_18coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+    y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
+    f.strength_1,f.strength_2,f.strength_3,f.strength_4,
+    f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
+    f.get_into_work,f.other_comments,f.total_score,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN fm10_18_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%') AND y.idyear = ${idyear}
+    ORDER BY f.createdAt DESC
+    LIMIT ${limit} OFFSET ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+        return res
+            .status(200)
+            .json({ message: 'Fm10_18coop fetched successfully', data: fm10_18coop });
+    }
+    else if (search_name != '' && idyear === undefined) {
+        const fm10_18coop = yield config_1.default.query(`SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+    y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
+    f.strength_1,f.strength_2,f.strength_3,f.strength_4,
+    f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
+    f.get_into_work,f.other_comments,f.total_score,f.createdAt,f.updatedAt
+    FROM student s 
+    LEFT JOIN student_company sc ON s.idstudent = sc.idstudent
+    LEFT JOIN fm10_18_coop f ON sc.idstudent_company = f.idstudent_company
+    LEFT JOIN enroll e ON s.idstudent = e.idstudent
+    LEFT JOIN year y ON e.idyear = y.idyear
+    LEFT JOIN branch b ON s.idbranch = b.idbranch
+    LEFT JOIN company c ON sc.idcompany = c.idcompany
+    LEFT JOIN factory fa ON b.idfactory = fa.idfactory
+    WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' 
+    ORDER BY f.createdAt DESC
+    LIMIT ${limit} OFFSET ${offset}`, { type: sequelize_1.QueryTypes.SELECT });
+        return res
+            .status(200)
+            .json({ message: 'Fm10_18coop fetched successfully', data: fm10_18coop });
+    }
 });
 exports.getFm10_18coop = getFm10_18coop;
 const createFm10_18point = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

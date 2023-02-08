@@ -1,6 +1,5 @@
 import express from 'express';
 import { RequestHandler } from 'express';
-import sequelize from 'sequelize/types/sequelize';
 import { AssignmentFile } from '../models/assignmentFileModel';
 import { Enroll } from '../models/enrollModel';
 import { Student } from '../models/studentModel';

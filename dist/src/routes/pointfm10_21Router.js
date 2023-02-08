@@ -2,13 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const pointFm10_21Controller_1 = require("../controller/pointFm10_21Controller");
-const { verifyToken, verifyTokenStudent } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenStudent, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
 router.get('/coop', verifyToken, pointFm10_21Controller_1.getFm10_21coop);
 router.get('/detail', verifyTokenStudent, pointFm10_21Controller_1.getFm10_21detail);
 router.get('/question', verifyToken, pointFm10_21Controller_1.getquestionfm10_21);
 router.post('/coop', verifyTokenStudent, pointFm10_21Controller_1.createFm10_21coop);
-router.post('/point', verifyToken, pointFm10_21Controller_1.createFm10_21point);
+router.post('/point', verifyTokenStudent, pointFm10_21Controller_1.createFm10_21point);
 router.put('/point', verifyToken, pointFm10_21Controller_1.updateFm10_21point);
-router.get('/detailadmin', verifyToken, pointFm10_21Controller_1.getFm10_21detailadmin);
+router.get('/detailadmin', verifyTokenAdmin, pointFm10_21Controller_1.getFm10_21detailadmin);
+router.get('/coopbytoken', verifyTokenStudent, pointFm10_21Controller_1.getFm10_21coopBytoken);
 exports.default = router;

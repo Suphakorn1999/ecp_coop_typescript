@@ -20,6 +20,7 @@ const compantdata = require('../services/company');
 const { Op } = require('sequelize');
 const config_1 = __importDefault(require("../config/config"));
 const sequelize_1 = require("sequelize");
+const YearModel_1 = require("../models/YearModel");
 const createCompany = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const province = yield provinceModel_1.Province.findAll({ where: { name_province: req.body.name_province } });
     if (province.length > 0) {
@@ -149,24 +150,53 @@ const companyByidteacher = (req, res, next) => __awaiter(void 0, void 0, void 0,
     const id = req.body.user.id;
     const offset = req.query.offset ? parseInt(req.query.offset) : 0;
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
-    const meeting = yield config_1.default.query(`SELECT m.idmeeting,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
-      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.name_project,c.address,c.urlmap
+    const idyear = req.query.idyear;
+    const year = yield YearModel_1.Year.findAll({
+        where: { status_year: 'yes' },
+    });
+    if (idyear === undefined) {
+        const meeting = yield config_1.default.query(`SELECT m.idmeeting,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,c.address,c.urlmap,m.report_title_th,m.report_title_en
       FROM student s 
       LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
       LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
       LEFT JOIN teacher t ON m.idteacher = t.idteacher 
       LEFT JOIN company c ON sc.idcompany = c.idcompany 
       LEFT JOIN province p ON c.idprovince = p.idprovince 
-      LEFT JOIN year y ON s.idyear = y.idyear
-      WHERE t.idteacher = ${id} 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      WHERE t.idteacher = ${id} AND y.idyear = ${year[0].idyear}
       GROUP BY c.idcompany 
       limit ${limit} offset ${offset}
       `, { type: sequelize_1.QueryTypes.SELECT });
-    meeting.forEach((item) => {
-        item.student = JSON.parse(item.student);
-    });
-    return res
-        .status(200)
-        .json({ message: 'Meeting fetched successfully', data: meeting });
+        meeting.forEach((item) => {
+            item.student = JSON.parse(item.student);
+        });
+        return res
+            .status(200)
+            .json({ message: 'Meeting fetched successfully', data: meeting });
+    }
+    else {
+        const meeting = yield config_1.default.query(`SELECT m.idmeeting,sc.idstudent_company,CONCAT("[",GROUP_CONCAT(JSON_OBJECT("student_id",s.student_id,"prename_student",s.prename_student,"fname_student",s.fname_student,"lname_student",s.lname_student)),"]") AS student,
+      y.term,y.year,t.prename_teacher,t.firstname_teacher,t.lastname_teacher,c.name_company,p.name_province,m.report_title_th,m.report_title_en,c.address,c.urlmap
+      FROM student s 
+      LEFT JOIN student_company sc ON s.idstudent = sc.idstudent 
+      LEFT JOIN meeting m ON sc.idstudent_company = m.idstudent_company
+      LEFT JOIN teacher t ON m.idteacher = t.idteacher 
+      LEFT JOIN company c ON sc.idcompany = c.idcompany 
+      LEFT JOIN province p ON c.idprovince = p.idprovince 
+      LEFT JOIN enroll e ON s.idstudent = e.idstudent
+      LEFT JOIN year y ON e.idyear = y.idyear
+      WHERE t.idteacher = ${id} AND y.idyear = ${idyear}
+      GROUP BY c.idcompany 
+      limit ${limit} offset ${offset}
+      `, { type: sequelize_1.QueryTypes.SELECT });
+        meeting.forEach((item) => {
+            item.student = JSON.parse(item.student);
+        });
+        return res
+            .status(200)
+            .json({ message: 'Meeting fetched successfully', data: meeting });
+    }
 });
 exports.companyByidteacher = companyByidteacher;

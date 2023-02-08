@@ -68,6 +68,12 @@ __decorate([
 ], Fm10_13_coop.prototype, "other_comments", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    })
+], Fm10_13_coop.prototype, "total_score", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DATE,
         allowNull: false,
     })

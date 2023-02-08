@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAssignmentAdmin = exports.deleteAssignment = exports.updateAssignment = exports.getAssignmentById = exports.getAssignment = exports.createAssignment = void 0;
 const assignmentFileModel_1 = require("../models/assignmentFileModel");
+const enrollModel_1 = require("../models/enrollModel");
 const studentModel_1 = require("../models/studentModel");
 const YearModel_1 = require("../models/YearModel");
 const { Op } = require('sequelize');
@@ -35,11 +36,10 @@ exports.createAssignment = createAssignment;
 const getAssignment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.body.user.id;
     const date = req.query.time;
-    const student = yield studentModel_1.Student.findAll({
-        where: { idstudent: id },
-        include: [{ model: YearModel_1.Year, as: 'year', where: { status_year: 'yes' } }],
-    });
-    if (student.length > 0) {
+    const student = yield studentModel_1.Student.findAll({ where: { idstudent: id } });
+    const year = yield YearModel_1.Year.findAll({ where: { status_year: 'yes' } });
+    const enroll = yield enrollModel_1.Enroll.findAll({ where: { idstudent: id, idyear: year[0].idyear } });
+    if (student.length > 0 && enroll.length > 0) {
         const assignment = yield assignmentFileModel_1.AssignmentFile.findAll({
             where: { status_assignment_file: 'active' },
         });

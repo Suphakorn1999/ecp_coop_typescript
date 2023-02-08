@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const pointFm10_11Controller_1 = require("../controller/pointFm10_11Controller");
-const { verifyToken, verifyTokenTeacher } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenTeacher, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
 router.get('/coop', verifyTokenTeacher, pointFm10_11Controller_1.getFm10_11_coop);
 router.get('/question', verifyToken, pointFm10_11Controller_1.getquestionfm10_11_part1);
@@ -13,5 +13,5 @@ router.put('/coop', verifyToken, pointFm10_11Controller_1.updateFm10_11_coop);
 router.put('/point', verifyToken, pointFm10_11Controller_1.updateFm10_11point);
 router.get('/detail', verifyToken, pointFm10_11Controller_1.getFm10_11_detailpart1);
 router.get('/detail2', verifyToken, pointFm10_11Controller_1.getFm10_11_detailpart2);
-router.get('/coopadmin', verifyToken, pointFm10_11Controller_1.getFm10_11_coopAdmin);
+router.get('/coopadmin', verifyTokenAdmin, pointFm10_11Controller_1.getFm10_11_coopAdmin);
 exports.default = router;

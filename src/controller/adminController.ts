@@ -9,6 +9,8 @@ import { Teacher } from '../models/teacherModel';
 dotenv.config();
 const CryptoJS = require('crypto-js');
 const { generateToken } = require('../middlewares/jwtHandler');
+import Connection from '../config/config';
+import { QueryTypes } from 'sequelize';
 
 export const createAdmin: RequestHandler = async (
   req,
@@ -97,5 +99,24 @@ export const gennerateToken: RequestHandler = async (req, res, next) => {
     data: {
       token: token,
     },
+  });
+}
+
+export const conuntWithyear: RequestHandler = async (req, res, next: express.NextFunction) => {
+  const dataValues:any[] = [];
+  
+  const idyear = await Year.findAll();
+  for(let i = 0; i < idyear.length; i++){
+    const count_student: Array<any> = await Connection.query(`SELECT COUNT(*) 
+    FROM student as s 
+    INNER JOIN enroll e ON s.idstudent = e.idstudent
+    WHERE idyear = ${idyear[i].idyear}`
+    , { type: QueryTypes.SELECT });
+    dataValues.push({ id: i, year: idyear[i].year, term: idyear[i].term, count_student: count_student})
+  }
+
+  return res.status(200).json({
+    message: 'Count data',
+    data: dataValues,
   });
 }

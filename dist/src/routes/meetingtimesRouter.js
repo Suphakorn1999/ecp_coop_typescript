@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const meetingtimesController_1 = require("./../controller/meetingtimesController");
-const { verifyToken } = require('../middlewares/jwtHandler');
+const { verifyToken, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
-router.post('/', verifyToken, meetingtimesController_1.createMeetingTimes);
-router.put('/', verifyToken, meetingtimesController_1.updateMeetingTimes);
-router.get('/', verifyToken, meetingtimesController_1.getMeetingTimes);
+router.post('/', verifyTokenAdmin, meetingtimesController_1.createMeetingTimes);
+router.put('/', verifyTokenAdmin, meetingtimesController_1.updateMeetingTimes);
+router.get('/', verifyTokenAdmin, meetingtimesController_1.getMeetingTimes);
 exports.default = router;

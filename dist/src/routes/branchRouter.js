@@ -2,9 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const branchController_1 = require("../controller/branchController");
+const { verifyToken, verifyTokenStudent, verifyTokenAdmin } = require('../middlewares/jwtHandler');
 const router = (0, express_1.Router)();
-router.post('/', branchController_1.createBranch);
-router.put('/', branchController_1.updateBranch);
-router.delete('/', branchController_1.deleteBranch);
+router.post('/', verifyTokenAdmin, branchController_1.createBranch);
+router.put('/', verifyTokenAdmin, branchController_1.updateBranch);
+router.delete('/', verifyTokenAdmin, branchController_1.deleteBranch);
 router.get('/', branchController_1.getAllBranch);
 exports.default = router;
