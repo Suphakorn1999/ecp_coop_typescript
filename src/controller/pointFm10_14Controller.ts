@@ -51,7 +51,7 @@ export const getFm10_14coop: RequestHandler = async (req:any, res, next) => {
   if (idyear === undefined && search_name === ''){
     const year = await Year.findAll({where:{status_year:'yes'}});
     const fm10_14coop = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      `SELECT fm.idfm10_14_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
       fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
@@ -71,7 +71,7 @@ export const getFm10_14coop: RequestHandler = async (req:any, res, next) => {
     return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
   }else if(idyear != undefined){
     const fm10_14coop = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      `SELECT fm.idfm10_14_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
       fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
       FROM student s  
@@ -91,7 +91,7 @@ export const getFm10_14coop: RequestHandler = async (req:any, res, next) => {
     return res.status(200).json({ message: 'Fm10_14coop fetched successfully', data: fm10_14coop });
   }else if(search_name != ''){
     const fm10_14coop = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
+      `SELECT fm.idfm10_14_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,f.name_factory,
       y.term,y.year,c.name_company,fm.fname_assessor,fm.lname_assessor,fm.position_assessor,
       fm.department_assessor,fm.other_Comments,fm.total_score,fm.createdAt,fm.updatedAt
       FROM student s  

@@ -15,7 +15,7 @@ import {
 const router = Router();
 
 router.post('/', verifyTokenAdmin, createCompany);
-router.get('/', getAllCompany);
+router.get('/', verifyTokenAdmin,getAllCompany);
 router.get('/student', getAllCompany);
 
 router.get('/ById', getCompanyById);

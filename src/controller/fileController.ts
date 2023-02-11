@@ -210,10 +210,8 @@ export const updateStatusFile: RequestHandler = async (
       where: { idfile: id },
     },
   );
-  if (file[0] > 0) {
+  if (file) {
     return res.status(200).json({ message: 'Update file success' });
-  } else {
-    return res.status(400).json({ message: 'Update file fail' });
   }
 }
 

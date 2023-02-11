@@ -10,6 +10,6 @@ router.get('/admin', verifyTokenAdmin,getFileformadmin);
 router.get('/adminByid', verifyTokenAdmin,getFileformadminbyid);
 router.put('/updateStatus', verifyTokenAdmin,updateStatusFile);
 router.get('/getfileByidstudent', verifyTokenAdmin,getfileByidstudent);
-router.get('/getfileByidassignment', verifyTokenAdmin,getfileByidassignment);
+router.get('/getfileByidassignment',getfileByidassignment);
 
 export default router;

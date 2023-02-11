@@ -474,7 +474,7 @@ export const getFm10_13coopByidfile: RequestHandler = async (req, res, next) => 
         LEFT JOIN file f1 ON f1.idfile = f.idfile
         RIGHT JOIN meeting m ON m.idstudent_company = f.idstudent_company
         LEFT JOIN teacher t ON m.idteacher = t.idteacher AND t.idteacher = f.idteacher
-        WHERE f.idfile = ${idfile}
+        WHERE f.idfile = ${idfile} AND f.idstudent_company = ${req.query.idstudent_company}
         group by s.idstudent
         ORDER BY f.idfm10_13_coop DESC`,
         { type: QueryTypes.SELECT }

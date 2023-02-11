@@ -65,7 +65,7 @@ export const getFm10_18coop: RequestHandler = async (req:any, res, next) => {
     const year = await Year.findAll({ where: { status_year: 'yes' } });
     if(year.length > 0){
       const fm10_18coop: Array<any> = await Connection.query(
-    `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+    `SELECT f.idfm10_18_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
@@ -91,7 +91,7 @@ export const getFm10_18coop: RequestHandler = async (req:any, res, next) => {
     }
   }else if(idyear != undefined){
     const fm10_18coop: Array<any> = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+      `SELECT f.idfm10_18_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
@@ -116,7 +116,7 @@ export const getFm10_18coop: RequestHandler = async (req:any, res, next) => {
       .json({ message: 'Fm10_18coop fetched successfully', data: fm10_18coop });
   } else if (search_name != '' && idyear === undefined){
     const fm10_18coop: Array<any> = await Connection.query(
-      `SELECT sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
+      `SELECT f.idfm10_18_coop,sc.idstudent_company,s.prename_student,s.fname_student,s.lname_student,s.student_id,b.name_branch,fa.name_factory,
     y.term,y.year,c.name_company,f.fname_assessor,f.lname_assessor,f.position_assessor,f.department_assessor,
     f.strength_1,f.strength_2,f.strength_3,f.strength_4,
     f.improvement_1,f.improvement_2,f.improvement_3,f.improvement_4,
