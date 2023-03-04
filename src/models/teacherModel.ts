@@ -67,6 +67,13 @@ export class Teacher extends Model {
   })
   status_teacher!: string;
 
+  @Column({
+    type: DataType.STRING(1),
+    allowNull: true,
+    defaultValue: '0',
+  })
+  access_rights!: string;
+
   @HasMany(() => Meeting)
   meetings!: Meeting[];
 }

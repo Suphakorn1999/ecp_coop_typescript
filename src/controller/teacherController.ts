@@ -4,6 +4,10 @@ import { Teacher } from '../models/teacherModel';
 import { Branch } from '../models/branchModel';
 import { Factory } from '../models/factoryModel';
 const { Op } = require('sequelize');
+const { generateToken } = require('../middlewares/jwtHandler');
+const CryptoJS = require('crypto-js');
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const createTeacher: RequestHandler = async (req,res,next: express.NextFunction) => {
     req.body.idrole = 2
@@ -66,4 +70,48 @@ export const updateTeacher: RequestHandler = async (req, res, next) => {
         return res.status(200).json({message:'Teacher updated successfully'});
     }
     return res.status(400).json({message:'Teacher not found'})
+}
+
+export const getTeacher: RequestHandler = async (req:any, res, next) => {
+  const teacher = await Teacher.findOne({
+    where: { idteacher: req.body.user.id },
+    attributes: ['prename_teacher', 'firstname_teacher', 'lastname_teacher','username_teacher'],
+  });
+  if (teacher) {
+    return res.status(200).json({ message: 'Teacher fetched successfully', data: teacher });
+  }
+  return res.status(400).json({ message: 'Teacher not found' });
+}
+
+export const updateAccess_rights: RequestHandler = async (req, res, next) => {
+    const teacher = await Teacher.findAll({where: {idteacher: req.body.id}});
+    if (teacher) {
+        await Teacher.update(
+          { access_rights: req.body.access_rights },
+          { where: { idteacher: req.body.id } },
+        );
+        return res.status(200).json({message:'Teacher updated successfully'});
+    }
+    return res.status(400).json({message:'Teacher not found'})
+}
+
+export const checkAccess_rights: RequestHandler = async (req, res, next) => {
+  const username = req.body.user.username;
+  const teacher = await Teacher.findAll({
+    where: { username_teacher: username },
+  });
+  if (teacher.length > 0) {
+    if(teacher[0].access_rights === '1'){
+      let encodeuser = CryptoJS.AES.encrypt(req.body.user.username, process.env.secretKey).toString();
+      const token = generateToken({
+        id: req.body.user.id,
+        user: encodeuser,
+      });
+      return res.redirect(`http://127.0.0.1:5173/gettoken?token=${token}`);
+    }else{
+      return res.status(400).json({ message: 'Access denied' });
+    }
+  }else{
+    return res.status(400).json({ message: 'Access denied' });
+  }
 }

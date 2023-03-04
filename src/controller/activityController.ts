@@ -36,7 +36,7 @@ export const getAllActivityByYear: RequestHandler = async (req, res, next) => {
             .status(200)
             .json({ message: 'Activities fetched successfully', data: Allactivities });
     } else if (year.length > 0 && req.query.idyear != undefined) {
-        const Allactivities = await Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: Activity_Year, where: { idyear: req.query.idyear } }] });
+        const Allactivities = await Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: Activity_Year, where: { idyear: req.query.idyear } }] },);
 
         return res
             .status(200)

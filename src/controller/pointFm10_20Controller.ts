@@ -64,7 +64,6 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND y.idyear = ${year[0].idyear}
-    GROUP BY f.idfm10_20_coop
     ORDER BY f.updatedAt DESC
     LIMIT ${limit} OFFSET ${offset}`,
         { type: QueryTypes.SELECT },
@@ -89,7 +88,6 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     WHERE (s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%') AND y.idyear = ${idyear}
-    GROUP BY f.idfm10_20_coop
     ORDER BY f.updatedAt DESC
     LIMIT ${limit} OFFSET ${offset}`,
       { type: QueryTypes.SELECT },
@@ -113,7 +111,6 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
     LEFT JOIN company c ON sc.idcompany = c.idcompany
     LEFT JOIN factory fa ON b.idfactory = fa.idfactory
     WHERE s.fname_student LIKE '%${search_name}%' OR s.lname_student LIKE '%${search_name}%' OR c.name_company LIKE '%${search_name}%' OR t.firstname_teacher LIKE '%${search_name}%' OR t.lastname_teacher LIKE '%${search_name}%' OR s.student_id LIKE '%${search_name}%'
-    GROUP BY f.idfm10_20_coop
     ORDER BY f.updatedAt DESC
     LIMIT ${limit} OFFSET ${offset}`,
       { type: QueryTypes.SELECT },
@@ -125,15 +122,15 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
   }
 };
 
-  export const getquestionfm10_20: RequestHandler = async (req, res, next) => {
+export const getquestionfm10_20: RequestHandler = async (req, res, next) => {
     const questionfm10_20 = await Question.findAll({ where: { idform: 4 } });
     return res.status(200).json({
       message: 'questionfm10_20 fetched successfully',
       data: questionfm10_20,
     });
-  };
+};
 
-  export const createFm10_20point: RequestHandler = async (req, res, next) => {
+export const createFm10_20point: RequestHandler = async (req, res, next) => {
     const jsondata = req.body;
     var values: any[] = [];
     var dataStudent = jsondata.fm10_20;
@@ -170,9 +167,9 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
     }
 
     return res.status(200).json({ message: 'Fm10_20point created successfully' });
-  }
+}
 
-  export const createFm10_20coop: RequestHandler = async (req, res, next) => {
+export const createFm10_20coop: RequestHandler = async (req, res, next) => {
     const Allfm10_20 = await Fm10_20_coop.findAll({ where: { idstudent_company: req.body.idstudent_company } });
     if (Allfm10_20.length > 0) {
       return res.status(400).json({ message: 'Fm10_20coop already exists' });
@@ -181,9 +178,9 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
       const fm10_20coop = await Fm10_20_coop.create({ ...req.body });
       return res.status(200).json({ message: 'Fm10_20coop created successfully', data: fm10_20coop });
     }
-  }
+}
 
-  export const updateFm10_20point: RequestHandler = async (req, res, next) => {
+export const updateFm10_20point: RequestHandler = async (req, res, next) => {
     const jsondata = req.body;
     var values: any[] = [];
     var dataStudent = jsondata.fm10_20;
@@ -231,9 +228,9 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
     }
 
     return res.status(200).json({ message: 'Fm10_20point updated successfully' });
-  }
+}
 
-  export const updateFm1_20coop: RequestHandler = async (req, res, next) => {
+export const updateFm1_20coop: RequestHandler = async (req, res, next) => {
     const fm10_20coop = await Fm10_20_coop.findAll({ where: { idfm10_20_coop: req.query.idfm10_20_coop } });
     if (fm10_20coop.length == 0) {
       return res.status(400).json({ message: 'Fm10_20coop not found' });
@@ -242,4 +239,4 @@ export const getFm10_20coop: RequestHandler = async (req: any, res, next) => {
       await Fm10_20_coop.update({ ...req.body }, { where: { idfm10_20_coop: req.query.idfm10_20_coop } });
       return res.status(200).json({ message: 'Fm10_20coop updated successfully' });
     }
-  }
+}

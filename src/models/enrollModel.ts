@@ -45,7 +45,7 @@ export class Enroll extends Model {
     @Column({
         type: DataType.STRING(),
         allowNull: true,
-        defaultValue: '',
+        defaultValue: 'unsatisfied',
     })
     grade!: string;
 

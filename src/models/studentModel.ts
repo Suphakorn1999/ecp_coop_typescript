@@ -102,6 +102,12 @@ export class Student extends Model {
   })
   status!: string;
 
+  @Column({
+    type: DataType.STRING(1),
+    allowNull: true,
+  })
+  access_rights!: string;
+
   @HasMany(() => Student_Company)
   student_companies!: Student_Company[];
 

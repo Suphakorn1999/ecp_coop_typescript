@@ -1,3 +1,5 @@
+import { Activity_Year } from './../models/activity_yearModel';
+import { companyByidteacher } from './companyController';
 import express from 'express';
 import { RequestHandler } from 'express';
 import { Activity_Student } from '../models/activity_studentModel';
@@ -6,7 +8,7 @@ import { Student } from '../models/studentModel';
 import Connection from '../config/config';
 import { QueryTypes } from 'Sequelize';
 import { Year } from '../models/YearModel';
-import { Activity_Year } from '../models/activity_yearModel';
+
 
 export const createActivityStudent: RequestHandler = async (req, res, next:express.NextFunction) => {
   const activity = await Activity_Student.findAll({
@@ -51,7 +53,9 @@ export const getActivityStudent: RequestHandler = async (req: any, res, next) =>
   const search_name = req.query.search ? req.query.search : '';
   const year = await Year.findAll({ where: { status_year: 'yes' } });
   if (year.length > 0 && req.query.idyear == undefined) {
+
     const activity_year = await Activity_Year.findAll({ where: { idyear: year[0].idyear } });
+
     if (activity_year.length > 0) {
       const activity_student: Array<any> = await Connection.query(
         `SELECT s.idstudent,s.student_id,s.prename_student,s.fname_student,s.lname_student,y.term,y.year,
@@ -67,10 +71,25 @@ export const getActivityStudent: RequestHandler = async (req: any, res, next) =>
         limit ${limit} offset ${offset}`,
         { type: QueryTypes.SELECT },
       );
-
+      
       activity_student.forEach((activity_student) => {
         activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
+        if (activity_student.ACTIVITY[0].idactivity == null) {
+          activity_student.ACTIVITY = [];
+        }
       })
+
+      const Allactivities = await Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: Activity_Year, where: { idyear: year[0].idyear } }] });
+
+    activity_student.forEach((activity_student) => {
+      Allactivities.forEach((Allactivities) => {
+        const index = activity_student.ACTIVITY.findIndex((activity:any) => activity.idactivity == Allactivities.idactivity);
+        if (index == -1) {
+          activity_student.ACTIVITY.push({ idactivity: Allactivities.idactivity, name: Allactivities.name_activity, status: '-' });
+        }
+      })
+      activity_student.ACTIVITY.sort((a: any, b: any) => a.idactivity - b.idactivity);
+    })
 
       return res.status(200).json({
         message: 'Activity Student fetched successfully',
@@ -104,6 +123,21 @@ export const getActivityStudent: RequestHandler = async (req: any, res, next) =>
 
       activity_student.forEach((activity_student) => {
         activity_student.ACTIVITY = JSON.parse(activity_student.ACTIVITY);
+        if (activity_student.ACTIVITY[0].idactivity == null) {
+          activity_student.ACTIVITY = [];
+        }
+      })
+
+      const Allactivities = await Activity.findAll({ where: { status: 'active' }, order: [['idactivity', 'ASC']], include: [{ model: Activity_Year, where: { idyear: req.query.idyear } }] });
+
+      activity_student.forEach((activity_student) => {
+        Allactivities.forEach((Allactivities) => {
+          const index = activity_student.ACTIVITY.findIndex((activity: any) => activity.idactivity == Allactivities.idactivity);
+          if (index == -1) {
+            activity_student.ACTIVITY.push({ idactivity: Allactivities.idactivity, name: Allactivities.name_activity, status: '-' });
+          }
+        })
+        activity_student.ACTIVITY.sort((a: any, b: any) => a.idactivity - b.idactivity);
       })
 
       return res.status(200).json({

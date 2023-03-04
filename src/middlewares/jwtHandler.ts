@@ -1,9 +1,10 @@
+import { Teacher } from './../models/teacherModel';
 import { Admin } from './../models/adminModel';
 import { sign, SignOptions, verify } from 'jsonwebtoken';
 import express from 'express';
 import dotenv from 'dotenv';
 import { Student } from '../models/studentModel';
-import { Teacher } from '../models/teacherModel';
+
 dotenv.config();
 const CryptoJS = require('crypto-js');
 
@@ -66,10 +67,16 @@ function verifyTokenAdmin(req: any, res: any, next: express.NextFunction) {
   try {
     const decoded:any = verify(token, secretKey);
     let decrypt = CryptoJS.AES.decrypt(decoded.id,process.env.secretKey,).toString(CryptoJS.enc.Utf8);
+
     const admin = Admin.findAll({
       where: { idadmin: decrypt },
     });
-    if(admin == null){
+
+    const teacher = Teacher.findAll({
+      where: { idteacher: decoded.id, access_rights: '1' },
+    });
+
+    if(admin == null || teacher == null){
       return res.status(401).json({ message: 'Failed to authenticate token.' });
     }else{
       req.body.user = decoded;
@@ -148,5 +155,39 @@ function verifyTokenTeacher(req: any, res: any, next: express.NextFunction) {
   }
 }
 
+async function verifyTokenAccess_rights(req: any, res: any, next: express.NextFunction) {
+  const authHeader: any = req.headers['authorization'];
 
-module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent, verifyTokenTeacher };
+  if (!authHeader) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  if (authHeader.split(' ')[0] != 'Bearer') {
+    return res.status(403).json('Not Bearer');
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided.' });
+  }
+
+  const secretKey: any = process.env.secretKey;
+
+  try {
+    const decoded: any = verify(token, secretKey);
+    let decrypt = CryptoJS.AES.decrypt(decoded.username_teacher, process.env.secretKey,).toString(CryptoJS.enc.Utf8);
+    const teacher = await Teacher.findAll({where: {username_teacher: decrypt}})
+    if (teacher.length > 0){
+      req.body.user = decoded;
+      next();
+    }else{
+      return res.status(401).json({ message: 'Failed to authenticate token.' });
+    }
+  } catch (err) {
+    return res.status(401).json({ message: 'Failed to authenticate token.' });
+  }
+}
+
+
+module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent, verifyTokenTeacher, verifyTokenAccess_rights };

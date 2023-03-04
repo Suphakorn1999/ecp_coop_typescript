@@ -39,7 +39,6 @@ export const getAllYear: RequestHandler = async (req:any, res:any, next) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const Allyears = await Year.findAll({
       order: [
-        ['status_year', 'yes'],
         ['year', 'DESC'],
         ['term', 'DESC'],
       ],
