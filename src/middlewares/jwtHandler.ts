@@ -155,39 +155,7 @@ function verifyTokenTeacher(req: any, res: any, next: express.NextFunction) {
   }
 }
 
-async function verifyTokenAccess_rights(req: any, res: any, next: express.NextFunction) {
-  const authHeader: any = req.headers['authorization'];
-
-  if (!authHeader) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-
-  if (authHeader.split(' ')[0] != 'Bearer') {
-    return res.status(403).json('Not Bearer');
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided.' });
-  }
-
-  const secretKey: any = process.env.secretKey;
-
-  try {
-    const decoded: any = verify(token, secretKey);
-    let decrypt = CryptoJS.AES.decrypt(decoded.username_teacher, process.env.secretKey,).toString(CryptoJS.enc.Utf8);
-    const teacher = await Teacher.findAll({where: {username_teacher: decrypt}})
-    if (teacher.length > 0){
-      req.body.user = decoded;
-      next();
-    }else{
-      return res.status(401).json({ message: 'Failed to authenticate token.' });
-    }
-  } catch (err) {
-    return res.status(401).json({ message: 'Failed to authenticate token.' });
-  }
-}
 
 
-module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent, verifyTokenTeacher, verifyTokenAccess_rights };
+
+module.exports = { generateToken, verifyToken, verifyTokenAdmin, verifyTokenStudent, verifyTokenTeacher };
