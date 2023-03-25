@@ -47,7 +47,7 @@ export const login: RequestHandler = async (req,res,next: express.NextFunction,)
       });
       res.redirect(`https://teacher-ecpcoop.ddns.net/gettoken?token=${token}&auth=${teacher[0].access_rights}`);
     }else{
-      res.redirect(`https://teacher-ecpcoop.ddns.net/login`);
+      res.redirect(`https://teacher-ecpcoop.ddns.net/login`)
     }
   } 
 });
